@@ -1,0 +1,2 @@
+-- Baseline do schema de clinica-api.
+-- As próximas migrations entram como V2__descricao.sql, V3__descricao.sql, e assim por diante.

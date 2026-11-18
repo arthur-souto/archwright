@@ -1,0 +1,49 @@
+style: HEXAGONAL_LAYERED
+
+files:
+  - template: Application.java.mustache
+    target: src/main/java/{{basePackagePath}}/{{applicationClass}}.java
+
+packages:
+  - package: ""
+    description: "Raiz do projeto {{artifactId}}."
+
+  - package: domain
+    description: "Camada de domínio: regras e modelo de negócio. Java puro, sem Spring, JPA nem Lombok."
+  - package: domain.model
+    description: "Modelo de domínio, agrupado por agregado."
+  - forEach: aggregates
+    package: "domain.model.{{aggregate.name}}"
+    description: "Agregado {{aggregate.displayName}}: entidades, value objects e regras do agregado."
+
+  - package: application
+    description: "Camada de aplicação: casos de uso e portas."
+  - package: application.exception
+    description: "Exceções da camada de aplicação."
+  - package: application.port
+    description: "Portas da camada de aplicação."
+  - package: application.port.in
+    description: "Portas de entrada: casos de uso e consultas expostos para os adapters."
+  - package: application.port.out
+    description: "Portas de saída, implementadas pelos adapters de infraestrutura."
+  - package: application.usecase
+    description: "Implementação dos casos de uso."
+
+  - package: infrastructure
+    description: "Camada de infraestrutura: adapters e configuração do Spring."
+  - package: infrastructure.adapter
+    description: "Adapters que ligam a aplicação ao mundo externo."
+  - package: infrastructure.adapter.in
+    description: "Adapters de entrada."
+  - package: infrastructure.adapter.in.web
+    description: "Controllers REST. Falam com as portas de entrada."
+  - package: infrastructure.adapter.out
+    description: "Adapters de saída."
+  - package: infrastructure.adapter.out.persistence
+    description: "Persistência: implementa as portas de saída."
+  - package: infrastructure.adapter.out.persistence.entity
+    description: "Entidades JPA. Só existem neste pacote."
+  - package: infrastructure.adapter.out.persistence.jpa
+    description: "Repositórios Spring Data."
+  - package: infrastructure.config
+    description: "Registro dos casos de uso como beans e demais configurações."

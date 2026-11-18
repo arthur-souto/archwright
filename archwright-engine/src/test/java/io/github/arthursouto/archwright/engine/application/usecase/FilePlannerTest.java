@@ -136,6 +136,44 @@ class FilePlannerTest {
     }
 
     @Test
+    @DisplayName("ENG-PLN-01 #1 estilo em camadas, kit BASIC, docker-compose: plano igual à lista esperada")
+    void plansTheLayeredStyleWithTheBasicKit() throws IOException {
+        FilePlan plan = plan(SpecBuilder.basic().layered("paciente").extras("docker-compose").build());
+
+        assertThat(plan.targets()).containsExactlyElementsOf(expected("layered-basic.txt"));
+    }
+
+    @Test
+    @DisplayName("ENG-PLN-01 #3 estilo em camadas: package-info do agregado e nenhum bootstrap")
+    void plansTheAggregatePackageAndNoBootstrapForTheLayeredStyle() {
+        FilePlan plan = plan(SpecBuilder.basic().layered("paciente").build());
+
+        assertThat(plan.targets()).contains(
+                BASE + "domain/model/paciente/package-info.java",
+                BASE + "PedidoApiApplication.java");
+        assertThat(plan.targets()).noneMatch(target -> target.contains("/bootstrap/"));
+    }
+
+    @Test
+    void addsOnePackageInfoPerAggregateOnTopOfEighteen() {
+        assertThat(packageInfos(plan(SpecBuilder.basic().layered().build()))).hasSize(18);
+        assertThat(packageInfos(plan(SpecBuilder.basic().layered("paciente", "prontuario").build()))).hasSize(20);
+    }
+
+    @Test
+    @DisplayName("ENG-PLN-01 #8 no estilo em camadas cada diretório Java gerado também tem um package-info")
+    void everyJavaDirectoryOfTheLayeredStyleHasExactlyOnePackageInfo() {
+        List<String> targets = plan(SpecBuilder.basic().layered("paciente").build()).targets();
+
+        Map<String, List<String>> byDirectory = targets.stream()
+                .filter(target -> target.endsWith(".java"))
+                .collect(Collectors.groupingBy(target -> target.substring(0, target.lastIndexOf('/')), TreeMap::new, Collectors.toList()));
+
+        assertThat(byDirectory).isNotEmpty().allSatisfy((directory, files) ->
+                assertThat(files.stream().filter(file -> file.endsWith("/package-info.java"))).as(directory).hasSize(1));
+    }
+
+    @Test
     void sortsThePlanByTarget() {
         List<String> targets = plan(SpecBuilder.basic().build()).targets();
 

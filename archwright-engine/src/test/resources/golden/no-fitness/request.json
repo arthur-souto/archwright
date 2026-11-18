@@ -1,0 +1,14 @@
+{
+  "artifactId": "agenda",
+  "groupId": "com.acme",
+  "basePackage": "",
+  "description": "",
+  "architectureStyle": "HEXAGONAL_LAYERED",
+  "modules": [],
+  "bootVersion": "4.1.2",
+  "javaVersion": "25",
+  "kit": "NONE",
+  "dependencies": [],
+  "extras": [],
+  "fitnessFunctions": false
+}

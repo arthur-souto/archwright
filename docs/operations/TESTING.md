@@ -34,7 +34,7 @@ Casos iniciais:
 | `legacy-boot2` | modular, módulo `core` | 2.7 / 8 | `BASIC` + `springdoc` | — | sim |
 | `no-fitness` | camadas | 4.1 / 25 | `NONE` | — | não |
 
-Hoje existem `modular-basic`, `modular-none` (Boot 3.5.16) e `legacy-boot2` (2.7.18). `layered-basic` e `no-fitness` entram com o estilo em camadas (passo 11). O `request.json` usa os mesmos campos do `ProjectRequest`. Os arquivos de `expected/` ficam marcados como `-text` no `.gitattributes`, para o Git nunca converter fim de linha.
+Existem os cinco casos: `modular-basic`, `modular-none` (Boot 3.5.16), `legacy-boot2` (2.7.18), `layered-basic` (agregado `paciente`, 4.1.2) e `no-fitness` (camadas, sem agregados, NONE, 4.1.2). O `request.json` usa os mesmos campos do `ProjectRequest`. Os arquivos de `expected/` ficam marcados como `-text` no `.gitattributes`, para o Git nunca converter fim de linha.
 
 Mudança intencional na saída: rodar `./mvnw -pl archwright-engine test -Dtest=GoldenProjectTest -Dgolden.update=true`, revisar o *diff* dos arquivos esperados no Git e versionar junto com a mudança de template. Diff inesperado em golden é sempre investigado antes de atualizar.
 

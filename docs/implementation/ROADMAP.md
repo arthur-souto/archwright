@@ -28,7 +28,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 8. [x] **Exportadores ZIP e pasta** ([ENG-EXP](../architecture/ARCHITECTURE.md#etapa-6--exportar-eng-exp)).
 9. [x] **Casos de uso** e fábrica `ArchwrightEngine` ([ENG-UC](../architecture/ARCHITECTURE.md#casos-de-uso-eng-uc), [ENGINE_API](../contracts/ENGINE_API.md)) + `EngineEndToEndTest`.
 10. [x] **Templates das fitness functions** e seleção ([ENG-PLN-02](../architecture/ARCHITECTURE.md#etapa-4--planejar-arquivos-eng-pln), [catálogo](../contracts/GENERATED_PROJECT.md#fitness-functions)).
-11. [ ] **Estilo `hexagonal-layered`** (portando o Liva) + golden.
+11. [x] **Estilo `hexagonal-layered`** (portando o Liva) + golden.
 12. [ ] **Matriz de compilação** no CI ([TESTING](../operations/TESTING.md#matriz-de-compilação)) e remoção dos ⚠️ dos perfis.
 
 **Pronto quando:** todos os testes `ENG-*` passam; golden dos dois estilos estável; a matriz de compilação gera e roda `./mvnw verify` com sucesso em todas as combinações (linha do Boot × estilo × kit) com fitness functions ligadas (BR-044).

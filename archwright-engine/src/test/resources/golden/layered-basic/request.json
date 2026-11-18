@@ -1,0 +1,14 @@
+{
+  "artifactId": "clinica-api",
+  "groupId": "com.acme",
+  "basePackage": "",
+  "description": "API da clínica",
+  "architectureStyle": "HEXAGONAL_LAYERED",
+  "modules": ["paciente"],
+  "bootVersion": "4.1.2",
+  "javaVersion": "25",
+  "kit": "BASIC",
+  "dependencies": ["web", "validation", "actuator", "jpa", "flyway", "lombok"],
+  "extras": ["docker-compose"],
+  "fitnessFunctions": true
+}

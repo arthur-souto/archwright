@@ -357,7 +357,7 @@ O contexto é imutável e aceita consulta por caminho (`find("boot.version")`, `
 ---
 
 ## Etapa 4 — Planejar arquivos (`ENG-PLN`)
-**Status:** ✅ ENG-PLN-01 implementado para `HEXAGONAL_MODULAR` (`FilePlanner`, `ClasspathTemplateRepository`, `MustacheTemplateRenderer`); a linha #3 (estilo em camadas) entra no passo 11. ENG-PLN-02 (fitness functions) implementado no `FilePlanner`, a partir de `fitness.classes` do contexto. Base: [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), aceito.
+**Status:** ✅ ENG-PLN-01 implementado para `HEXAGONAL_MODULAR` e `HEXAGONAL_LAYERED` (`FilePlanner`, `ClasspathTemplateRepository`, `MustacheTemplateRenderer`). ENG-PLN-02 (fitness functions) implementado no `FilePlanner`, a partir de `fitness.classes` do contexto. Base: [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), aceito.
 Regras: [BR-035](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-040 a BR-043](../domain/BUSINESS_RULES.md#fitness-functions), [BR-052](../domain/BUSINESS_RULES.md#geração), [BR-054](../domain/BUSINESS_RULES.md#geração), [BR-055](../domain/BUSINESS_RULES.md#geração).
 
 Lê o `manifest.yaml` do estilo e o `common`, avalia as condições (`when`) contra o contexto, expande as entradas repetidas por módulo (`forEach`) e acrescenta as classes de fitness functions escolhidas. O resultado é uma lista **ordenada por caminho de destino** de `PlannedFile(template, target, executable, lineEnding, render, variables)`. Não lê o conteúdo dos templates.
@@ -398,7 +398,7 @@ Portas: `TemplateRepository` (`manifest(directory)`, `content(path)`) e `Templat
 ---
 
 ## Etapa 5 — Renderizar (`ENG-RND`)
-**Status:** ✅ implementado para o estilo modular (`ProjectRenderer`, `GeneratedProject`, `GeneratedFile`); o golden do estilo em camadas entra com ele, no passo 11.
+**Status:** ✅ implementado para os dois estilos (`ProjectRenderer`, `GeneratedProject`, `GeneratedFile`), com golden dos dois.
 Regras: [BR-050](../domain/BUSINESS_RULES.md#geração), [BR-051](../domain/BUSINESS_RULES.md#geração), [BR-053](../domain/BUSINESS_RULES.md#geração).
 
 Aplica o Mustache a cada `PlannedFile` e devolve um `GeneratedProject` em memória. Arquivos com `render: false` são copiados sem Mustache. Todo arquivo é tratado como texto UTF-8 e tem o fim de linha normalizado: `LF`, ou `CRLF` quando o plano pede (`\r\n` e `\r` isolado do template viram `\n` antes). Arquivos binários (ex.: futuras imagens) ainda não existem e exigirão um marcador próprio no manifest. Um erro de renderização cita o template e o destino. As `variables` do `PlannedFile` (ex.: `package`, `description`) sobrepõem o contexto. Nada é gravado em disco nesta etapa.
@@ -418,7 +418,7 @@ Aplica o Mustache a cada `PlannedFile` e devolve um `GeneratedProject` em memór
 | 4 | template usa `{{naoExiste}}` | renderizar | `IllegalStateException` citando arquivo e variável |
 | 5 | pedido de referência (golden) | renderizar | igual, byte a byte, ao projeto esperado em `src/test/resources/golden/` |
 
-**Pronto quando:** `ProjectRendererTest` cobre #1 a #4; `GoldenProjectTest` cobre #5 para cada estilo (por ora `modular-basic`, `modular-none` e `legacy-boot2`; os casos em camadas entram no passo 11). Os três projetos de referência também foram compilados com `./mvnw verify`, pelo wrapper gerado, em Boot 4.1/Java 25, 3.5/Java 21 e 2.7/Java 8: verificação manual, até a [matriz de compilação](../operations/TESTING.md#matriz-de-compilação) automatizar o BR-044 (passo 12).
+**Pronto quando:** `ProjectRendererTest` cobre #1 a #4; `GoldenProjectTest` cobre #5 para cada estilo (`modular-basic`, `modular-none`, `legacy-boot2`, `layered-basic` e `no-fitness`). Os projetos de referência também foram compilados com `./mvnw verify`, pelo wrapper gerado, em Boot 4.1/Java 25, 3.5/Java 21 e 2.7/Java 8: verificação manual, até a [matriz de compilação](../operations/TESTING.md#matriz-de-compilação) automatizar o BR-044 (passo 12).
 
 ---
 

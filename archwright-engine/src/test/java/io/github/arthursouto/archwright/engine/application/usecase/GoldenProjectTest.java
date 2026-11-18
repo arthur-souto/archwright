@@ -49,7 +49,7 @@ class GoldenProjectTest {
     private final ProjectRenderer projectRenderer = new ProjectRenderer(repository, renderer);
 
     @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"modular-basic", "modular-none", "legacy-boot2"})
+    @ValueSource(strings = {"modular-basic", "modular-none", "legacy-boot2", "layered-basic", "no-fitness"})
     @DisplayName("ENG-RND-01 #5 o projeto gerado é igual, byte a byte, ao projeto esperado")
     void generatesExactlyTheExpectedProject(String name) throws IOException {
         GeneratedProject project = generate(readRequest(name));

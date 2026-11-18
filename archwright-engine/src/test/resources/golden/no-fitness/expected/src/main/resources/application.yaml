@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: agenda
+
+server:
+  port: ${SERVER_PORT:8080}

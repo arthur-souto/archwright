@@ -55,6 +55,21 @@ class TemplateRenderingSmokeTest {
     }
 
     @Test
+    void rendersEveryPlannedFileOfALayeredProject() {
+        Map<String, String> files = renderAll(SpecBuilder.basic().layered("paciente", "pedido_item").extras("docker-compose").build());
+
+        assertThat(files).containsKeys(
+                "src/main/java/com/acme/pedidoapi/PedidoApiApplication.java",
+                "src/main/java/com/acme/pedidoapi/domain/model/pedido_item/package-info.java",
+                "src/test/java/com/acme/pedidoapi/architecture/AdaptersTest.java");
+        assertThat(files.get("src/test/java/com/acme/pedidoapi/architecture/HexagonalLayersTest.java"))
+                .contains("..infrastructure..")
+                .doesNotContain("..adapter..");
+        assertThat(files.get("src/main/java/com/acme/pedidoapi/PedidoApiApplication.java")).doesNotContain("scanBasePackages");
+        assertThat(files.values()).allSatisfy(content -> assertThat(content).doesNotContain("{{"));
+    }
+
+    @Test
     void rendersEveryPlannedFileOfALegacyBootTwoProject() {
         Map<String, String> files = renderAll(SpecBuilder.basic().boot("2.7.18", "8").build());
 
