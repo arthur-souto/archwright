@@ -146,7 +146,7 @@ Lê os YAML do classpath uma vez, valida a consistência entre eles e entrega ob
 
 Também verificados: arquivo ausente, vazio ou malformado, chave YAML duplicada, `line` sem aspas (YAML leria `3.10` como número), campo obrigatório ausente (cita a entrada), id duplicado, `implies` e `requires` com dependência inexistente, estilo desconhecido ou ausente. Os perfis saem ordenados pela linha, numericamente.
 
-**Pronto quando:** `CatalogConsistencyTest` (catálogos quebrados num diretório temporário, lidos pelo classpath), `OfficialCatalogTest` (#1) e `CatalogVerifierTest` (#2) cobrem #1 a #4, #6 e #7. O `boot-profiles.yaml` já traz as coordenadas Maven, mas só as chaves de `artifacts` são lidas até o [ENG-BPR](#etapa-2--resolver-o-bootprofile-eng-bpr); os valores ⚠️ continuam pendentes da matriz de compilação.
+**Pronto quando:** `CatalogConsistencyTest` (catálogos quebrados num diretório temporário, lidos pelo classpath), `OfficialCatalogTest` (#1) e `CatalogVerifierTest` (#2) cobrem #1 a #4, #6 e #7. O `boot-profiles.yaml` já traz as coordenadas Maven, mas só as chaves de `artifacts` são lidas até o [ENG-BPR](#etapa-2--resolver-o-bootprofile-eng-bpr); os valores foram confirmados pela matriz de compilação.
 
 ---
 
@@ -291,21 +291,21 @@ Toda diferença entre gerações do Spring Boot mora aqui, em dados (`boot-profi
 | `pinnedVersions` | `Map<String, String>` | propriedades do `pom.xml` (ex.: `springdoc.version`, `archunit.version`) |
 
 ### Perfis de versão iniciais
-Valores de partida para o `boot-profiles.yaml`. Os marcados com ⚠️ precisam ser confirmados pela [matriz de compilação](../operations/TESTING.md#matriz-de-compilação) antes da primeira release.
+Valores do `boot-profiles.yaml`, confirmados pela [matriz de compilação](../operations/TESTING.md#matriz-de-compilação) (53 jobs verdes no GitHub em 2026-11-18: todas as linhas, os dois estilos, os dois kits, Java 8, 21 a 25, com `springdoc` e `security` nos casos `BASIC`).
 
 | Linha | Java mín. | Java máx. testado | Namespace | Web | Flyway | `flyway-database-postgresql` | Testes | SpringDoc |
 |---|---|---|---|---|---|---|---|---|
-| 2.7 (legacy) | 8 | 21 ⚠️ | `javax` | `spring-boot-starter-web` | `flyway-core` | não | starter único | `springdoc-openapi-ui` 1.8.0 |
-| 3.0 | 17 | 21 ⚠️ | `jakarta` | `spring-boot-starter-web` | `flyway-core` | não | starter único | 2.1.0 ⚠️ |
-| 3.1 | 17 | 21 ⚠️ | `jakarta` | `spring-boot-starter-web` | `flyway-core` | não | starter único | 2.2.0 ⚠️ |
-| 3.2 | 17 | 21 ⚠️ | `jakarta` | `spring-boot-starter-web` | `flyway-core` | não | starter único | 2.5.0 ⚠️ |
-| 3.3 | 17 | 22 ⚠️ | `jakarta` | `spring-boot-starter-web` | `flyway-core` | sim | starter único | 2.6.0 ⚠️ |
-| 3.4 | 17 | 23 ⚠️ | `jakarta` | `spring-boot-starter-web` | `flyway-core` | sim | starter único | 2.8.x ⚠️ |
-| 3.5 | 17 | 24 ⚠️ | `jakarta` | `spring-boot-starter-web` | `flyway-core` | sim | starter único | 2.8.x ⚠️ |
-| 4.0 | 17 | 25 ⚠️ | `jakarta` | `spring-boot-starter-webmvc` | `spring-boot-starter-flyway` | sim | por tecnologia | 3.0.x ⚠️ |
+| 2.7 (legacy) | 8 | 21 | `javax` | `spring-boot-starter-web` | `flyway-core` | não | starter único | `springdoc-openapi-ui` 1.8.0 |
+| 3.0 | 17 | 21 | `jakarta` | `spring-boot-starter-web` | `flyway-core` | não | starter único | 2.1.0 |
+| 3.1 | 17 | 21 | `jakarta` | `spring-boot-starter-web` | `flyway-core` | não | starter único | 2.2.0 |
+| 3.2 | 17 | 21 | `jakarta` | `spring-boot-starter-web` | `flyway-core` | não | starter único | 2.5.0 |
+| 3.3 | 17 | 22 | `jakarta` | `spring-boot-starter-web` | `flyway-core` | sim | starter único | 2.6.0 |
+| 3.4 | 17 | 23 | `jakarta` | `spring-boot-starter-web` | `flyway-core` | sim | starter único | 2.8.x |
+| 3.5 | 17 | 24 | `jakarta` | `spring-boot-starter-web` | `flyway-core` | sim | starter único | 2.8.x |
+| 4.0 | 17 | 25 | `jakarta` | `spring-boot-starter-webmvc` | `spring-boot-starter-flyway` | sim | por tecnologia | 3.0.x |
 | 4.1 | 17 | 25 | `jakarta` | `spring-boot-starter-webmvc` | `spring-boot-starter-flyway` | sim | por tecnologia | 3.2.0 |
 
-A linha 4.1 com Java 25 é a combinação usada pelo Hexbank e pelo Liva, por isso não tem ⚠️. ArchUnit: `1.5.1` em todas as linhas (versão mais recente estável; ⚠️ confirmar suporte a Java acima de 25).
+A linha 4.1 com Java 25 é a combinação usada pelo Hexbank e pelo Liva, por isso não tem. ArchUnit: `1.5.1` em todas as linhas (versão mais recente estável; verificada até o Java 25, o maior que a matriz exercita).
 
 #### ENG-BPR-01 — Perfil por versão
 | # | Dado | Quando | Então |
@@ -322,7 +322,7 @@ A linha 4.1 com Java 25 é a combinação usada pelo Hexbank e pelo Liva, por is
 
 Invariantes do `BootProfile` (verificadas ao carregar, citando a linha): `javaMin <= javaMaxTested`; `testArtifacts` só para dependência com `artifacts`; toda `${propriedade}` usada como versão existe em `pinnedVersions`. A disponibilidade de uma dependência é a presença em `artifacts` (`isAvailable`).
 
-**Pronto quando:** `ProfileResolverTest` cobre #1 a #9 com o catálogo oficial; `BootProfileTest` e `OfficialCatalogTest` cobrem as invariantes e os dados dos 9 perfis. Os artefatos de teste de `security` no Boot 4.x (`spring-boot-starter-security-test`) ainda são ⚠️ até a matriz de compilação.
+**Pronto quando:** `ProfileResolverTest` cobre #1 a #9 com o catálogo oficial; `BootProfileTest` e `OfficialCatalogTest` cobrem as invariantes e os dados dos 9 perfis. Os artefatos de teste de `security` no Boot 4.x (`spring-boot-starter-security-test`) ainda são até a matriz de compilação.
 
 ---
 

@@ -48,7 +48,7 @@ Job de CI separado (`generated-projects.yml`) que garante o BR-044:
 
 Quando roda: em todo PR que altere `catalog/`, `templates/` ou `fitness/`, e toda noite na `main`. Falha na matriz bloqueia o merge.
 
-Os valores marcados com ⚠️ nos [perfis iniciais](../architecture/ARCHITECTURE.md#perfis-de-versão-iniciais) só perdem a marcação depois de passar por aqui.
+Os valores dos [perfis](../architecture/ARCHITECTURE.md#perfis-de-versão-iniciais) só ficam sem marcação de pendência depois de passar por aqui; a primeira rodada completa no GitHub (53 jobs) passou em 2026-11-18, depois de reexecutar dois jobs que falharam por rede (download do Maven e do parent POM).
 
 Localmente: `./mvnw -pl archwright-engine test -Dtest=CompilationMatrixTest -Dmatrix.output=/tmp/matrix` gera os casos; cada um tem `matrix-app/` pronto para `./mvnw verify`. O `CompilationMatrixTest` também roda no `./mvnw verify` normal (sem `matrix.output`) e confere a cobertura e que todo caso gera com sucesso.
 
