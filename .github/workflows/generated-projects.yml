@@ -30,6 +30,7 @@ jobs:
         with:
           name: generated-projects
           path: ${{ runner.temp }}/matrix
+          include-hidden-files: true
           retention-days: 3
 
   verify:
