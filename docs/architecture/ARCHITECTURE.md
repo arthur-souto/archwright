@@ -263,7 +263,7 @@ Transforma o `ProjectDraft` (strings cruas, com nulos já normalizados) num `Pro
 ---
 
 ## Etapa 2 — Resolver o `BootProfile` (`ENG-BPR`)
-**Status:** ⏳ a implementar.
+**Status:** ✅ implementado (`ProfileResolver`, `BootProfile`, `TestStrategy`).
 Regras: [BR-020](../domain/BUSINESS_RULES.md#versões), [BR-030](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-041](../domain/BUSINESS_RULES.md#fitness-functions).
 
 Toda diferença entre gerações do Spring Boot mora aqui, em dados (`boot-profiles.yaml`), e nunca nos templates. O `BootProfile` responde: qual o Java mínimo e o máximo testado, se usa `javax` ou `jakarta`, qual artefato Maven corresponde a cada dependência do catálogo, quais starters de teste usar e quais versões fixar fora do BOM do Spring Boot.
@@ -277,7 +277,8 @@ Toda diferença entre gerações do Spring Boot mora aqui, em dados (`boot-profi
 | `legacy` | `boolean` | gera aviso `LEGACY_BOOT_LINE` |
 | `persistenceNamespace` | `javax` \| `jakarta` | usado pelas fitness functions de persistência |
 | `artifacts` | `Map<DependencyId, List<MavenCoordinate>>` | dependência → artefatos (com escopo e versão quando não gerenciada pelo Boot) |
-| `testArtifacts` | `TestStrategy` | `SINGLE_STARTER` (2.x/3.x) ou `PER_TECHNOLOGY` (4.x) |
+| `testStrategy` | `TestStrategy` | `SINGLE_STARTER` (2.x/3.x): `spring-boot-starter-test` mais os `testArtifacts` das dependências escolhidas. `PER_TECHNOLOGY` (4.x): só os `testArtifacts` das dependências escolhidas, ou `spring-boot-starter-test` se nenhuma tiver |
+| `testArtifacts` | `Map<DependencyId, List<MavenCoordinate>>` | opcional; só para dependências que têm `artifacts` no mesmo perfil |
 | `pinnedVersions` | `Map<String, String>` | propriedades do `pom.xml` (ex.: `springdoc.version`, `archunit.version`) |
 
 ### Perfis de versão iniciais
@@ -310,7 +311,9 @@ A linha 4.1 com Java 25 é a combinação usada pelo Hexbank e pelo Liva, por is
 | 8 | Boot `3.5.3`, `security` | resolver testes | `spring-boot-starter-test` + `spring-security-test` |
 | 9 | Boot `2.7.18`, `springdoc` | resolver artefatos | `org.springdoc:springdoc-openapi-ui:${springdoc.version}`, propriedade `1.8.0` |
 
-**Pronto quando:** `ProfileResolverTest` cobre #1 a #9 com o catálogo oficial.
+Invariantes do `BootProfile` (verificadas ao carregar, citando a linha): `javaMin <= javaMaxTested`; `testArtifacts` só para dependência com `artifacts`; toda `${propriedade}` usada como versão existe em `pinnedVersions`. A disponibilidade de uma dependência é a presença em `artifacts` (`isAvailable`).
+
+**Pronto quando:** `ProfileResolverTest` cobre #1 a #9 com o catálogo oficial; `BootProfileTest` e `OfficialCatalogTest` cobrem as invariantes e os dados dos 9 perfis. Os artefatos de teste de `security` no Boot 4.x (`spring-boot-starter-security-test`) ainda são ⚠️ até a matriz de compilação.
 
 ---
 

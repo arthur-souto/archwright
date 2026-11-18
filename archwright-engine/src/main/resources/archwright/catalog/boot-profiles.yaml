@@ -2,6 +2,8 @@
   javaMin: 17
   javaMaxTested: 25
   legacy: false
+  persistenceNamespace: jakarta
+  tests: PER_TECHNOLOGY
   pinnedVersions:
     springdoc.version: 3.2.0
     archunit.version: 1.5.1
@@ -16,11 +18,17 @@
                  { g: org.flywaydb, a: flyway-database-postgresql }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-webmvc-test }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa-test }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security-test }]
 
 - line: "4.0"
   javaMin: 17
   javaMaxTested: 25
   legacy: false
+  persistenceNamespace: jakarta
+  tests: PER_TECHNOLOGY
   pinnedVersions:
     springdoc.version: 3.0.3
     archunit.version: 1.5.1
@@ -35,11 +43,17 @@
                  { g: org.flywaydb, a: flyway-database-postgresql }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-webmvc-test }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa-test }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security-test }]
 
 - line: "3.5"
   javaMin: 17
   javaMaxTested: 24
   legacy: false
+  persistenceNamespace: jakarta
+  tests: SINGLE_STARTER
   pinnedVersions:
     springdoc.version: 2.8.17
     archunit.version: 1.5.1
@@ -54,11 +68,15 @@
                  { g: org.flywaydb, a: flyway-database-postgresql }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    security:   [{ g: org.springframework.security, a: spring-security-test }]
 
 - line: "3.4"
   javaMin: 17
   javaMaxTested: 23
   legacy: false
+  persistenceNamespace: jakarta
+  tests: SINGLE_STARTER
   pinnedVersions:
     springdoc.version: 2.8.17
     archunit.version: 1.5.1
@@ -73,11 +91,15 @@
                  { g: org.flywaydb, a: flyway-database-postgresql }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    security:   [{ g: org.springframework.security, a: spring-security-test }]
 
 - line: "3.3"
   javaMin: 17
   javaMaxTested: 22
   legacy: false
+  persistenceNamespace: jakarta
+  tests: SINGLE_STARTER
   pinnedVersions:
     springdoc.version: 2.6.0
     archunit.version: 1.5.1
@@ -92,11 +114,15 @@
                  { g: org.flywaydb, a: flyway-database-postgresql }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    security:   [{ g: org.springframework.security, a: spring-security-test }]
 
 - line: "3.2"
   javaMin: 17
   javaMaxTested: 21
   legacy: false
+  persistenceNamespace: jakarta
+  tests: SINGLE_STARTER
   pinnedVersions:
     springdoc.version: 2.5.0
     archunit.version: 1.5.1
@@ -110,11 +136,15 @@
     flyway:     [{ g: org.flywaydb, a: flyway-core }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    security:   [{ g: org.springframework.security, a: spring-security-test }]
 
 - line: "3.1"
   javaMin: 17
   javaMaxTested: 21
   legacy: false
+  persistenceNamespace: jakarta
+  tests: SINGLE_STARTER
   pinnedVersions:
     springdoc.version: 2.2.0
     archunit.version: 1.5.1
@@ -128,11 +158,15 @@
     flyway:     [{ g: org.flywaydb, a: flyway-core }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    security:   [{ g: org.springframework.security, a: spring-security-test }]
 
 - line: "3.0"
   javaMin: 17
   javaMaxTested: 21
   legacy: false
+  persistenceNamespace: jakarta
+  tests: SINGLE_STARTER
   pinnedVersions:
     springdoc.version: 2.1.0
     archunit.version: 1.5.1
@@ -146,11 +180,15 @@
     flyway:     [{ g: org.flywaydb, a: flyway-core }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    security:   [{ g: org.springframework.security, a: spring-security-test }]
 
 - line: "2.7"
   javaMin: 8
   javaMaxTested: 21
   legacy: true
+  persistenceNamespace: javax
+  tests: SINGLE_STARTER
   pinnedVersions:
     springdoc.version: 1.8.0
     archunit.version: 1.5.1
@@ -164,3 +202,5 @@
     flyway:     [{ g: org.flywaydb, a: flyway-core }]
     lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-ui, v: "${springdoc.version}" }]
+  testArtifacts:
+    security:   [{ g: org.springframework.security, a: spring-security-test }]

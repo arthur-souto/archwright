@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -13,8 +12,8 @@ class CatalogTest {
 
     private static final DependencyId WEB = new DependencyId("web");
 
-    private final BootProfile profile35 = new BootProfile("3.5", 17, 24, false, Set.of(WEB));
-    private final BootProfile profile41 = new BootProfile("4.1", 17, 25, false, Set.of(WEB));
+    private final BootProfile profile35 = TestProfiles.simple("3.5", 17, 24, false, "web");
+    private final BootProfile profile41 = TestProfiles.simple("4.1", 17, 25, false, "web");
     private final DependencyDefinition web = new DependencyDefinition(WEB, List.of());
     private final ExtraDefinition dockerCompose = new ExtraDefinition(new ExtraId("docker-compose"), List.of());
 

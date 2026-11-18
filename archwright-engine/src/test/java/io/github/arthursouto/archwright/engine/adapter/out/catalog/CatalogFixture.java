@@ -5,8 +5,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 final class CatalogFixture {
 
@@ -36,13 +38,7 @@ final class CatalogFixture {
                           templateDir: hexagonal-layered
                           modulesLabel: Agregados
                         """)
-                .with(PROFILES, """
-                        - line: "3.5"
-                          javaMin: 17
-                          javaMaxTested: 24
-                          artifacts:
-                            web: [{ g: org.springframework.boot, a: spring-boot-starter-web }]
-                        """)
+                .with(PROFILES, profile("3.5", 17, 24, false, "web"))
                 .with(DEPENDENCIES, """
                         - id: web
                           label: Web
@@ -51,6 +47,22 @@ final class CatalogFixture {
                         - id: github-actions
                           requires: []
                         """);
+    }
+
+    static String profile(String line, int javaMin, int javaMaxTested, boolean legacy, String... artifactKeys) {
+        String artifacts = Arrays.stream(artifactKeys)
+                .map(key -> "    " + key + ": []\n")
+                .collect(Collectors.joining());
+
+        return """
+                - line: "%s"
+                  javaMin: %d
+                  javaMaxTested: %d
+                  legacy: %b
+                  persistenceNamespace: jakarta
+                  tests: SINGLE_STARTER
+                  artifacts:
+                %s""".formatted(line, javaMin, javaMaxTested, legacy, artifacts);
     }
 
     CatalogFixture with(String file, String content) {

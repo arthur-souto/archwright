@@ -3,13 +3,16 @@ package io.github.arthursouto.archwright.engine.adapter.out.catalog;
 import io.github.arthursouto.archwright.engine.domain.model.BootProfile;
 import io.github.arthursouto.archwright.engine.domain.model.BootVersion;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
+import io.github.arthursouto.archwright.engine.domain.model.MavenCoordinate;
+import io.github.arthursouto.archwright.engine.domain.model.PersistenceNamespace;
+import io.github.arthursouto.archwright.engine.domain.model.TestStrategy;
 
 import java.util.Comparator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 final class BootProfileParser {
 
@@ -41,21 +44,50 @@ final class BootProfileParser {
                     row.integer("javaMin"),
                     row.integer("javaMaxTested"),
                     row.flag("legacy"),
-                    availableDependencies(row));
+                    persistenceNamespace(row),
+                    testStrategy(row),
+                    coordinates(row, "artifacts"),
+                    row.has("testArtifacts") ? coordinates(row, "testArtifacts") : Map.of(),
+                    row.textMap("pinnedVersions"));
         } catch (IllegalArgumentException exception) {
             throw CatalogChecks.problem(FILE, exception.getMessage());
         }
     }
 
-    private Set<DependencyId> availableDependencies(YamlRow row) {
-        return row.keysOf("artifacts").stream()
-                .map(key -> DependencyId.parse(key)
-                        .orElseThrow(() -> row.problem("invalid dependency id '" + key + "' in artifacts")))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+    private PersistenceNamespace persistenceNamespace(YamlRow row) {
+        String raw = row.text("persistenceNamespace");
+
+        return PersistenceNamespace.parse(raw)
+                .orElseThrow(() -> row.problem("'persistenceNamespace' must be javax or jakarta, found '" + raw + "'"));
+    }
+
+    private TestStrategy testStrategy(YamlRow row) {
+        String raw = row.text("tests");
+
+        return TestStrategy.parse(raw)
+                .orElseThrow(() -> row.problem("'tests' must be SINGLE_STARTER or PER_TECHNOLOGY, found '" + raw + "'"));
+    }
+
+    private Map<DependencyId, List<MavenCoordinate>> coordinates(YamlRow row, String key) {
+        Map<DependencyId, List<MavenCoordinate>> coordinates = new LinkedHashMap<>();
+
+        row.groupedRows(key).forEach((name, entries) ->
+                coordinates.put(dependencyId(row, key, name), entries.stream().map(this::coordinate).toList()));
+
+        return coordinates;
+    }
+
+    private DependencyId dependencyId(YamlRow row, String key, String name) {
+        return DependencyId.parse(name)
+                .orElseThrow(() -> row.problem("invalid dependency id '" + name + "' in " + key));
+    }
+
+    private MavenCoordinate coordinate(YamlRow entry) {
+        return new MavenCoordinate(entry.text("g"), entry.text("a"), entry.optionalText("v"), entry.optionalText("scope"));
     }
 
     private static BootVersion version(BootProfile profile) {
-        var matcher = LINE.matcher(profile.line());
+        Matcher matcher = LINE.matcher(profile.line());
         matcher.matches();
 
         return new BootVersion(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), 0);

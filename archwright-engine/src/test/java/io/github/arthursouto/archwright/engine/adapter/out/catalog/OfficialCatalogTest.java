@@ -8,6 +8,8 @@ import io.github.arthursouto.archwright.engine.domain.model.DependencyDefinition
 import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraId;
+import io.github.arthursouto.archwright.engine.domain.model.PersistenceNamespace;
+import io.github.arthursouto.archwright.engine.domain.model.TestStrategy;
 import io.github.arthursouto.archwright.engine.domain.style.ArchitectureStyles;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -102,6 +104,35 @@ class OfficialCatalogTest {
         Set<String> ids = repository.dependencies().stream().map(definition -> definition.id().value()).collect(Collectors.toSet());
 
         assertThat(ids).contains("web", "validation", "actuator", "jpa", "flyway", "lombok");
+    }
+
+    @Test
+    void usesJavaxNamespaceOnlyOnTheLegacyLine() {
+        assertThat(repository.bootProfiles())
+                .filteredOn(profile -> profile.persistenceNamespace() == PersistenceNamespace.JAVAX)
+                .extracting(BootProfile::line)
+                .containsExactly("2.7");
+    }
+
+    @Test
+    void usesPerTechnologyTestStartersOnlyFromBootFour() {
+        assertThat(repository.bootProfiles())
+                .filteredOn(profile -> profile.testStrategy() == TestStrategy.PER_TECHNOLOGY)
+                .extracting(BootProfile::line)
+                .containsExactly("4.1", "4.0");
+    }
+
+    @Test
+    void pinsSpringdocAndArchunitOnEveryProfile() {
+        assertThat(repository.bootProfiles()).allSatisfy(profile ->
+                assertThat(profile.pinnedVersions()).containsKeys("springdoc.version", "archunit.version"));
+    }
+
+    @Test
+    void givesEveryAvailableDependencyAtLeastOneArtifact() {
+        assertThat(repository.bootProfiles()).allSatisfy(profile ->
+                assertThat(profile.artifacts()).allSatisfy((dependency, coordinates) ->
+                        assertThat(coordinates).as("%s on %s", dependency.value(), profile.line()).isNotEmpty()));
     }
 
     private BootProfile profile(String line) {

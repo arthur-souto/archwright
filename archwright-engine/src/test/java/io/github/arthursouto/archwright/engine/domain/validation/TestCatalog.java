@@ -1,20 +1,19 @@
 package io.github.arthursouto.archwright.engine.domain.validation;
 
-import io.github.arthursouto.archwright.engine.domain.model.BootProfile;
 import io.github.arthursouto.archwright.engine.domain.model.Catalog;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraId;
+import io.github.arthursouto.archwright.engine.domain.model.TestProfiles;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 final class TestCatalog {
 
-    private static final Set<DependencyId> LEGACY_DEPENDENCIES = ids("web", "validation", "actuator", "jpa", "flyway", "lombok");
-    private static final Set<DependencyId> ALL_DEPENDENCIES = ids(
-            "web", "validation", "actuator", "jpa", "flyway", "lombok", "springdoc");
+    private static final String[] LEGACY_DEPENDENCIES = {"web", "validation", "actuator", "jpa", "flyway", "lombok"};
+    private static final String[] ALL_DEPENDENCIES = {"web", "validation", "actuator", "jpa", "flyway", "lombok", "springdoc"};
 
     private TestCatalog() {
     }
@@ -22,10 +21,10 @@ final class TestCatalog {
     static Catalog standard() {
         return new Catalog(
                 List.of(
-                        new BootProfile("4.1", 17, 25, false, ALL_DEPENDENCIES),
-                        new BootProfile("3.5", 17, 24, false, ALL_DEPENDENCIES),
-                        new BootProfile("3.2", 17, 21, false, ALL_DEPENDENCIES),
-                        new BootProfile("2.7", 8, 21, true, LEGACY_DEPENDENCIES)),
+                        TestProfiles.simple("4.1", 17, 25, false, ALL_DEPENDENCIES),
+                        TestProfiles.simple("3.5", 17, 24, false, ALL_DEPENDENCIES),
+                        TestProfiles.simple("3.2", 17, 21, false, ALL_DEPENDENCIES),
+                        TestProfiles.simple("2.7", 8, 21, true, LEGACY_DEPENDENCIES)),
                 List.of(
                         definition("web"),
                         definition("validation"),
@@ -42,10 +41,6 @@ final class TestCatalog {
     private static DependencyDefinition definition(String id, String... implies) {
         return new DependencyDefinition(
                 new DependencyId(id),
-                java.util.Arrays.stream(implies).map(DependencyId::new).toList());
-    }
-
-    private static Set<DependencyId> ids(String... values) {
-        return java.util.Arrays.stream(values).map(DependencyId::new).collect(java.util.stream.Collectors.toSet());
+                Arrays.stream(implies).map(DependencyId::new).toList());
     }
 }
