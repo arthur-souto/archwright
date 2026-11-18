@@ -123,6 +123,11 @@ class CatalogVerifierTest {
         }
 
         @Override
+        public List<io.github.arthursouto.archwright.engine.domain.model.FitnessRuleDefinition> fitnessRules() {
+            return List.of();
+        }
+
+        @Override
         public List<ArchitectureStyleDefinition> styles() {
             return styles;
         }

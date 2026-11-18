@@ -61,4 +61,12 @@ src/main/java/com/acme/pedidoapi/shared/domain/package-info.java
 src/main/java/com/acme/pedidoapi/shared/package-info.java
 src/main/resources/application.yaml
 src/main/resources/db/migration/V1__baseline.sql
+src/test/java/com/acme/pedidoapi/architecture/AdaptersTest.java
+src/test/java/com/acme/pedidoapi/architecture/CodingRulesTest.java
+src/test/java/com/acme/pedidoapi/architecture/DomainPurityTest.java
+src/test/java/com/acme/pedidoapi/architecture/HexagonalLayersTest.java
+src/test/java/com/acme/pedidoapi/architecture/ModuleBoundariesTest.java
+src/test/java/com/acme/pedidoapi/architecture/PersistenceTest.java
+src/test/java/com/acme/pedidoapi/architecture/PortsTest.java
+src/test/java/com/acme/pedidoapi/architecture/package-info.java
 src/test/resources/archunit.properties

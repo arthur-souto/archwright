@@ -115,7 +115,7 @@ Cada etapa abaixo segue o [modelo de especificação](../implementation/SPEC_TEM
 ---
 
 ## Catálogos (`ENG-CAT`)
-**Status:** ✅ implementado para `styles`, `boot-profiles`, `dependencies` e `extras`. Pendente para o passo 10 do roadmap: `fitness-rules.yaml` e a linha #5.
+**Status:** ✅ implementado para `styles`, `boot-profiles`, `dependencies`, `extras` e `fitness-rules`.
 Regras: [BR-020](../domain/BUSINESS_RULES.md#versões), [BR-030](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-031](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-041](../domain/BUSINESS_RULES.md#fitness-functions), [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md). Formato: [TEMPLATE_FORMAT](../contracts/TEMPLATE_FORMAT.md#catálogos).
 
 Lê os YAML do classpath uma vez, valida a consistência entre eles e entrega objetos imutáveis. Estilos e kits têm regras em código ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), item 6); o catálogo só confere que o que elas citam existe nos YAML. Um catálogo inválido é bug do Archwright: falha na inicialização do engine e no build (teste dedicado), nunca na mão do usuário.
@@ -140,7 +140,7 @@ Lê os YAML do classpath uma vez, valida a consistência entre eles e entrega ob
 | 2 | kit (estratégia) referencia dependência `foo` que não existe em `dependencies.yaml` | engine inicia | `IllegalStateException` citando o kit e `foo` |
 | 3 | dois perfis com a mesma linha `3.5` | carregar | exceção citando `boot-profiles.yaml` e `3.5` |
 | 4 | perfil com `artifacts` de uma dependência que não existe em `dependencies.yaml` (a disponibilidade por versão é definida pelas chaves de `artifacts`) | carregar | exceção citando o perfil e a dependência |
-| 5 | regra de fitness function referencia template inexistente | carregar | exceção citando a regra e o caminho (passo 10 do roadmap) |
+| 5 | regra de fitness function referencia template inexistente | engine inicia | exceção citando a classe de teste e o caminho (`FitnessTemplateVerifier`); ids de regra duplicados ou fora do padrão `FF-XXX-NN` falham ao carregar |
 | 6 | perfil com `javaMin` > `javaMaxTested` | carregar | exceção citando a linha |
 | 7 | estilo em `styles.yaml` sem estratégia registrada em `ArchitectureStyles` | engine inicia | `IllegalStateException` citando o estilo (`CatalogVerifier`) |
 
@@ -327,7 +327,7 @@ Invariantes do `BootProfile` (verificadas ao carregar, citando a linha): `javaMi
 ---
 
 ## Etapa 3 — Montar contexto (`ENG-CTX`)
-**Status:** ✅ implementado (`ContextBuilder`, `TemplateContext`), exceto `fitness.rules`, que depende da seleção das regras (passo 10).
+**Status:** ✅ implementado (`ContextBuilder`, `TemplateContext`). `fitness.classes` (classes de teste escolhidas, com o template) e `fitness.rules` (`{id, testClass, description}`) saem da avaliação do `when` de cada regra contra as flags do próprio contexto; vazias com fitness desligada.
 Regras: [BR-004](../domain/BUSINESS_RULES.md#identificação-do-projeto), [BR-005](../domain/BUSINESS_RULES.md#identificação-do-projeto), [BR-050](../domain/BUSINESS_RULES.md#geração), [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md) (decisão no motor, nunca no template).
 
 Junta `ProjectSpec` + `BootProfile` num mapa somente-leitura com tudo que os templates usam, já calculado e escapado. A lista completa de variáveis é contrato: [TEMPLATE_FORMAT — Contexto](../contracts/TEMPLATE_FORMAT.md#contexto-disponível-nos-templates).
@@ -357,7 +357,7 @@ O contexto é imutável e aceita consulta por caminho (`find("boot.version")`, `
 ---
 
 ## Etapa 4 — Planejar arquivos (`ENG-PLN`)
-**Status:** ✅ ENG-PLN-01 implementado para `HEXAGONAL_MODULAR` (`FilePlanner`, `ClasspathTemplateRepository`, `MustacheTemplateRenderer`); a linha #3 (estilo em camadas) entra no passo 11 e o ENG-PLN-02 (fitness functions) no passo 10. Base: [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), aceito.
+**Status:** ✅ ENG-PLN-01 implementado para `HEXAGONAL_MODULAR` (`FilePlanner`, `ClasspathTemplateRepository`, `MustacheTemplateRenderer`); a linha #3 (estilo em camadas) entra no passo 11. ENG-PLN-02 (fitness functions) implementado no `FilePlanner`, a partir de `fitness.classes` do contexto. Base: [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), aceito.
 Regras: [BR-035](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-040 a BR-043](../domain/BUSINESS_RULES.md#fitness-functions), [BR-052](../domain/BUSINESS_RULES.md#geração), [BR-054](../domain/BUSINESS_RULES.md#geração), [BR-055](../domain/BUSINESS_RULES.md#geração).
 
 Lê o `manifest.yaml` do estilo e o `common`, avalia as condições (`when`) contra o contexto, expande as entradas repetidas por módulo (`forEach`) e acrescenta as classes de fitness functions escolhidas. O resultado é uma lista **ordenada por caminho de destino** de `PlannedFile(template, target, executable, lineEnding, render, variables)`. Não lê o conteúdo dos templates.
@@ -393,7 +393,7 @@ Portas: `TemplateRepository` (`manifest(directory)`, `content(path)`) e `Templat
 | 3 | fitness desligada | planejar | nenhuma classe em `architecture/`, sem `archunit.properties`, sem dependência ArchUnit no contexto |
 | 4 | fitness ligada | planejar | `src/test/resources/archunit.properties` presente (BR-043) |
 
-**Pronto quando:** `FilePlannerTest` cobre ENG-PLN-01 e 02, comparando o plano com listas esperadas em arquivo (`src/test/resources/expected-plans/*.txt`, geradas por script a partir do [GENERATED_PROJECT](../contracts/GENERATED_PROJECT.md), não pelo próprio planner). `ClasspathTemplateRepositoryTest` garante que todo `template` citado num manifest existe; `TemplateRenderingSmokeTest` renderiza todos os arquivos planejados (XML e YAML bem formados, nenhuma variável sobrando). O `package-info` de `src/test/.../architecture` (BR-054) será decidido no passo 10, com as classes de fitness.
+**Pronto quando:** `FilePlannerTest` cobre ENG-PLN-01 e 02, comparando o plano com listas esperadas em arquivo (`src/test/resources/expected-plans/*.txt`, geradas por script a partir do [GENERATED_PROJECT](../contracts/GENERATED_PROJECT.md), não pelo próprio planner). `ClasspathTemplateRepositoryTest` garante que todo `template` citado num manifest existe; `TemplateRenderingSmokeTest` renderiza todos os arquivos planejados (XML e YAML bem formados, nenhuma variável sobrando). O pacote `src/test/.../architecture` também recebe `package-info.java` (BR-054), fora da contagem `13 + 19N`, que vale só para `src/main`. Os seis templates ArchUnit foram verificados à mão em projetos gerados (`./mvnw verify`) e com violações plantadas: as 16 regras disparam com o id na mensagem.
 
 ---
 
@@ -486,7 +486,7 @@ Ordem: validar (etapa 1) → se inválido, devolve `Failure` → resolver perfil
 | 4 | pedido válido, pasta já ocupada | gerar | `Failure` com `TARGET_NOT_EMPTY`; nada renderizado |
 
 #### ENG-UC-02 — Pré-visualizar projeto
-**Status:** ✅ implementado (`PreviewProject`). As fitness functions da pré-visualização vêm vazias até o passo 10.
+**Status:** ✅ implementado (`PreviewProject`). As fitness functions vêm de `fitness.rules` do contexto.
 
 Executa as etapas 1 a 4 e devolve a árvore de caminhos, as dependências resolvidas (com coordenadas Maven) e as fitness functions escolhidas, sem renderizar nem gravar. Alimenta o resumo da tela 4 do desktop.
 
@@ -496,7 +496,7 @@ Executa as etapas 1 a 4 e devolve a árvore de caminhos, as dependências resolv
 | 2 | pedido inválido | pré-visualizar | `Failure` com as violações |
 
 #### ENG-UC-03 — Consultar catálogo
-**Status:** ✅ implementado (`BrowseCatalog`). `fitnessRules` devolve lista vazia até o passo 10.
+**Status:** ✅ implementado (`BrowseCatalog`). `fitnessRules(estilo, dependências, boot)` avalia o `when` de cada regra com flags montadas a partir dos argumentos.
 
 Alimenta as telas 1 a 3: estilos, versões do Spring Boot ([ENG-VER](#versões-do-spring-boot-eng-ver)), versões Java válidas para uma versão do Boot (com padrão e marcação LTS), kits, dependências disponíveis para uma versão do Boot e fitness functions aplicáveis.
 

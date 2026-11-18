@@ -56,6 +56,12 @@ Para compilar e testar:
 Os testes de arquitetura ficam em `src/test/java/{{basePackagePath}}/architecture` e rodam no `./mvnw verify`.
 O build quebrar quando alguém viola a arquitetura é intencional: é isso que mantém a estrutura certa ao longo do tempo.
 
+Regras ativas neste projeto:
+
+{{#fitness.rules}}
+- `{{id}}` ({{testClass}}): {{description}}
+{{/fitness.rules}}
+
 - Para aceitar as violações que já existem e barrar só as novas, envolva a regra com `FreezingArchRule.freeze(...)`.
 - Para desligar um grupo de regras, remova a classe de teste correspondente.
 {{/fitness.enabled}}

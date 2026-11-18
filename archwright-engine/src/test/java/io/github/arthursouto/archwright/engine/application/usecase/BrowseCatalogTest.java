@@ -3,6 +3,7 @@ package io.github.arthursouto.archwright.engine.application.usecase;
 import io.github.arthursouto.archwright.engine.application.port.in.ArchitectureStyleOption;
 import io.github.arthursouto.archwright.engine.application.port.in.BootVersions;
 import io.github.arthursouto.archwright.engine.application.port.in.DependencyOption;
+import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
 import io.github.arthursouto.archwright.engine.application.port.in.JavaVersionOption;
 import io.github.arthursouto.archwright.engine.application.port.in.KitOption;
 import io.github.arthursouto.archwright.engine.application.port.in.VersionOrigin;
@@ -130,8 +131,34 @@ class BrowseCatalogTest {
     }
 
     @Test
-    void hasNoFitnessRulesYet() {
-        assertThat(catalog.fitnessRules("HEXAGONAL_MODULAR", List.of(), "4.1.2")).isEmpty();
+    void selectsTheFitnessRulesByStyleAndDependencies() {
+        assertThat(catalog.fitnessRules("HEXAGONAL_MODULAR", List.of(), "4.1.2")).extracting(FitnessRuleSummary::testClass)
+                .doesNotContain("AdaptersTest", "PersistenceTest")
+                .contains("ModuleBoundariesTest", "DomainPurityTest");
+        assertThat(catalog.fitnessRules("HEXAGONAL_LAYERED", List.of("web", "jpa"), "4.1.2")).extracting(FitnessRuleSummary::testClass)
+                .contains("AdaptersTest", "PersistenceTest")
+                .doesNotContain("ModuleBoundariesTest");
+    }
+
+    @Test
+    void describesEachRuleWithIdClassAndDescription() {
+        FitnessRuleSummary first = catalog.fitnessRules("HEXAGONAL_MODULAR", List.of(), "4.1.2").getFirst();
+
+        assertThat(first.id()).isEqualTo("FF-LAY-01");
+        assertThat(first.testClass()).isEqualTo("HexagonalLayersTest");
+        assertThat(first.description()).isNotBlank();
+    }
+
+    @Test
+    void answersNoFitnessRulesForUnknownStyleOrUnsupportedBoot() {
+        assertThat(catalog.fitnessRules("ONION", List.of(), "4.1.2")).isEmpty();
+        assertThat(catalog.fitnessRules(null, List.of(), "4.1.2")).isEmpty();
+        assertThat(catalog.fitnessRules("HEXAGONAL_MODULAR", List.of(), "1.0.0")).isEmpty();
+    }
+
+    @Test
+    void toleratesANullDependencyList() {
+        assertThat(catalog.fitnessRules("HEXAGONAL_MODULAR", null, "4.1.2")).isNotEmpty();
     }
 
     private static final class EmptyCache implements VersionCache {

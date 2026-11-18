@@ -27,6 +27,10 @@ public final class FilePlanner {
     private static final String COMMON_DIRECTORY = "common";
     private static final String PACKAGE_INFO_TEMPLATE = "common/package-info.java.mustache";
     private static final String JAVA_SOURCES = "src/main/java/";
+    private static final String TEST_SOURCES = "src/test/java/";
+    private static final String ARCHITECTURE_PACKAGE_SUFFIX = ".architecture";
+    private static final String ARCHITECTURE_DESCRIPTION =
+            "Fitness functions: testes ArchUnit que garantem a arquitetura a cada build.";
     private static final String NEGATION = "!";
 
     private final TemplateRepository repository;
@@ -41,13 +45,48 @@ public final class FilePlanner {
     }
 
     public FilePlan plan(ProjectSpec spec, TemplateContext context) {
-        List<PlannedFile> planned = Stream.of(COMMON_DIRECTORY, styleDirectory(spec))
-                .flatMap(directory -> planDirectory(directory, context).stream())
+        List<PlannedFile> planned = Stream.concat(
+                        Stream.of(COMMON_DIRECTORY, styleDirectory(spec))
+                                .flatMap(directory -> planDirectory(directory, context).stream()),
+                        planFitness(context).stream())
                 .toList();
 
         requireUniqueTargets(planned);
 
         return new FilePlan(planned.stream().sorted(Comparator.comparing(PlannedFile::target)).toList());
+    }
+
+    private List<PlannedFile> planFitness(TemplateContext context) {
+        List<TemplateContext> classes = context.sections("fitness.classes");
+
+        if (classes.isEmpty()) {
+            return List.of();
+        }
+
+        String architecturePackage = context.text("basePackage") + ARCHITECTURE_PACKAGE_SUFFIX;
+
+        return Stream.concat(
+                        classes.stream().map(entry -> fitnessTest(entry, architecturePackage)),
+                        Stream.of(architecturePackageInfo(architecturePackage)))
+                .toList();
+    }
+
+    private PlannedFile fitnessTest(TemplateContext entry, String architecturePackage) {
+        String template = FitnessTemplateVerifier.TEMPLATE_DIRECTORY + "/" + entry.text("template");
+        String target = validated(testSourceDirectory(architecturePackage) + entry.text("testClass") + ".java");
+
+        return new PlannedFile(template, target, false, LineEnding.LF, true, Map.of());
+    }
+
+    private PlannedFile architecturePackageInfo(String architecturePackage) {
+        String target = validated(testSourceDirectory(architecturePackage) + "package-info.java");
+        Map<String, String> variables = Map.of("package", architecturePackage, "description", ARCHITECTURE_DESCRIPTION);
+
+        return new PlannedFile(PACKAGE_INFO_TEMPLATE, target, false, LineEnding.LF, true, variables);
+    }
+
+    private String testSourceDirectory(String packageName) {
+        return TEST_SOURCES + packageName.replace('.', '/') + "/";
     }
 
     private String styleDirectory(ProjectSpec spec) {
@@ -125,12 +164,11 @@ public final class FilePlanner {
     }
 
     private boolean holds(String directory, String condition, TemplateContext context) {
-        boolean negated = condition.startsWith(NEGATION);
-        String flag = negated ? condition.substring(NEGATION.length()) : condition;
-
         try {
-            return negated != context.flag(flag);
+            return context.satisfies(condition);
         } catch (IllegalArgumentException unknownFlag) {
+            String flag = condition.startsWith(NEGATION) ? condition.substring(NEGATION.length()) : condition;
+
             throw new IllegalStateException(
                     "template: " + directory + "/manifest.yaml: unknown flag '" + flag + "' in when", unknownFlag);
         }

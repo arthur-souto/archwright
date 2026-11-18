@@ -16,6 +16,7 @@ final class CatalogFixture {
     static final String PROFILES = "boot-profiles.yaml";
     static final String DEPENDENCIES = "dependencies.yaml";
     static final String EXTRAS = "extras.yaml";
+    static final String FITNESS = "fitness-rules.yaml";
 
     private static final String BASE_PATH = "archwright/catalog";
 
@@ -46,6 +47,13 @@ final class CatalogFixture {
                 .with(EXTRAS, """
                         - id: github-actions
                           requires: []
+                        """)
+                .with(FITNESS, """
+                        - testClass: DomainPurityTest
+                          template: DomainPurityTest.java.mustache
+                          rules:
+                            - id: FF-DOM-01
+                              description: Domínio puro.
                         """);
     }
 

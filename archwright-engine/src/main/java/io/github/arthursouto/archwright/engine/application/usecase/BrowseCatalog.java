@@ -10,6 +10,7 @@ import io.github.arthursouto.archwright.engine.application.port.in.JavaVersionOp
 import io.github.arthursouto.archwright.engine.application.port.in.KitOption;
 import io.github.arthursouto.archwright.engine.domain.kit.KitStrategy;
 import io.github.arthursouto.archwright.engine.domain.kit.Kits;
+import io.github.arthursouto.archwright.engine.domain.model.ArchitectureStyle;
 import io.github.arthursouto.archwright.engine.domain.model.ArchitectureStyleDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.BootProfile;
 import io.github.arthursouto.archwright.engine.domain.model.BootVersion;
@@ -17,12 +18,16 @@ import io.github.arthursouto.archwright.engine.domain.model.Catalog;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraDefinition;
+import io.github.arthursouto.archwright.engine.domain.model.FitnessRuleDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.JavaVersion;
+import io.github.arthursouto.archwright.engine.domain.model.TemplateContext;
 import io.github.arthursouto.archwright.engine.domain.naming.Names;
 import io.github.arthursouto.archwright.engine.domain.style.ArchitectureStyles;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -84,12 +89,41 @@ public final class BrowseCatalog implements CatalogQuery {
 
     @Override
     public List<FitnessRuleSummary> fitnessRules(String style, List<String> dependencies, String bootVersion) {
-        return List.of();
+        Optional<ArchitectureStyle> parsedStyle = ArchitectureStyle.parse(style == null ? "" : style);
+
+        if (parsedStyle.isEmpty() || profileOf(bootVersion).isEmpty()) {
+            return List.of();
+        }
+
+        TemplateContext flags = selectionFlags(parsedStyle.get(), dependencies == null ? List.of() : dependencies);
+
+        return catalog.fitnessRules().stream()
+                .filter(definition -> definition.appliesTo(flags))
+                .flatMap(definition -> summaries(definition).stream())
+                .toList();
     }
 
     @Override
     public String suggestBasePackage(String groupId, String artifactId) {
         return Names.suggestBasePackage(groupId == null ? "" : groupId, artifactId == null ? "" : artifactId);
+    }
+
+    private TemplateContext selectionFlags(ArchitectureStyle style, List<String> selected) {
+        Map<String, Boolean> dependencyFlags = catalog.dependencies().stream()
+                .collect(Collectors.toMap(definition -> definition.id().value(), definition -> selected.contains(definition.id().value())));
+
+        return new TemplateContext(Map.of(
+                "style", Map.of(
+                        "modular", style == ArchitectureStyle.HEXAGONAL_MODULAR,
+                        "layered", style == ArchitectureStyle.HEXAGONAL_LAYERED),
+                "dep", dependencyFlags,
+                "fitness", Map.of("enabled", true)));
+    }
+
+    private List<FitnessRuleSummary> summaries(FitnessRuleDefinition definition) {
+        return definition.rules().stream()
+                .map(rule -> new FitnessRuleSummary(rule.id(), definition.testClass(), rule.description()))
+                .toList();
     }
 
     private Optional<BootProfile> profileOf(String bootVersion) {

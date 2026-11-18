@@ -100,7 +100,9 @@ Uma classe de teste por grupo, no pacote `<base>.architecture`. Cada regra mostr
 
 Diferenças por versão do Spring Boot: FF-DOM-01 e FF-PER-01 usam `javax.persistence` no 2.7 e `jakarta.persistence` no 3.x e 4.x (`persistence.namespace` do contexto). No Java 8 e 11, *records* não existem, e nenhuma regra os exige.
 
-O README gerado explica como congelar uma regra num projeto existente (`FreezingArchRule.freeze(...)`) e como desligar uma classe inteira (removê-la), deixando claro que o build quebrar por violação de arquitetura é intencional ([ADR-0004](../adr/0004-fitness-functions-por-padrao.md)).
+O pacote `<base>.architecture` em `src/test/java` também tem `package-info.java` (BR-054); ele não entra na contagem de `package-info` de `src/main`. Os templates usam só sintaxe do Java 8, porque o perfil Boot 2.7 aceita Java 8.
+
+O README gerado lista as regras ativas e explica como congelar uma regra num projeto existente (`FreezingArchRule.freeze(...)`) e como desligar uma classe inteira (removê-la), deixando claro que o build quebrar por violação de arquitetura é intencional ([ADR-0004](../adr/0004-fitness-functions-por-padrao.md)).
 
 ## O que **não** é gerado (Fase 1)
 - Classes de negócio de exemplo: use cases, controllers, entidades, DTOs (BR-055).

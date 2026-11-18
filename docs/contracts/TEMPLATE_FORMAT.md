@@ -104,7 +104,8 @@ Montado pela [etapa 3](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-
 | `modules`, `aggregates` | lista de `{name, packageName, packagePath, displayName}` | `packageName` e `packagePath` completos (`com.acme.app.pedidos`, `com/acme/app/pedidos`); `displayName` em PascalCase (`pedido_item` → `PedidoItem`). `modules` só no estilo modular e `aggregates` só no em camadas; a outra lista existe, vazia |
 | `persistence.namespace` | `jakarta` | `javax` no Boot 2.7 |
 | `database.name` | `pedido_api_db` | só com `dep.jpa` (sem `jpa` a variável `database` não existe); até 63 caracteres, o limite do PostgreSQL |
-| `fitness.rules` | lista de `{id, description}` | para o README; preenchida pela seleção das regras (passo 10), não pela etapa 3 |
+| `fitness.rules` | lista de `{id, testClass, description}` | regras selecionadas, para o README e a pré-visualização; vazia com fitness desligada |
+| `fitness.classes` | lista de `{testClass, template}` | classes de teste selecionadas; o planner gera `src/test/java/<pacote base>/architecture/<testClass>.java` a partir de `fitness/<template>` |
 | **Flags** | | usadas em `when` e em seções `{{#flag}}` |
 | `dep.<id>` | `dep.jpa`, `dep.web`… | uma por dependência do catálogo |
 | `extra.<id>` | `extra.docker-compose` | |
@@ -188,4 +189,6 @@ Não há `kits.yaml`: kits são estratégias em código (`NoneKit`, `BasicKit`, 
     - id: FF-PER-02
       description: Repositórios Spring Data só no pacote jpa de persistência.
 ```
+`when` usa as mesmas flags do manifest (`dep.*`, `style.modular`, `style.layered`, `!flag`); sem `when`, a classe vale para qualquer projeto. O `template` fica em `templates/fitness/` e o engine confere na inicialização que ele existe. Ids seguem `FF-XXX-NN` e são únicos no arquivo.
+
 O catálogo completo das regras está em [GENERATED_PROJECT — Fitness functions](GENERATED_PROJECT.md#fitness-functions).

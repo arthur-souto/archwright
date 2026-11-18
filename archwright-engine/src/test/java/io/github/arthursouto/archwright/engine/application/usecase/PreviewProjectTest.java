@@ -2,6 +2,7 @@ package io.github.arthursouto.archwright.engine.application.usecase;
 
 import io.github.arthursouto.archwright.engine.adapter.out.template.ClasspathTemplateRepository;
 import io.github.arthursouto.archwright.engine.adapter.out.template.MustacheTemplateRenderer;
+import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewResult;
 import io.github.arthursouto.archwright.engine.application.port.in.ProjectRequest;
 import io.github.arthursouto.archwright.engine.application.port.in.ResolvedDependency;
@@ -49,6 +50,20 @@ class PreviewProjectTest {
 
         assertThat(((PreviewResult.Failure) result).violations()).extracting(Violation::code)
                 .containsExactlyInAnyOrder(ViolationCode.INVALID_ARTIFACT_ID, ViolationCode.UNKNOWN_EXTRA);
+    }
+
+    @Test
+    void listsTheSelectedFitnessRulesAndNoneWhenDisabled() {
+        ProjectRequest enabled = UseCaseFixtures.validRequest();
+        ProjectRequest disabled = new ProjectRequest(
+                "pedido-api", "com.acme", null, "", "HEXAGONAL_MODULAR", List.of("pedidos"),
+                "4.1.2", "25", "NONE", List.of(), List.of(), false);
+
+        PreviewResult.Preview withRules = (PreviewResult.Preview) preview.preview(enabled);
+        PreviewResult.Preview withoutRules = (PreviewResult.Preview) preview.preview(disabled);
+
+        assertThat(withRules.fitnessRules()).extracting(FitnessRuleSummary::id).contains("FF-ADP-01", "FF-PER-01", "FF-MOD-01");
+        assertThat(withoutRules.fitnessRules()).isEmpty();
     }
 
     @Test

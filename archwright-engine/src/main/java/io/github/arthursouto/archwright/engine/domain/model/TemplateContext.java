@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public record TemplateContext(Map<String, Object> values) {
 
+    private static final String NEGATION = "!";
+
     public TemplateContext {
         values = Collections.unmodifiableMap(new LinkedHashMap<>(values));
     }
@@ -31,6 +33,12 @@ public record TemplateContext(Map<String, Object> values) {
                 .filter(Boolean.class::isInstance)
                 .map(Boolean.class::cast)
                 .orElseThrow(() -> new IllegalArgumentException("not a flag in the template context: " + path));
+    }
+
+    public boolean satisfies(String condition) {
+        boolean negated = condition.startsWith(NEGATION);
+
+        return negated != flag(negated ? condition.substring(NEGATION.length()) : condition);
     }
 
     public String text(String path) {

@@ -46,7 +46,9 @@ class EngineEndToEndTest {
         assertThat(success.output()).isEqualTo(destination.resolve("pedido-api.zip").toAbsolutePath());
         assertThat(success.output()).isRegularFile();
         assertThat(entries(success.output())).hasSize(success.fileCount())
-                .contains("pedido-api/pom.xml", "pedido-api/mvnw", "pedido-api/.mvn/wrapper/maven-wrapper.properties");
+                .contains("pedido-api/pom.xml", "pedido-api/mvnw", "pedido-api/.mvn/wrapper/maven-wrapper.properties",
+                        "pedido-api/src/test/java/com/acme/pedidoapi/architecture/ModuleBoundariesTest.java",
+                        "pedido-api/src/test/java/com/acme/pedidoapi/architecture/package-info.java");
     }
 
     @Test

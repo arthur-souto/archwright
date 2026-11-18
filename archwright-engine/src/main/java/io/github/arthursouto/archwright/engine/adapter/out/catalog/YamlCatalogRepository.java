@@ -5,6 +5,7 @@ import io.github.arthursouto.archwright.engine.domain.model.ArchitectureStyleDef
 import io.github.arthursouto.archwright.engine.domain.model.BootProfile;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraDefinition;
+import io.github.arthursouto.archwright.engine.domain.model.FitnessRuleDefinition;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public final class YamlCatalogRepository implements CatalogRepository {
     private final List<BootProfile> bootProfiles;
     private final List<DependencyDefinition> dependencies;
     private final List<ExtraDefinition> extras;
+    private final List<FitnessRuleDefinition> fitnessRules;
 
     public YamlCatalogRepository() {
         this(YamlCatalogRepository.class.getClassLoader(), DEFAULT_BASE_PATH);
@@ -28,6 +30,7 @@ public final class YamlCatalogRepository implements CatalogRepository {
         this.bootProfiles = new BootProfileParser().parse(reader.read(BootProfileParser.FILE));
         this.dependencies = new DependencyParser().parse(reader.read(DependencyParser.FILE));
         this.extras = new ExtraParser().parse(reader.read(ExtraParser.FILE));
+        this.fitnessRules = new FitnessRuleParser().parse(reader.read(FitnessRuleParser.FILE));
 
         new CatalogConsistency().check(bootProfiles, dependencies, extras);
     }
@@ -50,5 +53,10 @@ public final class YamlCatalogRepository implements CatalogRepository {
     @Override
     public List<ExtraDefinition> extras() {
         return extras;
+    }
+
+    @Override
+    public List<FitnessRuleDefinition> fitnessRules() {
+        return fitnessRules;
     }
 }

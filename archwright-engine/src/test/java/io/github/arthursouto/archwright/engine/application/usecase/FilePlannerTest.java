@@ -257,7 +257,7 @@ class FilePlannerTest {
 
     @Test
     void repeatsEntriesForEachAggregateInTheLayeredStyle() {
-        ProjectSpec layered = SpecBuilder.basic().layered("paciente", "prontuario").build();
+        ProjectSpec layered = SpecBuilder.basic().layered("paciente", "prontuario").fitness(false).build();
         Manifest layeredManifest = new Manifest(
                 List.of(new ManifestFile("m.mustache", "docs/{{aggregate.name}}.md", List.of(), false, true, LineEnding.LF, Repeat.AGGREGATES)),
                 List.of(new ManifestPackage("domain.model.{{aggregate.name}}", "Agregado {{aggregate.displayName}}.", Repeat.AGGREGATES)));
@@ -276,7 +276,7 @@ class FilePlannerTest {
 
     @Test
     void producesNothingForAnEntryRepeatedOverAnEmptyList() {
-        ProjectSpec layered = SpecBuilder.basic().layered().build();
+        ProjectSpec layered = SpecBuilder.basic().layered().fitness(false).build();
         Manifest layeredManifest = new Manifest(
                 List.of(new ManifestFile("m.mustache", "docs/{{aggregate.name}}.md", List.of(), false, true, LineEnding.LF, Repeat.AGGREGATES)),
                 List.of());
@@ -299,7 +299,7 @@ class FilePlannerTest {
     }
 
     private ProjectSpec spec() {
-        return SpecBuilder.basic().build();
+        return SpecBuilder.basic().fitness(false).build();
     }
 
     private TemplateContext context() {
@@ -315,7 +315,9 @@ class FilePlannerTest {
     }
 
     private static List<String> packageInfos(FilePlan plan) {
-        return plan.targets().stream().filter(target -> target.endsWith("/package-info.java")).toList();
+        return plan.targets().stream()
+                .filter(target -> target.startsWith("src/main/java/") && target.endsWith("/package-info.java"))
+                .toList();
     }
 
     private static PlannedFile file(FilePlan plan, String target) {

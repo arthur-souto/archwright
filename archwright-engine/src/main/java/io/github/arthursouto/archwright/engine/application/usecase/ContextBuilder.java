@@ -9,6 +9,7 @@ import io.github.arthursouto.archwright.engine.domain.model.BootVersion;
 import io.github.arthursouto.archwright.engine.domain.model.Catalog;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
+import io.github.arthursouto.archwright.engine.domain.model.FitnessRuleDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.JavaVersion;
 import io.github.arthursouto.archwright.engine.domain.model.ModuleName;
 import io.github.arthursouto.archwright.engine.domain.model.ProjectIdentity;
@@ -53,17 +54,39 @@ public final class ContextBuilder {
         context.put("kit", kit(spec));
         context.put("tests", Map.of("perTechnology", profile.testStrategy() == TestStrategy.PER_TECHNOLOGY));
         context.put("persistence", Map.of("namespace", profile.persistenceNamespace().prefix()));
-        context.put("fitness", Map.of("enabled", spec.fitnessFunctions()));
         context.putAll(dependencySection.describe(spec, profile));
         context.putAll(modules(spec));
         context.put("dep", dependencyFlags(spec));
         context.put("extra", extraFlags(spec));
+        context.put("fitness", fitness(spec, new TemplateContext(context)));
 
         if (spec.dependencies().contains(JPA)) {
             context.put("database", Map.of("name", Names.databaseName(spec.identity().artifactId().value())));
         }
 
         return new TemplateContext(context);
+    }
+
+    private Map<String, Object> fitness(ProjectSpec spec, TemplateContext flags) {
+        List<FitnessRuleDefinition> selected = spec.fitnessFunctions()
+                ? catalog.fitnessRules().stream().filter(definition -> definition.appliesTo(flags)).toList()
+                : List.of();
+
+        return Map.of(
+                "enabled", spec.fitnessFunctions(),
+                "classes", selected.stream().map(this::classView).toList(),
+                "rules", selected.stream().flatMap(definition -> ruleViews(definition).stream()).toList());
+    }
+
+    private Map<String, Object> classView(FitnessRuleDefinition definition) {
+        return Map.of("testClass", definition.testClass(), "template", definition.template());
+    }
+
+    private List<Map<String, Object>> ruleViews(FitnessRuleDefinition definition) {
+        return definition.rules().stream()
+                .map(rule -> Map.<String, Object>of(
+                        "id", rule.id(), "testClass", definition.testClass(), "description", rule.description()))
+                .toList();
     }
 
     private Map<String, Object> identity(ProjectIdentity identity) {

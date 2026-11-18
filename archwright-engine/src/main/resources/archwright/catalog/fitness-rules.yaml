@@ -1,0 +1,62 @@
+- testClass: HexagonalLayersTest
+  template: HexagonalLayersTest.java.mustache
+  rules:
+    - id: FF-LAY-01
+      description: "Dependências só no sentido adapter/infrastructure → application → domain."
+    - id: FF-LAY-02
+      description: "Sem ciclos entre pacotes de primeiro nível."
+
+- testClass: DomainPurityTest
+  template: DomainPurityTest.java.mustache
+  rules:
+    - id: FF-DOM-01
+      description: "O domínio não depende de Spring, JPA, Hibernate, Lombok nem Jackson."
+
+- testClass: PortsTest
+  template: PortsTest.java.mustache
+  rules:
+    - id: FF-PRT-01
+      description: "Tipos diretamente em port.in e port.out são interfaces."
+    - id: FF-PRT-02
+      description: "Só casos de uso implementam portas de entrada."
+
+- testClass: AdaptersTest
+  template: AdaptersTest.java.mustache
+  when: [dep.web]
+  rules:
+    - id: FF-ADP-01
+      description: "Adapters de entrada não dependem de adapters de saída."
+    - id: FF-ADP-02
+      description: "Controllers só em adapter.in."
+    - id: FF-ADP-03
+      description: "Controllers falam com port.in, não com casos de uso nem repositórios."
+
+- testClass: PersistenceTest
+  template: PersistenceTest.java.mustache
+  when: [dep.jpa]
+  rules:
+    - id: FF-PER-01
+      description: "@Entity só no pacote de entidades de persistência."
+    - id: FF-PER-02
+      description: "Repositórios Spring Data só no pacote jpa de persistência."
+
+- testClass: ModuleBoundariesTest
+  template: ModuleBoundariesTest.java.mustache
+  when: [style.modular]
+  rules:
+    - id: FF-MOD-01
+      description: "Um módulo só usa application.port.in e domain de outro módulo."
+    - id: FF-MOD-02
+      description: "O shared kernel não depende de nenhum módulo."
+    - id: FF-MOD-03
+      description: "Sem ciclos entre módulos."
+
+- testClass: CodingRulesTest
+  template: CodingRulesTest.java.mustache
+  rules:
+    - id: FF-COD-01
+      description: "Sem @Autowired em campo; injeção por construtor."
+    - id: FF-COD-02
+      description: "Domínio e aplicação não têm @Service, @Component nem @Repository."
+    - id: FF-COD-03
+      description: "Sem uso de System.out nem System.err."

@@ -21,6 +21,7 @@ import io.github.arthursouto.archwright.engine.application.usecase.BrowseCatalog
 import io.github.arthursouto.archwright.engine.application.usecase.CatalogVerifier;
 import io.github.arthursouto.archwright.engine.application.usecase.ContextBuilder;
 import io.github.arthursouto.archwright.engine.application.usecase.FilePlanner;
+import io.github.arthursouto.archwright.engine.application.usecase.FitnessTemplateVerifier;
 import io.github.arthursouto.archwright.engine.application.usecase.ProfileResolver;
 import io.github.arthursouto.archwright.engine.application.usecase.GenerateProject;
 import io.github.arthursouto.archwright.engine.application.usecase.ProjectPlanning;
@@ -49,10 +50,13 @@ public final class ArchwrightEngine {
         Kits kits = Kits.standard();
         ArchitectureStyles styles = ArchitectureStyles.standard();
 
-        new CatalogVerifier(repository, kits, styles).verify();
-
-        Catalog loaded = new Catalog(repository.bootProfiles(), repository.dependencies(), repository.extras());
         TemplateRepository templates = new ClasspathTemplateRepository();
+
+        new CatalogVerifier(repository, kits, styles).verify();
+        new FitnessTemplateVerifier(repository, templates).verify();
+
+        Catalog loaded = new Catalog(
+                repository.bootProfiles(), repository.dependencies(), repository.extras(), repository.fitnessRules());
         TemplateRenderer renderer = new MustacheTemplateRenderer();
         ProfileResolver resolver = new ProfileResolver(loaded);
 

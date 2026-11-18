@@ -1,5 +1,6 @@
 package io.github.arthursouto.archwright.engine.application.usecase;
 
+import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewProjectQuery;
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewResult;
 import io.github.arthursouto.archwright.engine.application.port.in.ProjectRequest;
@@ -36,12 +37,18 @@ public final class PreviewProject implements PreviewProjectQuery {
         return new PreviewResult.Preview(
                 paths(ready),
                 dependencies(ready.spec()),
-                List.of(),
+                fitnessRules(ready),
                 ready.warnings());
     }
 
     private List<String> paths(ProjectPlanning.Outcome.Ready ready) {
         return ready.plan().targets().stream().sorted().toList();
+    }
+
+    private List<FitnessRuleSummary> fitnessRules(ProjectPlanning.Outcome.Ready ready) {
+        return ready.context().sections("fitness.rules").stream()
+                .map(rule -> new FitnessRuleSummary(rule.text("id"), rule.text("testClass"), rule.text("description")))
+                .toList();
     }
 
     private List<ResolvedDependency> dependencies(ProjectSpec spec) {

@@ -27,6 +27,20 @@ class TemplateContextTest {
     }
 
     @Test
+    void evaluatesConditionsWithOptionalNegation() {
+        assertThat(context.satisfies("dep.jpa")).isTrue();
+        assertThat(context.satisfies("dep.web")).isFalse();
+        assertThat(context.satisfies("!dep.web")).isTrue();
+        assertThat(context.satisfies("!dep.jpa")).isFalse();
+    }
+
+    @Test
+    void rejectsConditionsOverNamesThatAreNotFlags() {
+        assertThatThrownBy(() -> context.satisfies("dep.kafka")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> context.satisfies("!artifactId")).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void findsTopLevelAndNestedValues() {
         assertThat(context.find("artifactId")).contains("pedido-api");
         assertThat(context.find("boot.version")).contains("4.1.2");

@@ -15,7 +15,8 @@ final class SpecBuilder {
 
     private static final YamlCatalogRepository REPOSITORY = new YamlCatalogRepository();
     private static final Catalog CATALOG =
-            new Catalog(REPOSITORY.bootProfiles(), REPOSITORY.dependencies(), REPOSITORY.extras());
+            new Catalog(
+                    REPOSITORY.bootProfiles(), REPOSITORY.dependencies(), REPOSITORY.extras(), REPOSITORY.fitnessRules());
     private static final SpecValidator VALIDATOR =
             new SpecValidator(CATALOG, ArchitectureStyles.standard(), Kits.standard());
 
