@@ -35,7 +35,7 @@ Como ler:
 
 | Módulo | Conteúdo | Depende de |
 |---|---|---|
-| `archwright-engine` | domínio, casos de uso, catálogos, templates, exportadores | JDK, SnakeYAML, JMustache |
+| `archwright-engine` | domínio, casos de uso, catálogos, templates, exportadores | JDK, SnakeYAML, JMustache, Apache Commons Compress |
 | `archwright-desktop` | telas JavaFX + AtlantaFX, empacotamento `jpackage` | `archwright-engine` (somente `application.port.in` e `config`) |
 
 Os dois módulos usam **Java 25** e são compilados com `--release 25`. Os projetos gerados podem usar qualquer Java suportado (BR-021); a versão do Archwright não limita a do projeto gerado.
@@ -59,7 +59,7 @@ io.github.arthursouto.archwright.engine
 ├── application/
 │   ├── port/in/      # GenerateProjectUseCase, PreviewProjectQuery, CatalogQuery + DTOs (ProjectRequest, ExportTarget, ...)
 │   ├── port/out/     # BootVersionSource, VersionCache, CachedVersions, EmbeddedVersions, CatalogRepository, TemplateRepository,
-│   │                 # TemplateRenderer, ProjectExporter
+│   │                 # TemplateRenderer, ProjectExporter, ExportResult
 │   └── usecase/      # GenerateProject, PreviewProject, BrowseCatalog, ProfileResolver, BootVersionLookup, CatalogVerifier,
 │                     # ContextBuilder, FilePlanner, ProjectRenderer
 ├── adapter/
@@ -423,7 +423,7 @@ Aplica o Mustache a cada `PlannedFile` e devolve um `GeneratedProject` em memór
 ---
 
 ## Etapa 6 — Exportar (`ENG-EXP`)
-**Status:** ⏳ a implementar.
+**Status:** ✅ implementado (`ZipProjectExporter`, `FolderProjectExporter`).
 Regras: [BR-053](../domain/BUSINESS_RULES.md#geração), [BR-060 a BR-064](../domain/BUSINESS_RULES.md#exportação).
 
 Dois adapters de saída para a mesma porta. O caso de uso chama `check` **antes** de renderizar, para falhar rápido, e `write` só depois de tudo renderizado.
@@ -436,6 +436,14 @@ Dois adapters de saída para a mesma porta. O caso de uso chama `check` **antes*
         ExportResult write(GeneratedProject project, ExportTarget target) throws IOException;
     }
     public record ExportTarget(ExportFormat format, Path destination, boolean overwrite) {}
+    public record ExportResult(Path output, int fileCount, long totalBytes) {}   // BR-064; output absoluto
+
+`GeneratedProject` carrega o `artifactId` (nome do arquivo `.zip`, da pasta raiz das entradas e da pasta de destino). `ExportTarget` e `ExportFormat` ficam em `application.port.in` (API pública); `ExportResult` e `ProjectExporter`, em `port.out`.
+
+**Como cada exportador trabalha**
+- **Comum:** `check` valida o destino (`DESTINATION_NOT_FOUND` se não for uma pasta, `DESTINATION_NOT_WRITABLE`) e depois o alvo; a gravação é sempre num arquivo ou pasta **temporários irmãos** (`.<artifactId>-…`), publicados por *move* só no fim e removidos se algo falhar. Todo caminho do projeto é revalidado ao gravar (sem `..`, `/` inicial, `\` nem `:`), mesmo já tendo passado pelo BR-052: um projeto com caminho inseguro nunca escreve nada.
+- **ZIP** (Apache Commons Compress, o mesmo que o Spring Initializr usa, porque o `java.util.zip` não define permissões): entradas na ordem do plano, só arquivos, sob `<artifactId>/`, modo Unix `755` para executáveis e `644` para os demais, data fixa `1980-01-01 00:00` na representação local, o que mantém os bytes idênticos em qualquer fuso (BR-050). Sem `overwrite`, um `.zip` existente é `TARGET_EXISTS` e o `write` recusa (`FileAlreadyExistsException`); com `overwrite`, substitui, mas nunca uma pasta de mesmo nome.
+- **Pasta:** o alvo precisa não existir ou ser uma pasta **vazia**; qualquer outra coisa é `TARGET_NOT_EMPTY` (arquivo com o mesmo nome incluso). Nunca sobrescreve, nem se o `check` for pulado: o *move* final falha e o conteúdo existente fica intacto. Em POSIX, `mvnw` sai executável e a pasta do projeto `rwxr-xr-x`.
 
 #### ENG-EXP-01 — ZIP igual ao Initializr
 | # | Dado | Quando | Então |
@@ -458,7 +466,7 @@ Dois adapters de saída para a mesma porta. O caso de uso chama `check` **antes*
 | 5 | falha de E/S no meio da gravação | exportar | pasta temporária removida; `/tmp/x/pedido-api` não existe |
 | 6 | destino sem permissão de escrita | `check` | `DESTINATION_NOT_WRITABLE` |
 
-**Pronto quando:** `ZipProjectExporterTest` e `FolderProjectExporterTest` (com `@TempDir`) cobrem ENG-EXP-01 e 02.
+**Pronto quando:** `ZipProjectExporterTest` e `FolderProjectExporterTest` (com `@TempDir`) cobrem ENG-EXP-01 e 02, inclusive falha injetada no meio da gravação, determinismo entre fusos horários, caminhos inseguros e permissões (lendo o modo Unix de volta do ZIP). Também foi verificado à mão com o `unzip` do sistema: `mvnw` extraído sai `-rwxr-xr-x` e executa.
 
 ---
 

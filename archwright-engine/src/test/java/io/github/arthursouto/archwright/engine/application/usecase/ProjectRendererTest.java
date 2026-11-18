@@ -130,6 +130,7 @@ class ProjectRendererTest {
 
         GeneratedProject project = renderer.render(plan, context);
 
+        assertThat(project.artifactId()).isEqualTo("pedido-api");
         assertThat(project.files()).extracting(GeneratedFile::path).containsExactly("b.txt", "a.txt");
         assertThat(project.fileCount()).isEqualTo(2);
         assertThat(project.totalBytes()).isEqualTo(5);

@@ -1,11 +1,13 @@
 package io.github.arthursouto.archwright.engine.domain.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-public record GeneratedProject(List<GeneratedFile> files) {
+public record GeneratedProject(String artifactId, List<GeneratedFile> files) {
 
     public GeneratedProject {
+        Objects.requireNonNull(artifactId, "artifactId");
         files = List.copyOf(files);
     }
 

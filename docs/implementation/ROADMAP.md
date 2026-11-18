@@ -25,7 +25,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 5. [x] **Contexto** ([ENG-CTX](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-eng-ctx)).
 6. [x] **Templates `common` + `hexagonal-modular`**, portando o protótipo `GeradorHex.java` e o Hexbank, e o **planner** ([ENG-PLN-01](../architecture/ARCHITECTURE.md#etapa-4--planejar-arquivos-eng-pln)).
 7. [x] **Renderer** + primeiro teste *golden* ([ENG-RND](../architecture/ARCHITECTURE.md#etapa-5--renderizar-eng-rnd)).
-8. [ ] **Exportadores ZIP e pasta** ([ENG-EXP](../architecture/ARCHITECTURE.md#etapa-6--exportar-eng-exp)).
+8. [x] **Exportadores ZIP e pasta** ([ENG-EXP](../architecture/ARCHITECTURE.md#etapa-6--exportar-eng-exp)).
 9. [ ] **Casos de uso** e fábrica `ArchwrightEngine` ([ENG-UC](../architecture/ARCHITECTURE.md#casos-de-uso-eng-uc), [ENGINE_API](../contracts/ENGINE_API.md)) + `EngineEndToEndTest`.
 10. [ ] **Templates das fitness functions** e seleção ([ENG-PLN-02](../architecture/ARCHITECTURE.md#etapa-4--planejar-arquivos-eng-pln), [catálogo](../contracts/GENERATED_PROJECT.md#fitness-functions)).
 11. [ ] **Estilo `hexagonal-layered`** (portando o Liva) + golden.

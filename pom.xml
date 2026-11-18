@@ -36,6 +36,7 @@
         <archunit.version>1.5.1</archunit.version>
         <snakeyaml.version>2.7</snakeyaml.version>
         <jmustache.version>1.16</jmustache.version>
+        <commons-compress.version>1.28.0</commons-compress.version>
     </properties>
 
     <dependencyManagement>
@@ -56,6 +57,11 @@
                 <groupId>com.samskivert</groupId>
                 <artifactId>jmustache</artifactId>
                 <version>${jmustache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>

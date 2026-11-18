@@ -28,7 +28,9 @@ public final class ProjectRenderer {
     }
 
     public GeneratedProject render(FilePlan plan, TemplateContext context) {
-        return new GeneratedProject(plan.files().stream().map(file -> generate(file, context)).toList());
+        return new GeneratedProject(
+                context.text("artifactId"),
+                plan.files().stream().map(file -> generate(file, context)).toList());
     }
 
     private GeneratedFile generate(PlannedFile file, TemplateContext context) {
