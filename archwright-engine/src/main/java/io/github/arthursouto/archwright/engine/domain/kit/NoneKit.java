@@ -15,6 +15,11 @@ public final class NoneKit implements KitStrategy {
     }
 
     @Override
+    public String label() {
+        return "Nenhuma";
+    }
+
+    @Override
     public List<DependencyId> defaultDependencies() {
         return List.of();
     }

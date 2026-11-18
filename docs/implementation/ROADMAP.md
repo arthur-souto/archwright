@@ -19,7 +19,7 @@ Foco atual: **motor primeiro, interface depois.**
 Ordem pensada para que cada passo seja testável sozinho, do domínio para as bordas.
 
 1. [x] **Nomes e validação** ([ENG-VAL](../architecture/ARCHITECTURE.md#etapa-1--validar-e-normalizar-eng-val)): `Names`, tipos de valor (`ArtifactId`, `GroupId`, `BasePackage`, `ModuleName`, `BootVersion`, `JavaVersion`), `Violation`, `Warning`, `SpecValidator`. Catálogo montado em memória nos testes.
-2. [ ] **Aceitar o [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)** e implementar os **catálogos YAML** ([ENG-CAT](../architecture/ARCHITECTURE.md#catálogos-eng-cat)) com os [perfis iniciais](../architecture/ARCHITECTURE.md#perfis-de-versão-iniciais).
+2. [x] **Aceitar o [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)** (aceito, com Strategy para estilo e kit) e implementar os **catálogos YAML** ([ENG-CAT](../architecture/ARCHITECTURE.md#catálogos-eng-cat)) com os [perfis iniciais](../architecture/ARCHITECTURE.md#perfis-de-versão-iniciais). O `fitness-rules.yaml` e a regra ENG-CAT-01 #5 entram no passo 10.
 3. [ ] **BootProfile** ([ENG-BPR](../architecture/ARCHITECTURE.md#etapa-2--resolver-o-bootprofile-eng-bpr)).
 4. [ ] **Versões do Spring Boot** com cache e fallback ([ENG-VER](../architecture/ARCHITECTURE.md#versões-do-spring-boot-eng-ver)).
 5. [ ] **Contexto** ([ENG-CTX](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-eng-ctx)).

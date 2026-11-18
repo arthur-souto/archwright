@@ -27,7 +27,7 @@ Como ler:
 
 - **App desktop → motor:** o wizard monta um `ProjectRequest` (mais o `ExportTarget`) e o entrega ao motor. O motor não conhece a interface.
 - **Erro volta para o wizard:** se a etapa 1 devolver violações, elas retornam à tela correspondente ([ENG-VAL](#etapa-1--validar-e-normalizar-eng-val)); nada é renderizado nem gravado.
-- **Catálogos → motor:** versões (Maven Central + fallback), kits, regras de fitness functions e templates alimentam o motor como dados ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)). No diagrama a seta sai das versões para o `BootProfile` (etapa 2); kits, regras e templates são lidos nas etapas 1, 4 e 5.
+- **Catálogos → motor:** versões (Maven Central + fallback), estilos, dependências, extras, regras de fitness functions e templates alimentam o motor como dados (kits e regras de estilo são estratégias em código) ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)). No diagrama a seta sai das versões para o `BootProfile` (etapa 2); kits, regras e templates são lidos nas etapas 1, 4 e 5.
 - **Exportação:** na etapa 6 o formato decide o adapter. `ZipExporter` gera um `.zip` igual ao do Initializr; `FolderExporter` grava numa pasta vazia, usando diretório temporário e `move` ao final ([ENG-EXP](#etapa-6--exportar-eng-exp)).
 - **Projeto gerado:** `src/main` hexagonal com `package-info`, fitness functions ArchUnit em `src/test/.../architecture` e `mvn verify` + CI, de modo que as regras rodam a cada push/PR ([GENERATED_PROJECT](../contracts/GENERATED_PROJECT.md)).
 
@@ -112,7 +112,7 @@ Cada etapa abaixo segue o [modelo de especificação](../implementation/SPEC_TEM
 ---
 
 ## Catálogos (`ENG-CAT`)
-**Status:** ⏳ a implementar.
+**Status:** ✅ implementado para `styles`, `boot-profiles`, `dependencies` e `extras`. Pendente para o passo 10 do roadmap: `fitness-rules.yaml` e a linha #5.
 Regras: [BR-020](../domain/BUSINESS_RULES.md#versões), [BR-030](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-031](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-041](../domain/BUSINESS_RULES.md#fitness-functions), [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md). Formato: [TEMPLATE_FORMAT](../contracts/TEMPLATE_FORMAT.md#catálogos).
 
 Lê os YAML do classpath uma vez, valida a consistência entre eles e entrega objetos imutáveis. Estilos e kits têm regras em código ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), item 6); o catálogo só confere que o que elas citam existe nos YAML. Um catálogo inválido é bug do Archwright: falha na inicialização do engine e no build (teste dedicado), nunca na mão do usuário.
@@ -136,11 +136,14 @@ Lê os YAML do classpath uma vez, valida a consistência entre eles e entrega ob
 | 1 | catálogos oficiais do repositório | engine inicia | carrega sem erro; 2 estilos, ≥ 9 perfis; `Kits.standard()` com `NONE` e `BASIC` |
 | 2 | kit (estratégia) referencia dependência `foo` que não existe em `dependencies.yaml` | engine inicia | `IllegalStateException` citando o kit e `foo` |
 | 3 | dois perfis com a mesma linha `3.5` | carregar | exceção citando `boot-profiles.yaml` e `3.5` |
-| 4 | dependência com faixa `[3.0, 2.7)` (início > fim) | carregar | exceção citando a dependência |
-| 5 | regra de fitness function referencia template inexistente | carregar | exceção citando a regra e o caminho |
+| 4 | perfil com `artifacts` de uma dependência que não existe em `dependencies.yaml` (a disponibilidade por versão é definida pelas chaves de `artifacts`) | carregar | exceção citando o perfil e a dependência |
+| 5 | regra de fitness function referencia template inexistente | carregar | exceção citando a regra e o caminho (passo 10 do roadmap) |
 | 6 | perfil com `javaMin` > `javaMaxTested` | carregar | exceção citando a linha |
+| 7 | estilo em `styles.yaml` sem estratégia registrada em `ArchitectureStyles` | engine inicia | `IllegalStateException` citando o estilo (`CatalogVerifier`) |
 
-**Pronto quando:** `CatalogConsistencyTest` cobre #1 a #6.
+Também verificados: arquivo ausente, vazio ou malformado, chave YAML duplicada, `line` sem aspas (YAML leria `3.10` como número), campo obrigatório ausente (cita a entrada), id duplicado, `implies` e `requires` com dependência inexistente, estilo desconhecido ou ausente. Os perfis saem ordenados pela linha, numericamente.
+
+**Pronto quando:** `CatalogConsistencyTest` (catálogos quebrados num diretório temporário, lidos pelo classpath), `OfficialCatalogTest` (#1) e `CatalogVerifierTest` (#2) cobrem #1 a #4, #6 e #7. O `boot-profiles.yaml` já traz as coordenadas Maven, mas só as chaves de `artifacts` são lidas até o [ENG-BPR](#etapa-2--resolver-o-bootprofile-eng-bpr); os valores ⚠️ continuam pendentes da matriz de compilação.
 
 ---
 

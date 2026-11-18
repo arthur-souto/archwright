@@ -156,7 +156,7 @@ Dependência do catálogo sem entrada em `artifacts` num perfil = não disponív
 ```
 
 ### Kits
-Não há `kits.yaml`: kits são estratégias em código (`NoneKit`, `BasicKit`, registro `Kits`; [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), item 6). Todo id de dependência citado por um kit deve existir em `dependencies.yaml` (verificado em `CatalogConsistencyTest`).
+Não há `kits.yaml`: kits são estratégias em código (`NoneKit`, `BasicKit`, registro `Kits`; id, rótulo e dependências padrão; [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), itens 6 e 7). Todo id de dependência citado por um kit deve existir em `dependencies.yaml` (verificado em `CatalogConsistencyTest`).
 
 ### `extras.yaml`
 ```yaml

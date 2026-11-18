@@ -1,0 +1,11 @@
+- id: HEXAGONAL_MODULAR
+  label: Hexagonal modular
+  description: Monólito modular. Cada módulo tem domain, application e adapter próprios, com shared kernel e bootstrap.
+  templateDir: hexagonal-modular
+  modulesLabel: Módulos
+
+- id: HEXAGONAL_LAYERED
+  label: Hexagonal em camadas
+  description: Uma hexagonal só, em três camadas, domain, application e infrastructure.
+  templateDir: hexagonal-layered
+  modulesLabel: Agregados

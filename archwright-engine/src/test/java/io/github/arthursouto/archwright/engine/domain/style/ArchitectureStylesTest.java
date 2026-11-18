@@ -36,6 +36,14 @@ class ArchitectureStylesTest {
     }
 
     @Test
+    void reportsWhetherAStyleHasAStrategy() {
+        ArchitectureStyles onlyModular = new ArchitectureStyles(List.of(new HexagonalModularStyle()));
+
+        assertThat(onlyModular.hasStrategyFor(ArchitectureStyle.HEXAGONAL_MODULAR)).isTrue();
+        assertThat(onlyModular.hasStrategyFor(ArchitectureStyle.HEXAGONAL_LAYERED)).isFalse();
+    }
+
+    @Test
     void failsWhenStyleHasNoRegisteredStrategy() {
         ArchitectureStyles styles = new ArchitectureStyles(List.of(new HexagonalModularStyle()));
 

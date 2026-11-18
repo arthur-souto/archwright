@@ -1,0 +1,166 @@
+- line: "4.1"
+  javaMin: 17
+  javaMaxTested: 25
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 3.2.0
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-webmvc }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.springframework.boot, a: spring-boot-starter-flyway },
+                 { g: org.flywaydb, a: flyway-database-postgresql }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "4.0"
+  javaMin: 17
+  javaMaxTested: 25
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 3.0.3
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-webmvc }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.springframework.boot, a: spring-boot-starter-flyway },
+                 { g: org.flywaydb, a: flyway-database-postgresql }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "3.5"
+  javaMin: 17
+  javaMaxTested: 24
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 2.8.17
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-web }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.flywaydb, a: flyway-core },
+                 { g: org.flywaydb, a: flyway-database-postgresql }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "3.4"
+  javaMin: 17
+  javaMaxTested: 23
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 2.8.17
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-web }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.flywaydb, a: flyway-core },
+                 { g: org.flywaydb, a: flyway-database-postgresql }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "3.3"
+  javaMin: 17
+  javaMaxTested: 22
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 2.6.0
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-web }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.flywaydb, a: flyway-core },
+                 { g: org.flywaydb, a: flyway-database-postgresql }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "3.2"
+  javaMin: 17
+  javaMaxTested: 21
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 2.5.0
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-web }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.flywaydb, a: flyway-core }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "3.1"
+  javaMin: 17
+  javaMaxTested: 21
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 2.2.0
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-web }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.flywaydb, a: flyway-core }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "3.0"
+  javaMin: 17
+  javaMaxTested: 21
+  legacy: false
+  pinnedVersions:
+    springdoc.version: 2.1.0
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-web }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.flywaydb, a: flyway-core }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
+
+- line: "2.7"
+  javaMin: 8
+  javaMaxTested: 21
+  legacy: true
+  pinnedVersions:
+    springdoc.version: 1.8.0
+    archunit.version: 1.5.1
+  artifacts:
+    web:        [{ g: org.springframework.boot, a: spring-boot-starter-web }]
+    validation: [{ g: org.springframework.boot, a: spring-boot-starter-validation }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator }]
+    security:   [{ g: org.springframework.boot, a: spring-boot-starter-security }]
+    jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa },
+                 { g: org.postgresql, a: postgresql, scope: runtime }]
+    flyway:     [{ g: org.flywaydb, a: flyway-core }]
+    lombok:     [{ g: org.projectlombok, a: lombok, scope: provided }]
+    springdoc:  [{ g: org.springdoc, a: springdoc-openapi-ui, v: "${springdoc.version}" }]

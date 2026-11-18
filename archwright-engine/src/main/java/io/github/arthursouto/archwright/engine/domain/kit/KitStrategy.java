@@ -9,5 +9,7 @@ public interface KitStrategy {
 
     KitId id();
 
+    String label();
+
     List<DependencyId> defaultDependencies();
 }

@@ -1,0 +1,7 @@
+- id: docker-compose
+  label: docker-compose.yml com PostgreSQL
+  requires: [jpa]
+
+- id: github-actions
+  label: GitHub Actions (CI)
+  requires: []

@@ -28,6 +28,17 @@ class KitsTest {
     }
 
     @Test
+    void listsAllStrategiesSortedById() {
+        assertThat(kits.all()).extracting(strategy -> strategy.id().value()).containsExactly("BASIC", "NONE");
+    }
+
+    @Test
+    void exposesTheDisplayLabelOfEachKit() {
+        assertThat(kits.find("NONE").orElseThrow().label()).isEqualTo("Nenhuma");
+        assertThat(kits.find("BASIC").orElseThrow().label()).isEqualTo("Básico");
+    }
+
+    @Test
     void ignoresSurroundingWhitespace() {
         assertThat(kits.find(" BASIC ")).isPresent();
     }

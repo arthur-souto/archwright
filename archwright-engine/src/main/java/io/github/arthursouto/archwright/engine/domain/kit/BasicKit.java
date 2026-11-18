@@ -23,6 +23,11 @@ public final class BasicKit implements KitStrategy {
     }
 
     @Override
+    public String label() {
+        return "Básico";
+    }
+
+    @Override
     public List<DependencyId> defaultDependencies() {
         return DEPENDENCIES;
     }

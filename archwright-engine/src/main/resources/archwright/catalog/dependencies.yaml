@@ -1,0 +1,41 @@
+- id: web
+  label: Spring Web
+  description: API REST com Spring MVC e Tomcat.
+  group: Web
+
+- id: validation
+  label: Validation
+  description: Bean Validation com Hibernate Validator.
+  group: Web
+
+- id: springdoc
+  label: SpringDoc OpenAPI
+  description: Documentação OpenAPI e Swagger UI.
+  group: Web
+  implies: [web]
+
+- id: security
+  label: Spring Security
+  description: Autenticação e autorização.
+  group: Segurança
+
+- id: jpa
+  label: JPA + PostgreSQL
+  description: Spring Data JPA com o driver do PostgreSQL.
+  group: Dados
+
+- id: flyway
+  label: Flyway
+  description: Migrations versionadas do banco.
+  group: Dados
+  implies: [jpa]
+
+- id: actuator
+  label: Actuator
+  description: Health checks e métricas de operação.
+  group: Operação
+
+- id: lombok
+  label: Lombok
+  description: Reduz código repetitivo com anotações.
+  group: Desenvolvimento

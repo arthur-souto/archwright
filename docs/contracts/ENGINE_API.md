@@ -88,6 +88,8 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
     public record ArchitectureStyleOption(String id, String label, String description,
                                           String modulesLabel, boolean modulesRequired) {}
     // modulesLabel: "Módulos" (modular) | "Agregados" (layered)
+    // montado a partir de duas fontes: styles.yaml (id, label, description, modulesLabel)
+    // e a estratégia do estilo (modulesRequired)
 
     public record BootVersions(List<BootVersionOption> versions, VersionOrigin origin, Instant fetchedAt) {}
     public record BootVersionOption(String version, String line, boolean legacy, boolean latestOfLine) {}
@@ -95,6 +97,7 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
 
     public record JavaVersionOption(String version, boolean lts, boolean aboveTested, boolean isDefault) {}
     public record KitOption(String id, String label, List<String> dependencies) {}
+    // vem da estratégia do kit (id, label, dependências padrão); a interface traduz o rótulo por id
     public record DependencyOption(String id, String label, String description, String group,
                                    List<String> implies) {}           // implies: BR-033
     public record ExtraOption(String id, String label, List<String> requires) {}

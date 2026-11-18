@@ -14,8 +14,12 @@
     <name>Archwright Engine</name>
     <description>Biblioteca Java pura que valida, planeja, renderiza e exporta projetos (ADR-0001).</description>
 
-    <!-- SnakeYAML e JMustache entram junto com os catálogos e o renderer (Fase 1, passos 2 e 7). -->
+    <!-- JMustache entra junto com o renderer (Fase 1, passo 7). -->
     <dependencies>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

@@ -21,6 +21,10 @@ public final class ArchitectureStyles {
         return new ArchitectureStyles(List.of(new HexagonalModularStyle(), new HexagonalLayeredStyle()));
     }
 
+    public boolean hasStrategyFor(ArchitectureStyle style) {
+        return strategies.containsKey(style);
+    }
+
     public ArchitectureStyleStrategy strategyFor(ArchitectureStyle style) {
         ArchitectureStyleStrategy strategy = strategies.get(style);
 
