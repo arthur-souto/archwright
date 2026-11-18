@@ -42,6 +42,16 @@ class OfficialCatalogTest {
     }
 
     @Test
+    void labelsEveryOfficialDependencyAndExtra() {
+        assertThat(repository.dependencies()).allSatisfy(dependency -> {
+            assertThat(dependency.label()).isNotEqualTo(dependency.id().value());
+            assertThat(dependency.description()).isNotBlank();
+            assertThat(dependency.group()).isNotBlank();
+        });
+        assertThat(repository.extras()).allSatisfy(extra -> assertThat(extra.label()).isNotEqualTo(extra.id().value()));
+    }
+
+    @Test
     void definesBothArchitectureStylesWithTheirTemplateDirectories() {
         assertThat(repository.styles()).extracting(style -> style.style(), style -> style.templateDir())
                 .containsExactlyInAnyOrder(

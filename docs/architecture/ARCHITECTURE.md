@@ -474,19 +474,19 @@ Dois adapters de saída para a mesma porta. O caso de uso chama `check` **antes*
 Contratos completos: [ENGINE_API](../contracts/ENGINE_API.md).
 
 #### ENG-UC-01 — Gerar projeto
-**Status:** ⏳ a implementar. Classe: `application/usecase/GenerateProject`.
+**Status:** ✅ implementado (`GenerateProject`, com `ProjectPlanning` compartilhado com o `PreviewProject`).
 
 Ordem: validar (etapa 1) → se inválido, devolve `Failure` → resolver perfil (2) → `exporter.check` (falha rápida) → contexto (3) → plano (4) → renderizar (5) → `exporter.write` (6) → `Success`.
 
 | # | Dado | Quando | Então |
 |---|---|---|---|
 | 1 | pedido válido, destino válido, ZIP | gerar | `Success` com caminho do ZIP, nº de arquivos, avisos da validação |
-| 2 | pedido com 2 violações e destino inválido | gerar | `Failure` com as 2 violações de entrada **e** a de destino; nada renderizado |
+| 2 | pedido com 2 violações | gerar | `Failure` com as 2 violações; nada renderizado e o destino nem é verificado (o `artifactId` pode ser inválido, então não há nome de saída para checar) |
 | 3 | template quebrado (bug) | gerar | exceção propagada; nada gravado (BR-053) |
 | 4 | pedido válido, pasta já ocupada | gerar | `Failure` com `TARGET_NOT_EMPTY`; nada renderizado |
 
 #### ENG-UC-02 — Pré-visualizar projeto
-**Status:** ⏳ a implementar. Classe: `application/usecase/PreviewProject`.
+**Status:** ✅ implementado (`PreviewProject`). As fitness functions da pré-visualização vêm vazias até o passo 10.
 
 Executa as etapas 1 a 4 e devolve a árvore de caminhos, as dependências resolvidas (com coordenadas Maven) e as fitness functions escolhidas, sem renderizar nem gravar. Alimenta o resumo da tela 4 do desktop.
 
@@ -496,15 +496,17 @@ Executa as etapas 1 a 4 e devolve a árvore de caminhos, as dependências resolv
 | 2 | pedido inválido | pré-visualizar | `Failure` com as violações |
 
 #### ENG-UC-03 — Consultar catálogo
-**Status:** ⏳ a implementar. Classe: `application/usecase/BrowseCatalog`.
+**Status:** ✅ implementado (`BrowseCatalog`). `fitnessRules` devolve lista vazia até o passo 10.
 
 Alimenta as telas 1 a 3: estilos, versões do Spring Boot ([ENG-VER](#versões-do-spring-boot-eng-ver)), versões Java válidas para uma versão do Boot (com padrão e marcação LTS), kits, dependências disponíveis para uma versão do Boot e fitness functions aplicáveis.
 
 | # | Dado | Quando | Então |
 |---|---|---|---|
-| 1 | Boot `3.5.3` | Java disponíveis | `17, 21, 22, 23, 24` + as acima do testado marcadas `aboveTested`; padrão `21` |
+| 1 | Boot `3.5.3` | Java disponíveis | `17, 21, 22, 23, 24, 25`, com `25` marcado `aboveTested`; padrão `21` (maior LTS testado) |
 | 2 | Boot `2.7.18` | Java disponíveis | começa em `8`; padrão `21` |
 | 3 | — | kits | `NONE` e `BASIC`, com a lista de dependências de cada um |
 | 4 | Boot `4.1.2` | dependências | todas as do catálogo cuja faixa inclua `4.1.2` |
 
-**Pronto quando:** `GenerateProjectTest`, `PreviewProjectTest` e `BrowseCatalogTest` (portas de saída com fakes) cobrem os casos acima; `EngineEndToEndTest` gera um ZIP real com o catálogo oficial.
+**Pronto quando:** `GenerateProjectTest`, `PreviewProjectTest` e `BrowseCatalogTest` (portas de saída com fakes) cobrem os casos acima; `EngineEndToEndTest` gera um ZIP real com o catálogo oficial. ✅
+
+`dependencies.yaml` e `extras.yaml` agora levam `label`, `description` e `group` (dependências) e `label` (extras) para o domínio, porque o `CatalogQuery` os expõe; se ausentes, o rótulo cai no `id` e o resto fica vazio, e o `OfficialCatalogTest` garante que o catálogo oficial os preenche.

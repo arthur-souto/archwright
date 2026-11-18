@@ -22,7 +22,19 @@ final class DependencyParser {
     }
 
     private DependencyDefinition parseRow(YamlRow row) {
-        return new DependencyDefinition(dependencyId(row, row.text("id")), implied(row), annotationProcessors(row));
+        DependencyId id = dependencyId(row, row.text("id"));
+
+        return new DependencyDefinition(
+                id,
+                orDefault(row.optionalText("label"), id.value()),
+                orDefault(row.optionalText("description"), ""),
+                orDefault(row.optionalText("group"), ""),
+                implied(row),
+                annotationProcessors(row));
+    }
+
+    private String orDefault(String value, String fallback) {
+        return value == null ? fallback : value;
     }
 
     private List<DependencyId> implied(YamlRow row) {

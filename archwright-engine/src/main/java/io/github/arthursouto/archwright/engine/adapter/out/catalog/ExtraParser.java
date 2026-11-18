@@ -24,7 +24,13 @@ final class ExtraParser {
 
         ExtraId extraId = ExtraId.parse(id).orElseThrow(() -> row.problem("invalid extra id '" + id + "'"));
 
-        return new ExtraDefinition(extraId, required(row));
+        return new ExtraDefinition(extraId, label(row, extraId), required(row));
+    }
+
+    private String label(YamlRow row, ExtraId id) {
+        String label = row.optionalText("label");
+
+        return label == null ? id.value() : label;
     }
 
     private List<DependencyId> required(YamlRow row) {
