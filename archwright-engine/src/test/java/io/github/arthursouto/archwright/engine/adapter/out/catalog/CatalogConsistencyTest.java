@@ -325,6 +325,30 @@ class CatalogConsistencyTest {
     }
 
     @Test
+    void readsAnnotationProcessorsOfADependency() throws IOException {
+        CatalogFixture fixture = CatalogFixture.valid().with(DEPENDENCIES, """
+                - id: web
+                  annotationProcessors: [{ g: org.projectlombok, a: lombok, v: "${lombok.version}" }]
+                """);
+
+        assertThat(fixture.load(root).dependencies().getFirst().annotationProcessors()).containsExactly(
+                new MavenCoordinate("org.projectlombok", "lombok", "${lombok.version}", null));
+    }
+
+    @Test
+    void rejectsAnnotationProcessorWithoutVersionProperty() {
+        CatalogFixture fixture = CatalogFixture.valid().with(DEPENDENCIES, """
+                - id: web
+                  annotationProcessors: [{ g: org.projectlombok, a: lombok, v: "1.18.0" }]
+                """);
+
+        assertThatThrownBy(() -> fixture.load(root))
+                .hasMessageContaining("dependencies.yaml")
+                .hasMessageContaining("annotationProcessors[1]")
+                .hasMessageContaining("version property");
+    }
+
+    @Test
     void sortsProfilesNewestFirstByNumbersNotByText() throws IOException {
         CatalogFixture fixture = CatalogFixture.valid().with(PROFILES,
                 profile("3.5", 17, 24, false, "web") + profile("3.10", 17, 24, false, "web") + profile("4.1", 17, 25, false, "web"));

@@ -105,6 +105,10 @@ final class YamlRow {
         return grouped;
     }
 
+    List<YamlRow> listOfRows(String key) {
+        return childRows(key, values.get(key));
+    }
+
     IllegalStateException problem(String message) {
         return CatalogChecks.problem(file, describe() + ": " + message);
     }

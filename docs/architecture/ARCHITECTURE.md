@@ -47,13 +47,14 @@ io.github.arthursouto.archwright.engine
 ├── domain/
 │   ├── model/        # ProjectSpec, ProjectIdentity, ArtifactId, GroupId, BasePackage, Description, ModuleName,
 │   │                 # Architecture, ArchitectureStyle, BootVersion, JavaVersion, BootProfile, Catalog,
-│   │                 # DependencyId, DependencyDefinition, ExtraId, ExtraDefinition, KitId,
+│   │                 # DependencyId, DependencyDefinition, ExtraId, ExtraDefinition, KitId, MavenCoordinate,
+│   │                 # PersistenceNamespace, TestStrategy, TemplateContext,
 │   │                 # FilePlan, PlannedFile, GeneratedProject, GeneratedFile
 │   ├── style/        # ArchitectureStyleStrategy, HexagonalModularStyle, HexagonalLayeredStyle, ArchitectureStyles
 │   ├── kit/          # KitStrategy, NoneKit, BasicKit, Kits
 │   ├── validation/   # ProjectDraft, Violation, Warning, ViolationCode, WarningCode, ValidationResult, SpecValidator
 │   │                 # (regras BR-001 a BR-034; um validador interno por assunto)
-│   └── naming/       # Names, PackageSegments (puros)
+│   └── naming/       # Names, PackageSegments, Escaping (puros)
 ├── application/
 │   ├── port/in/      # GenerateProjectUseCase, PreviewProjectQuery, CatalogQuery + DTOs (ProjectRequest, ExportTarget, ...)
 │   ├── port/out/     # BootVersionSource, VersionCache, CachedVersions, EmbeddedVersions, CatalogRepository, TemplateRepository,
@@ -324,7 +325,7 @@ Invariantes do `BootProfile` (verificadas ao carregar, citando a linha): `javaMi
 ---
 
 ## Etapa 3 — Montar contexto (`ENG-CTX`)
-**Status:** ⏳ a implementar.
+**Status:** ✅ implementado (`ContextBuilder`, `TemplateContext`), exceto `fitness.rules`, que depende da seleção das regras (passo 10).
 Regras: [BR-004](../domain/BUSINESS_RULES.md#identificação-do-projeto), [BR-005](../domain/BUSINESS_RULES.md#identificação-do-projeto), [BR-050](../domain/BUSINESS_RULES.md#geração), [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md) (decisão no motor, nunca no template).
 
 Junta `ProjectSpec` + `BootProfile` num mapa somente-leitura com tudo que os templates usam, já calculado e escapado. A lista completa de variáveis é contrato: [TEMPLATE_FORMAT — Contexto](../contracts/TEMPLATE_FORMAT.md#contexto-disponível-nos-templates).
@@ -333,13 +334,22 @@ Junta `ProjectSpec` + `BootProfile` num mapa somente-leitura com tudo que os tem
 | # | Dado | Quando | Então |
 |---|---|---|---|
 | 1 | pacote `com.acme.pedidoapi` | montar | `basePackage=com.acme.pedidoapi`, `basePackagePath=com/acme/pedidoapi` |
-| 2 | Boot 4.1, kit `BASIC` | montar | `dependencies` ordenadas por `groupId:artifactId`, já com os artefatos do perfil; `has.jpa=true`, `has.security=false` |
-| 3 | Java `8` | montar | `javaVersionProperty=1.8`; Java `21` → `21` |
+| 2 | Boot 4.1, kit `BASIC` | montar | `dependencies` ordenadas por `groupId:artifactId`, já com os artefatos do perfil; `dep.jpa=true`, `dep.security=false` |
+| 3 | Java `8` | montar | `java.property=1.8`; Java `21` → `21` |
 | 4 | descrição `API <beta> & cia` | montar | `descriptionXml=API &lt;beta&gt; &amp; cia`; `descriptionMarkdown` sem alteração de `<`/`>` mas com `\` antes de `*` e `_` |
-| 5 | módulos `pedidos`, `pagamentos` | montar | `modules` = lista de `{name, packageName, packagePath, displayName}` na ordem do pedido |
+| 5 | módulos `pedidos`, `pagamentos` | montar | `modules` = lista de `{name, packageName, packagePath, displayName}` na ordem do pedido, com pacote e caminho **completos** (`com.acme.pedidoapi.pedidos`, `com/acme/pedidoapi/pedidos`); `aggregates` vazio |
 | 6 | dois contextos do mesmo pedido | comparar | iguais (determinismo, BR-050) |
 
-**Pronto quando:** `ContextBuilderTest` cobre #1 a #6.
+| 7 | estilo `HEXAGONAL_LAYERED`, agregados `paciente`, `pedido_item` | montar | `aggregates` preenchido (`displayName=PedidoItem`) e `modules` vazio |
+| 8 | Boot 4.1, `springdoc` + `web`, fitness ligada | montar | `properties` = `archunit.version` e `springdoc.version` (só as usadas, por nome); `testDependencies` inclui `archunit-junit5` |
+| 9 | fitness desligada | montar | sem `archunit-junit5` em `testDependencies`, sem `archunit.version` em `properties`, `fitness.enabled=false` |
+| 10 | `lombok` selecionado | montar | `annotationProcessors` = `[{org.projectlombok, lombok, versionProperty=lombok.version}]`; sem `lombok`, vazio |
+| 11 | sem `jpa` | montar | não existe a variável `database`; com `jpa`, `database.name=pedido_api_db` |
+| 12 | uma flag `dep.<id>` por dependência do catálogo e `extra.<id>` por extra | montar | existem para todas, `true` só para as selecionadas |
+
+O contexto é imutável e aceita consulta por caminho (`find("boot.version")`, `flag("dep.jpa")`); `flag` recusa nome inexistente ou que não seja booleano, o que o planejador usa para o `when` do manifest. Escapes: XML troca `& < > " '`; Markdown protege `\ * _ \` [ ]` (e deixa `<`, `>` e `&` como estão).
+
+**Pronto quando:** `ContextBuilderTest` cobre #1 a #12; `TemplateContextTest`, `EscapingTest` e `NamesTest` cobrem as peças puras.
 
 ---
 

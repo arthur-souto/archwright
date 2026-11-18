@@ -5,6 +5,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -37,7 +38,10 @@ final class MavenMetadataParser {
         factory.setXIncludeAware(false);
         factory.setExpandEntityReferences(false);
 
-        return factory.newDocumentBuilder();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        builder.setErrorHandler(new DefaultHandler());
+
+        return builder;
     }
 
     private Node versionsContainer(Document document) throws IOException {

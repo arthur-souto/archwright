@@ -39,3 +39,4 @@
   label: Lombok
   description: Reduz código repetitivo com anotações.
   group: Desenvolvimento
+  annotationProcessors: [{ g: org.projectlombok, a: lombok, v: "${lombok.version}" }]

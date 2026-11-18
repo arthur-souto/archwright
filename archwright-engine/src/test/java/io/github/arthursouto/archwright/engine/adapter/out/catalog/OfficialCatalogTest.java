@@ -8,6 +8,7 @@ import io.github.arthursouto.archwright.engine.domain.model.DependencyDefinition
 import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.ExtraId;
+import io.github.arthursouto.archwright.engine.domain.model.MavenCoordinate;
 import io.github.arthursouto.archwright.engine.domain.model.PersistenceNamespace;
 import io.github.arthursouto.archwright.engine.domain.model.TestStrategy;
 import io.github.arthursouto.archwright.engine.domain.style.ArchitectureStyles;
@@ -133,6 +134,16 @@ class OfficialCatalogTest {
         assertThat(repository.bootProfiles()).allSatisfy(profile ->
                 assertThat(profile.artifacts()).allSatisfy((dependency, coordinates) ->
                         assertThat(coordinates).as("%s on %s", dependency.value(), profile.line()).isNotEmpty()));
+    }
+
+    @Test
+    void declaresLombokAsTheOnlyAnnotationProcessor() {
+        assertThat(dependency("lombok").annotationProcessors()).containsExactly(
+                new MavenCoordinate("org.projectlombok", "lombok", "${lombok.version}", null));
+        assertThat(repository.dependencies())
+                .filteredOn(definition -> !definition.annotationProcessors().isEmpty())
+                .extracting(definition -> definition.id().value())
+                .containsExactly("lombok");
     }
 
     private BootProfile profile(String line) {

@@ -9,6 +9,9 @@ public final class Names {
     private static final Pattern SEPARATORS = Pattern.compile("[-.]");
     private static final String MAIN_CLASS_SUFFIX = "Application";
     private static final String DIGIT_PREFIX = "App";
+    private static final Pattern UNDERSCORE = Pattern.compile("_");
+    private static final String DATABASE_SUFFIX = "_db";
+    private static final int DATABASE_BASE_MAX_LENGTH = 60;
 
     private Names() {
     }
@@ -22,6 +25,20 @@ public final class Names {
 
     public static String packageSegment(String value) {
         return SEPARATORS.matcher(value).replaceAll("").toLowerCase(Locale.ROOT);
+    }
+
+    public static String displayName(String segment) {
+        return UNDERSCORE.splitAsStream(segment)
+                .filter(part -> !part.isEmpty())
+                .map(Names::capitalize)
+                .collect(Collectors.joining());
+    }
+
+    public static String databaseName(String artifactId) {
+        String base = SEPARATORS.matcher(artifactId).replaceAll("_");
+        String limited = base.length() > DATABASE_BASE_MAX_LENGTH ? base.substring(0, DATABASE_BASE_MAX_LENGTH) : base;
+
+        return limited + DATABASE_SUFFIX;
     }
 
     public static String mainClassName(String artifactId) {

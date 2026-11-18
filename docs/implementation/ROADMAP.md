@@ -22,7 +22,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 2. [x] **Aceitar o [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)** (aceito, com Strategy para estilo e kit) e implementar os **catálogos YAML** ([ENG-CAT](../architecture/ARCHITECTURE.md#catálogos-eng-cat)) com os [perfis iniciais](../architecture/ARCHITECTURE.md#perfis-de-versão-iniciais). O `fitness-rules.yaml` e a regra ENG-CAT-01 #5 entram no passo 10.
 3. [x] **BootProfile** ([ENG-BPR](../architecture/ARCHITECTURE.md#etapa-2--resolver-o-bootprofile-eng-bpr)).
 4. [x] **Versões do Spring Boot** com cache e fallback ([ENG-VER](../architecture/ARCHITECTURE.md#versões-do-spring-boot-eng-ver)).
-5. [ ] **Contexto** ([ENG-CTX](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-eng-ctx)).
+5. [x] **Contexto** ([ENG-CTX](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-eng-ctx)).
 6. [ ] **Templates `common` + `hexagonal-modular`**, portando o protótipo `GeradorHex.java` e o Hexbank, e o **planner** ([ENG-PLN-01](../architecture/ARCHITECTURE.md#etapa-4--planejar-arquivos-eng-pln)).
 7. [ ] **Renderer** + primeiro teste *golden* ([ENG-RND](../architecture/ARCHITECTURE.md#etapa-5--renderizar-eng-rnd)).
 8. [ ] **Exportadores ZIP e pasta** ([ENG-EXP](../architecture/ARCHITECTURE.md#etapa-6--exportar-eng-exp)).

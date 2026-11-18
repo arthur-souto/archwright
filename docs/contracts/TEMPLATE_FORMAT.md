@@ -94,14 +94,14 @@ Montado pela [etapa 3](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-
 | `boot.version`, `boot.line` | `4.1.2`, `4.1` | |
 | `java.version`, `java.property` | `25`, `25` (`1.8` para Java 8) | |
 | `kit.id`, `kit.label` | `BASIC`, `Básico` | |
-| `dependencies` | lista de `{groupId, artifactId, version, scope, optional}` | ordenada; `version` só quando não gerenciada |
-| `testDependencies` | mesma estrutura | |
-| `properties` | lista de `{name, value}` | ex.: `archunit.version` |
+| `dependencies` | lista de `{groupId, artifactId, version, hasVersion, scope, hasScope}` | ordenada por `groupId:artifactId`; `hasVersion` só quando a versão não é gerenciada pelo BOM (`version` fica `""` nos demais); `hasScope` só quando há escopo diferente do padrão. Sem `optional`: o Lombok usa `scope: provided` |
+| `testDependencies` | mesma estrutura, `scope` sempre preenchido (`test` por padrão) | inclui `archunit-junit5` só com fitness ligada |
+| `properties` | lista de `{name, value}`, ordenada por nome | só as versões fixadas (`pinnedVersions`) usadas por algum artefato selecionado, e `archunit.version` com fitness ligada |
 | `annotationProcessors` | lista de `{groupId, artifactId, versionProperty}` | ex.: Lombok |
-| `modules`, `aggregates` | lista de `{name, packageName, packagePath, displayName}` | |
+| `modules`, `aggregates` | lista de `{name, packageName, packagePath, displayName}` | `packageName` e `packagePath` completos (`com.acme.app.pedidos`, `com/acme/app/pedidos`); `displayName` em PascalCase (`pedido_item` → `PedidoItem`). `modules` só no estilo modular e `aggregates` só no em camadas; a outra lista existe, vazia |
 | `persistence.namespace` | `jakarta` | `javax` no Boot 2.7 |
-| `database.name` | `pedido_api_db` | só com `dep.jpa` |
-| `fitness.rules` | lista de `{id, description}` | para o README |
+| `database.name` | `pedido_api_db` | só com `dep.jpa` (sem `jpa` a variável `database` não existe); até 63 caracteres, o limite do PostgreSQL |
+| `fitness.rules` | lista de `{id, description}` | para o README; preenchida pela seleção das regras (passo 10), não pela etapa 3 |
 | **Flags** | | usadas em `when` e em seções `{{#flag}}` |
 | `dep.<id>` | `dep.jpa`, `dep.web`… | uma por dependência do catálogo |
 | `extra.<id>` | `extra.docker-compose` | |
@@ -153,6 +153,12 @@ Dependência do catálogo sem entrada em `artifacts` num perfil = não disponív
   description: Migrations versionadas do banco.
   group: Dados
   implies: [jpa]          # BR-033
+
+- id: lombok
+  label: Lombok
+  group: Desenvolvimento
+  annotationProcessors:   # vão para o maven-compiler-plugin; a versão é sempre uma propriedade
+    - { g: org.projectlombok, a: lombok, v: "${lombok.version}" }
 ```
 
 ### Kits

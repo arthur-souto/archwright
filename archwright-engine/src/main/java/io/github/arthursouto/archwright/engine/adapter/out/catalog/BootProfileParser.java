@@ -72,7 +72,7 @@ final class BootProfileParser {
         Map<DependencyId, List<MavenCoordinate>> coordinates = new LinkedHashMap<>();
 
         row.groupedRows(key).forEach((name, entries) ->
-                coordinates.put(dependencyId(row, key, name), entries.stream().map(this::coordinate).toList()));
+                coordinates.put(dependencyId(row, key, name), entries.stream().map(CoordinateParser::parse).toList()));
 
         return coordinates;
     }
@@ -80,10 +80,6 @@ final class BootProfileParser {
     private DependencyId dependencyId(YamlRow row, String key, String name) {
         return DependencyId.parse(name)
                 .orElseThrow(() -> row.problem("invalid dependency id '" + name + "' in " + key));
-    }
-
-    private MavenCoordinate coordinate(YamlRow entry) {
-        return new MavenCoordinate(entry.text("g"), entry.text("a"), entry.optionalText("v"), entry.optionalText("scope"));
     }
 
     private static BootVersion version(BootProfile profile) {

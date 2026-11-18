@@ -49,6 +49,31 @@ class NamesTest {
         assertThat(Names.suggestBasePackage("  ", "pedido-api")).isEmpty();
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "pedidos, Pedidos",
+            "pedido_item, PedidoItem",
+            "a_b_c, ABC"
+    })
+    void buildsDisplayNameFromSegment(String input, String expected) {
+        assertThat(Names.displayName(input)).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "pedido-api, pedido_api_db",
+            "order.service, order_service_db",
+            "app, app_db"
+    })
+    void buildsDatabaseNameFromArtifactId(String input, String expected) {
+        assertThat(Names.databaseName(input)).isEqualTo(expected);
+    }
+
+    @Test
+    void databaseNameFitsThePostgresqlIdentifierLimit() {
+        assertThat(Names.databaseName("a".repeat(64))).hasSize(63);
+    }
+
     @Test
     void suggestsNothingWhenArtifactIsBlank() {
         assertThat(Names.suggestBasePackage("com.acme", "")).isEmpty();
