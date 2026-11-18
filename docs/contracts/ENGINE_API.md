@@ -118,6 +118,7 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
 | `UNSUPPORTED_BOOT_VERSION` | `bootVersion` | `value` | Versão do Spring Boot não suportada. |
 | `UNSUPPORTED_JAVA_VERSION` | `javaVersion` | `value` | Versão do Java não suportada. |
 | `INCOMPATIBLE_JAVA_VERSION` | `javaVersion` | `min`, `boot` | Spring Boot `{boot}` exige Java `{min}` ou superior. |
+| `UNKNOWN_KIT` | `kit` | `value` | Kit de dependências desconhecido. |
 | `UNKNOWN_DEPENDENCY` | `dependencies` | `id` | Dependência `{id}` desconhecida. |
 | `DEPENDENCY_NOT_AVAILABLE` | `dependencies` | `id`, `boot` | `{id}` não está disponível no Spring Boot `{boot}`. |
 | `UNKNOWN_EXTRA` | `extras` | `id` | Extra `{id}` desconhecido. |

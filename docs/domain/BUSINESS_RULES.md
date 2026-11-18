@@ -34,7 +34,7 @@ Vocabulário:
 - **BR-031** Kits da Fase 1:
   - `NONE` (Nenhuma): nenhuma dependência além do starter base e do starter de testes.
   - `BASIC` (Básico): `web`, `validation`, `actuator`, `jpa` (inclui o driver PostgreSQL), `flyway`, `lombok`.
-- **BR-032** O kit é só um ponto de partida: o pedido carrega a lista final de dependências, e o id do kit escolhido é apenas informativo (vai para o README gerado).
+- **BR-032** O kit é só um ponto de partida: o pedido carrega a lista final de dependências, e o id do kit escolhido não altera a geração além de ir para o README gerado. O id deve ser de um kit conhecido (estratégia registrada em `Kits`); fora disso: `UNKNOWN_KIT`.
 - **BR-033** Dependências implícitas, adicionadas pelo motor com o aviso `DEPENDENCY_ADDED` (citando qual e por quê): `flyway` → `jpa`; `springdoc` → `web`.
 - **BR-034** Extras não são dependências Maven:
   - `docker-compose`: só com `jpa`. Sem `jpa`: `EXTRA_REQUIRES_DEPENDENCY`.

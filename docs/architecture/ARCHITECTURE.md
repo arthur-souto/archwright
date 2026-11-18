@@ -45,11 +45,15 @@ Os dois módulos usam **Java 25** e são compilados com `--release 25`. Os proje
 ```text
 io.github.arthursouto.archwright.engine
 ├── domain/
-│   ├── model/        # ProjectSpec, ArtifactId, GroupId, BasePackage, ModuleName, ArchitectureStyle,
-│   │                 # BootVersion, JavaVersion, BootProfile, DependencyId, Extra, KitId,
+│   ├── model/        # ProjectSpec, ProjectIdentity, ArtifactId, GroupId, BasePackage, Description, ModuleName,
+│   │                 # Architecture, ArchitectureStyle, BootVersion, JavaVersion, BootProfile, Catalog,
+│   │                 # DependencyId, DependencyDefinition, ExtraId, ExtraDefinition, KitId,
 │   │                 # FilePlan, PlannedFile, GeneratedProject, GeneratedFile
-│   ├── validation/   # Violation, Warning, ViolationCode, SpecValidator (regras BR-001 a BR-034)
-│   └── naming/       # Names: pascalCase, packageSegment, suggestBasePackage (puros)
+│   ├── style/        # ArchitectureStyleStrategy, HexagonalModularStyle, HexagonalLayeredStyle, ArchitectureStyles
+│   ├── kit/          # KitStrategy, NoneKit, BasicKit, Kits
+│   ├── validation/   # ProjectDraft, Violation, Warning, ViolationCode, WarningCode, ValidationResult, SpecValidator
+│   │                 # (regras BR-001 a BR-034; um validador interno por assunto)
+│   └── naming/       # Names, PackageSegments (puros)
 ├── application/
 │   ├── port/in/      # GenerateProjectUseCase, PreviewProjectQuery, CatalogQuery + DTOs (ProjectRequest, ExportTarget, ...)
 │   ├── port/out/     # BootVersionSource, VersionCache, CatalogRepository, TemplateRepository,
@@ -69,7 +73,7 @@ Recursos (não são código):
 
 ```text
 archwright-engine/src/main/resources/archwright/
-├── catalog/        # boot-profiles.yaml, dependencies.yaml, kits.yaml, fitness-rules.yaml, boot-versions.txt
+├── catalog/        # styles.yaml, boot-profiles.yaml, dependencies.yaml, extras.yaml, fitness-rules.yaml, boot-versions.txt
 ├── templates/
 │   ├── common/             # pom.xml, application.yaml, .gitignore, README.md, mvnw, docker-compose.yml, ci.yml
 │   ├── hexagonal-modular/  # manifest.yaml + arquivos do estilo
@@ -111,14 +115,14 @@ Cada etapa abaixo segue o [modelo de especificação](../implementation/SPEC_TEM
 **Status:** ⏳ a implementar.
 Regras: [BR-020](../domain/BUSINESS_RULES.md#versões), [BR-030](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-031](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-041](../domain/BUSINESS_RULES.md#fitness-functions), [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md). Formato: [TEMPLATE_FORMAT](../contracts/TEMPLATE_FORMAT.md#catálogos).
 
-Lê os quatro YAML do classpath uma vez, valida a consistência entre eles e entrega objetos imutáveis. Um catálogo inválido é bug do Archwright: falha na inicialização do engine e no build (teste dedicado), nunca na mão do usuário.
+Lê os YAML do classpath uma vez, valida a consistência entre eles e entrega objetos imutáveis. Estilos e kits têm regras em código ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), item 6); o catálogo só confere que o que elas citam existe nos YAML. Um catálogo inválido é bug do Archwright: falha na inicialização do engine e no build (teste dedicado), nunca na mão do usuário.
 
 **Contrato**
 
     public interface CatalogRepository {
         List<BootProfile> bootProfiles();        // ordenados da linha mais nova para a mais antiga
         List<DependencyDefinition> dependencies();
-        List<Kit> kits();
+        List<ExtraDefinition> extras();
         List<FitnessRuleDefinition> fitnessRules();
         List<ArchitectureStyleDefinition> styles();
     }
@@ -129,8 +133,8 @@ Lê os quatro YAML do classpath uma vez, valida a consistência entre eles e ent
 
 | # | Dado | Quando | Então |
 |---|---|---|---|
-| 1 | catálogos oficiais do repositório | engine inicia | carrega sem erro; 2 estilos, ≥ 9 perfis, kits `NONE` e `BASIC` |
-| 2 | kit referencia dependência `foo` que não existe | carregar | `IllegalStateException` citando `kits.yaml` e `foo` |
+| 1 | catálogos oficiais do repositório | engine inicia | carrega sem erro; 2 estilos, ≥ 9 perfis; `Kits.standard()` com `NONE` e `BASIC` |
+| 2 | kit (estratégia) referencia dependência `foo` que não existe em `dependencies.yaml` | engine inicia | `IllegalStateException` citando o kit e `foo` |
 | 3 | dois perfis com a mesma linha `3.5` | carregar | exceção citando `boot-profiles.yaml` e `3.5` |
 | 4 | dependência com faixa `[3.0, 2.7)` (início > fim) | carregar | exceção citando a dependência |
 | 5 | regra de fitness function referencia template inexistente | carregar | exceção citando a regra e o caminho |
@@ -177,11 +181,11 @@ Filtro aplicado sobre qualquer origem: só `x.y.z` estáveis, `>= 2.7.0`, cuja l
 ---
 
 ## Etapa 1 — Validar e normalizar (`ENG-VAL`)
-**Status:** ⏳ a implementar.
+**Status:** ✅ implementado (`SpecValidatorTest` e um teste por validador).
 Regras: [BR-001 a BR-005](../domain/BUSINESS_RULES.md#identificação-do-projeto), [BR-010 a BR-012](../domain/BUSINESS_RULES.md#estilo-de-arquitetura), [BR-020 a BR-024](../domain/BUSINESS_RULES.md#versões), [BR-030 a BR-034](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-070](../domain/BUSINESS_RULES.md#erros-avisos-e-privacidade).
 Depende de: [catálogos](#catálogos-eng-cat).
 
-Transforma o `ProjectRequest` (strings cruas) num `ProjectSpec` (tipos de domínio válidos) ou numa lista com **todas** as violações. Lógica pura, no `domain`, sem E/S. A verificação do destino de exportação (BR-061 a BR-063) **não** é feita aqui: é do exportador ([ENG-EXP](#etapa-6--exportar-eng-exp)).
+Transforma o `ProjectDraft` (strings cruas, com nulos já normalizados) num `ProjectSpec` (tipos de domínio válidos) ou numa lista com **todas** as violações. O caso de uso converte o `ProjectRequest` (`application.port.in`) em `ProjectDraft`, porque o domínio não pode depender da aplicação (AW-FF-01). Lógica pura, no `domain`, sem E/S. A verificação do destino de exportação (BR-061 a BR-063) **não** é feita aqui: é do exportador ([ENG-EXP](#etapa-6--exportar-eng-exp)).
 
 **Contrato**
 
@@ -189,7 +193,8 @@ Transforma o `ProjectRequest` (strings cruas) num `ProjectSpec` (tipos de domín
         record Valid(ProjectSpec spec, List<Warning> warnings) implements ValidationResult {}
         record Invalid(List<Violation> violations) implements ValidationResult {}
     }
-    public ValidationResult SpecValidator.validate(ProjectRequest request, Catalog catalog);
+    public SpecValidator(Catalog catalog, ArchitectureStyles styles, Kits kits);
+    public ValidationResult SpecValidator.validate(ProjectDraft draft);
     public record Violation(ViolationCode code, String field, Map<String, String> params) {}
 
 #### ENG-VAL-01 — Identificação do projeto
@@ -248,6 +253,7 @@ Transforma o `ProjectRequest` (strings cruas) num `ProjectSpec` (tipos de domín
 | 6 | dependência existente, fora da faixa da versão escolhida | validar | `DEPENDENCY_NOT_AVAILABLE` com `params.boot` |
 | 7 | extra `docker-compose` sem `jpa` | validar | `EXTRA_REQUIRES_DEPENDENCY` com `params.requires=jpa` |
 | 8 | dependências `["web", "web"]` | validar | válido; `web` uma vez só |
+| 9 | kit `"PREMIUM"` (fora do registro `Kits`) ou vazio | validar | `UNKNOWN_KIT` com `params.value` |
 
 **Pronto quando:** `SpecValidatorTest` (domínio puro, catálogo montado em memória) cobre ENG-VAL-01 a 04.
 

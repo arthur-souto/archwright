@@ -1,6 +1,6 @@
 # Contrato — Formato de templates e catálogos
 
-Define como os estilos de arquitetura e os catálogos são descritos em arquivos ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)). Adicionar um novo estilo de arquitetura deve exigir **apenas** um novo diretório de templates, uma entrada em `styles` e, se precisar, regras novas em `fitness-rules.yaml`.
+Define como os estilos de arquitetura e os catálogos são descritos em arquivos ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)). Adicionar um novo estilo de arquitetura exige um novo diretório de templates, uma entrada em `styles`, uma estratégia em código (`ArchitectureStyleStrategy`, ver [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), item 6) e, se precisar, regras novas em `fitness-rules.yaml`.
 
 Tudo fica em `archwright-engine/src/main/resources/archwright/`.
 
@@ -12,7 +12,6 @@ archwright/
 │   ├── styles.yaml
 │   ├── boot-profiles.yaml
 │   ├── dependencies.yaml
-│   ├── kits.yaml
 │   ├── extras.yaml
 │   ├── fitness-rules.yaml
 │   └── boot-versions.txt          # fallback embutido (ENG-VER), uma versão por linha
@@ -120,9 +119,8 @@ Montado pela [etapa 3](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-
   description: Monólito modular. Cada módulo tem domain, application e adapter próprios, com shared kernel e bootstrap.
   templateDir: hexagonal-modular
   modulesLabel: Módulos
-  modulesRequired: true
-  reservedModuleNames: [shared, bootstrap, architecture]
 ```
+Só apresentação e diretório de templates. `modulesRequired` e `reservedModuleNames` vivem na estratégia do estilo (`HexagonalModularStyle`).
 
 ### `boot-profiles.yaml`
 ```yaml
@@ -157,15 +155,8 @@ Dependência do catálogo sem entrada em `artifacts` num perfil = não disponív
   implies: [jpa]          # BR-033
 ```
 
-### `kits.yaml`
-```yaml
-- id: NONE
-  label: Nenhuma
-  dependencies: []
-- id: BASIC
-  label: Básico
-  dependencies: [web, validation, actuator, jpa, flyway, lombok]
-```
+### Kits
+Não há `kits.yaml`: kits são estratégias em código (`NoneKit`, `BasicKit`, registro `Kits`; [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), item 6). Todo id de dependência citado por um kit deve existir em `dependencies.yaml` (verificado em `CatalogConsistencyTest`).
 
 ### `extras.yaml`
 ```yaml

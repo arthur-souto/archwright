@@ -6,13 +6,15 @@
 - **Decisão:**
   1. **Templates** ficam em arquivos, um diretório por estilo de arquitetura, renderizados com **Mustache** (biblioteca **JMustache**: um único jar, sem dependências).
   2. Cada estilo tem um **`manifest.yaml`** que lista os arquivos a gerar, as condições de inclusão e a repetição por módulo ([formato](../contracts/TEMPLATE_FORMAT.md)).
-  3. **Catálogos** também são dados em YAML: perfis de versão do Spring Boot (`boot-profiles.yaml`), kits de dependências (`kits.yaml`), dependências (`dependencies.yaml`) e regras de fitness functions (`fitness-rules.yaml`). São lidos com **SnakeYAML**.
+  3. **Catálogos** também são dados em YAML: estilos (`styles.yaml`, só apresentação e diretório de templates), perfis de versão do Spring Boot (`boot-profiles.yaml`), dependências (`dependencies.yaml`), extras (`extras.yaml`) e regras de fitness functions (`fitness-rules.yaml`). São lidos com **SnakeYAML**.
   4. Os arquivos ficam embutidos no jar do engine. A Fase 4 do [roadmap](../implementation/ROADMAP.md) avalia permitir uma pasta externa que sobrescreva os embutidos.
   5. Mustache não tem lógica (só `{{var}}`, seções e listas). **Toda decisão fica no engine**, que entrega ao template um contexto já resolvido.
+  6. **Exceção deliberada: regras de comportamento de estilo e de kit são Strategy em código** (`domain.style.ArchitectureStyleStrategy`, `domain.kit.KitStrategy`). Cada estilo declara se exige módulos e quais nomes de módulo são reservados; cada kit declara seu id e suas dependências padrão. Os registros `ArchitectureStyles` e `Kits` falham na montagem se houver estratégia duplicada, e um kit fora do registro gera `UNKNOWN_KIT`. Motivo: novos estilos (Clean, Onion, camadas tradicionais, Fase 5) trazem regras próprias, e uma classe testada dá mais controle do que campos de YAML que cresceriam a cada estilo. Adicionar um estilo passa a exigir: valor em `ArchitectureStyle`, uma estratégia, uma entrada em `styles.yaml` e o diretório de templates.
 - **Alternativas consideradas:**
   - *Pebble ou FreeMarker:* `if/else` e filtros mais expressivos, mas facilitam colocar regra de negócio no template, onde ela não é testada. Descartado.
   - *Manifest em JSON:* sem dependência extra, mas pior para editar à mão (sem comentários). Descartado.
   - *Manifest em código Java:* tipado, mas volta ao problema do protótipo. Descartado.
+  - *Regras de estilo e kit também em YAML (`modulesRequired`, `reservedModuleNames`, dependências do kit):* mantém "novo estilo = só dados", mas cada regra nova de um estilo exigiria um campo novo no YAML e no carregador. Descartado em favor do item 6.
   - *Maven Archetype:* nativo, mas a lógica condicional (Boot 2/3/4, dependências opcionais) fica muito difícil no Velocity. Descartado.
 - **Consequências:** atualizar uma versão do Spring Boot ou o texto de um `package-info` vira uma mudança só em dados, revisável por qualquer pessoa. Em troca, erros de template só aparecem em tempo de execução: por isso todo template e catálogo é validado no build ([ENG-CAT](../architecture/ARCHITECTURE.md#catálogos-eng-cat)) e coberto por testes de saída ([TESTING](../operations/TESTING.md)).
 - **Quando revisar:** se os templates precisarem de lógica que o contexto pré-calculado não consiga expressar.

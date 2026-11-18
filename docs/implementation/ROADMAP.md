@@ -18,7 +18,7 @@ Foco atual: **motor primeiro, interface depois.**
 ## Fase 1 — Motor
 Ordem pensada para que cada passo seja testável sozinho, do domínio para as bordas.
 
-1. [ ] **Nomes e validação** ([ENG-VAL](../architecture/ARCHITECTURE.md#etapa-1--validar-e-normalizar-eng-val)): `Names`, tipos de valor (`ArtifactId`, `GroupId`, `BasePackage`, `ModuleName`, `BootVersion`, `JavaVersion`), `Violation`, `Warning`, `SpecValidator`. Catálogo montado em memória nos testes.
+1. [x] **Nomes e validação** ([ENG-VAL](../architecture/ARCHITECTURE.md#etapa-1--validar-e-normalizar-eng-val)): `Names`, tipos de valor (`ArtifactId`, `GroupId`, `BasePackage`, `ModuleName`, `BootVersion`, `JavaVersion`), `Violation`, `Warning`, `SpecValidator`. Catálogo montado em memória nos testes.
 2. [ ] **Aceitar o [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)** e implementar os **catálogos YAML** ([ENG-CAT](../architecture/ARCHITECTURE.md#catálogos-eng-cat)) com os [perfis iniciais](../architecture/ARCHITECTURE.md#perfis-de-versão-iniciais).
 3. [ ] **BootProfile** ([ENG-BPR](../architecture/ARCHITECTURE.md#etapa-2--resolver-o-bootprofile-eng-bpr)).
 4. [ ] **Versões do Spring Boot** com cache e fallback ([ENG-VER](../architecture/ARCHITECTURE.md#versões-do-spring-boot-eng-ver)).
