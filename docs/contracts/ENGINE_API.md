@@ -92,6 +92,7 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
     // e a estratégia do estilo (modulesRequired)
 
     public record BootVersions(List<BootVersionOption> versions, VersionOrigin origin, Instant fetchedAt) {}
+    // fetchedAt: gravação do cache ou consulta remota; null quando origin == EMBEDDED
     public record BootVersionOption(String version, String line, boolean legacy, boolean latestOfLine) {}
     public enum VersionOrigin { REMOTE, CACHE, STALE_CACHE, EMBEDDED }
 

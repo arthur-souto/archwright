@@ -26,7 +26,7 @@ Vocabulário:
 - **BR-020** Spring Boot suportado: versão estável (`x.y.z`, sem `-M`, `-RC` ou `-SNAPSHOT`), a partir de `2.7.0`, **cuja linha `x.y` exista no catálogo de perfis** (`boot-profiles.yaml`). Patch novo de uma linha conhecida é aceito automaticamente; linha nova exige atualizar o catálogo. Fora disso: `UNSUPPORTED_BOOT_VERSION`.
 - **BR-021** Java: deve estar entre as versões conhecidas (8, 11, 17 e de 21 em diante; fora disso, `UNSUPPORTED_JAVA_VERSION`) e ser **maior ou igual** ao `javaMin` do perfil. Abaixo do mínimo: `INCOMPATIBLE_JAVA_VERSION`. Acima do `javaMaxTested` do perfil: permitido, com o aviso `JAVA_ABOVE_TESTED`.
 - **BR-022** Padrões: Spring Boot = versão estável mais recente disponível; Java = maior LTS entre `javaMin` e `javaMaxTested` do perfil.
-- **BR-023** A lista de versões do Spring Boot vem, nesta ordem: (1) Maven Central; (2) cache local com até 24 h; (3) cache local mais antigo, se estiver offline; (4) lista embutida no engine. A resposta informa a origem usada (`REMOTE`, `CACHE`, `STALE_CACHE`, `EMBEDDED`); fora de `REMOTE` e `CACHE`, a interface mostra o aviso `VERSIONS_OFFLINE`. A falta de internet nunca impede a geração.
+- **BR-023** A lista de versões do Spring Boot vem, nesta ordem: (1) cache local com menos de 24 h, sem acessar a rede; (2) Maven Central; (3) cache local mais antigo, se o Maven Central não responder; (4) lista embutida no engine. A resposta informa a origem usada (`REMOTE`, `CACHE`, `STALE_CACHE`, `EMBEDDED`); fora de `REMOTE` e `CACHE`, a interface mostra o aviso `VERSIONS_OFFLINE`. A falta de internet nunca impede a geração.
 - **BR-024** Linhas fora de suporte gratuito (hoje, `2.7.x`) são marcadas `legacy` no catálogo e geram o aviso `LEGACY_BOOT_LINE`.
 
 ## Dependências e kits

@@ -56,9 +56,9 @@ io.github.arthursouto.archwright.engine
 │   └── naming/       # Names, PackageSegments (puros)
 ├── application/
 │   ├── port/in/      # GenerateProjectUseCase, PreviewProjectQuery, CatalogQuery + DTOs (ProjectRequest, ExportTarget, ...)
-│   ├── port/out/     # BootVersionSource, VersionCache, CatalogRepository, TemplateRepository,
+│   ├── port/out/     # BootVersionSource, VersionCache, CachedVersions, EmbeddedVersions, CatalogRepository, TemplateRepository,
 │   │                 # TemplateRenderer, ProjectExporter
-│   └── usecase/      # GenerateProject, PreviewProject, BrowseCatalog, ProfileResolver,
+│   └── usecase/      # GenerateProject, PreviewProject, BrowseCatalog, ProfileResolver, BootVersionLookup, CatalogVerifier,
 │                     # ContextBuilder, FilePlanner, ProjectRenderer
 ├── adapter/
 │   └── out/
@@ -148,7 +148,7 @@ Também verificados: arquivo ausente, vazio ou malformado, chave YAML duplicada,
 ---
 
 ## Versões do Spring Boot (`ENG-VER`)
-**Status:** ⏳ a implementar.
+**Status:** ✅ implementado (`BootVersionLookup`, `MavenCentralBootVersionSource`, `FileVersionCache`, `EmbeddedBootVersions`).
 Regras: [BR-020](../domain/BUSINESS_RULES.md#versões), [BR-022](../domain/BUSINESS_RULES.md#versões), [BR-023](../domain/BUSINESS_RULES.md#versões), [BR-072](../domain/BUSINESS_RULES.md#erros-avisos-e-privacidade).
 
 Monta a lista de versões oferecida na tela 2, com fallback em cadeia.
@@ -160,7 +160,13 @@ Monta a lista de versões oferecida na tela 2, com fallback em cadeia.
         Optional<CachedVersions> read();            // versões + instante da gravação
         void write(List<String> versions, Instant at);
     }
-    // cache em <home do usuário>/.archwright/cache/boot-versions.json
+    public interface EmbeddedVersions { List<String> versions(); }   // catalog/boot-versions.txt
+    // cache em <home do usuário>/.archwright/cache/boot-versions.json; gravação em melhor esforço
+    // (falha de E/S não derruba a consulta); arquivo ilegível ou corrompido = sem cache
+    // o cache guarda a lista crua do Maven Central, filtrada a cada leitura (o arquivo é compartilhado
+    // entre versões do Archwright, cujos catálogos podem ter linhas diferentes)
+
+Ordem da consulta (`BootVersionLookup`): **1)** cache com menos de 24 h, sem tocar a rede; **2)** Maven Central (só o `maven-metadata.xml`, sem enviar dado do usuário; limite total de 8 s), gravando o cache; **3)** cache mais antigo; **4)** lista embutida. Uma origem cuja lista, depois do filtro, fique vazia é descartada e a cadeia segue; resposta remota inutilizável não sobrescreve o cache. `fetchedAt` é o instante da gravação do cache ou da consulta remota, e `null` quando a origem é `EMBEDDED`. Um cache com data no futuro nunca é considerado fresco.
 
 Filtro aplicado sobre qualquer origem: só `x.y.z` estáveis, `>= 2.7.0`, cuja linha exista no catálogo; ordenadas da mais nova para a mais antiga.
 
@@ -179,7 +185,7 @@ Filtro aplicado sobre qualquer origem: só `x.y.z` estáveis, `>= 2.7.0`, cuja l
 | 8 | cache fresco (< 24 h) | listar | **não** chama o Maven Central |
 
 **Fora do escopo:** atualizar o catálogo de perfis remotamente (perfis só mudam com nova versão do Archwright).
-**Pronto quando:** `BootVersionsTest` (fakes de `BootVersionSource` e `VersionCache`, relógio fixo) cobre #1 a #8; `MavenCentralBootVersionSourceTest` cobre o parser do XML com arquivo de exemplo.
+**Pronto quando:** `BootVersionsTest` (fakes de `BootVersionSource` e `VersionCache`, relógio fixo) cobre #1 a #8; `MavenMetadataParserTest` cobre o parser do XML com arquivo de exemplo (inclusive recusa de DOCTYPE); `MavenCentralBootVersionSourceTest` (servidor HTTP local, nunca a rede real) cobre o limite de tempo da #5 e o BR-072; `FileVersionCacheTest` cobre cache corrompido e gravação em melhor esforço; `EmbeddedBootVersionsTest` garante que a lista embutida cobre todas as linhas do catálogo oficial. A lista embutida deve ser regenerada a cada release do Archwright.
 
 ---
 
