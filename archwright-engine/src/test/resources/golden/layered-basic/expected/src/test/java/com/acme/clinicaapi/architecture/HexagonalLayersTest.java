@@ -14,6 +14,7 @@ class HexagonalLayersTest {
     @ArchTest
     static final ArchRule FF_LAY_01 = layeredArchitecture()
             .consideringOnlyDependenciesInLayers()
+            .withOptionalLayers(true)
             .layer("Domain").definedBy("..domain..")
             .layer("Application").definedBy("..application..")
             .layer("Adapter").definedBy("..infrastructure..")

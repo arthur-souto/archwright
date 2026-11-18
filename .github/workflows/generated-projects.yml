@@ -1,0 +1,57 @@
+name: Generated projects
+
+on:
+  pull_request:
+    paths:
+      - 'archwright-engine/src/main/resources/archwright/**'
+      - 'archwright-engine/src/test/java/io/github/arthursouto/archwright/engine/matrix/**'
+      - '.github/workflows/generated-projects.yml'
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.descriptor.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Gerar os projetos da matriz
+        run: ./mvnw -B -pl archwright-engine test -Dtest=CompilationMatrixTest -Dmatrix.output="$RUNNER_TEMP/matrix"
+      - id: descriptor
+        run: echo "matrix=$(cat "$RUNNER_TEMP/matrix/matrix.json")" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated-projects
+          path: ${{ runner.temp }}/matrix
+          retention-days: 3
+
+  verify:
+    needs: generate
+    runs-on: ubuntu-latest
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate.outputs.matrix) }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: generated-projects
+          path: generated
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.jdk }}
+          cache: maven
+          cache-dependency-path: generated/${{ matrix.name }}/matrix-app/pom.xml
+      - name: Build e fitness functions do projeto gerado
+        working-directory: generated/${{ matrix.name }}/matrix-app
+        run: |
+          chmod +x mvnw
+          ./mvnw -B verify

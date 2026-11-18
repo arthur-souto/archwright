@@ -41,13 +41,18 @@ Mudança intencional na saída: rodar `./mvnw -pl archwright-engine test -Dtest=
 ## Matriz de compilação
 
 Job de CI separado (`generated-projects.yml`) que garante o BR-044:
-1. Para cada linha do `boot-profiles.yaml` (último patch embutido), cada estilo e cada kit (`NONE`, `BASIC`), com fitness functions ligadas, gera o projeto com o engine.
-2. Roda `./mvnw -B verify` dentro de cada projeto gerado, com o Java padrão do perfil (BR-022).
-3. Linha `4.1` também roda com `javaMaxTested`.
+1. O job `generate` roda `CompilationMatrixTest` com `-Dmatrix.output`, que gera um projeto por caso (via `ArchwrightEngine` offline, só pela API pública) e um `matrix.json`. Para cada linha do Spring Boot (último patch embutido), cada estilo e cada kit (`NONE`, `BASIC`), com fitness functions ligadas, são 52 casos hoje.
+2. O job `verify` roda uma execução por caso (`fail-fast: false`), com o JDK do caso, e faz `./mvnw -B verify` no projeto gerado.
+3. Java por linha: o padrão do perfil (BR-022), o maior testado (`javaMaxTested`, quando difere do padrão: 3.3 a 3.5 rodam em 22, 23 e 24) e, na 2.7, também o Java 8 (compilado no JDK 21).
+4. Os casos `BASIC` acrescentam `springdoc` e `security` às dependências do kit e os dois extras, para exercitar as versões fixadas de SpringDoc e o `docker-compose`/CI gerados.
 
 Quando roda: em todo PR que altere `catalog/`, `templates/` ou `fitness/`, e toda noite na `main`. Falha na matriz bloqueia o merge.
 
 Os valores marcados com ⚠️ nos [perfis iniciais](../architecture/ARCHITECTURE.md#perfis-de-versão-iniciais) só perdem a marcação depois de passar por aqui.
+
+Localmente: `./mvnw -pl archwright-engine test -Dtest=CompilationMatrixTest -Dmatrix.output=/tmp/matrix` gera os casos; cada um tem `matrix-app/` pronto para `./mvnw verify`. O `CompilationMatrixTest` também roda no `./mvnw verify` normal (sem `matrix.output`) e confere a cobertura e que todo caso gera com sucesso.
+
+Achado da primeira rodada: no Boot 2.7 e 3.0 (maven-compiler-plugin 3.10.1) o javac não gera `package-info.class`, então um projeto recém-gerado tinha as três camadas vazias e o `FF-LAY-01` falhava. Corrigido com `withOptionalLayers(true)` no template.
 
 ## Aceitação mínima por fase
 
