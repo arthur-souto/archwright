@@ -1,0 +1,4 @@
+/**
+ * Portas do módulo pagamentos.
+ */
+package com.acme.pedidoapi.pagamentos.application.port;

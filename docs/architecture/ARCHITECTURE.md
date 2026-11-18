@@ -398,10 +398,10 @@ Portas: `TemplateRepository` (`manifest(directory)`, `content(path)`) e `Templat
 ---
 
 ## Etapa 5 — Renderizar (`ENG-RND`)
-**Status:** ⏳ a implementar.
+**Status:** ✅ implementado para o estilo modular (`ProjectRenderer`, `GeneratedProject`, `GeneratedFile`); o golden do estilo em camadas entra com ele, no passo 11.
 Regras: [BR-050](../domain/BUSINESS_RULES.md#geração), [BR-051](../domain/BUSINESS_RULES.md#geração), [BR-053](../domain/BUSINESS_RULES.md#geração).
 
-Aplica o Mustache a cada `PlannedFile` e devolve um `GeneratedProject` em memória. Arquivos marcados como binários (ex.: futuras imagens) são copiados sem renderização. Nada é gravado em disco nesta etapa.
+Aplica o Mustache a cada `PlannedFile` e devolve um `GeneratedProject` em memória. Arquivos com `render: false` são copiados sem Mustache. Todo arquivo é tratado como texto UTF-8 e tem o fim de linha normalizado: `LF`, ou `CRLF` quando o plano pede (`\r\n` e `\r` isolado do template viram `\n` antes). Arquivos binários (ex.: futuras imagens) ainda não existem e exigirão um marcador próprio no manifest. Um erro de renderização cita o template e o destino. As `variables` do `PlannedFile` (ex.: `package`, `description`) sobrepõem o contexto. Nada é gravado em disco nesta etapa.
 
 **Contrato**
 
@@ -418,7 +418,7 @@ Aplica o Mustache a cada `PlannedFile` e devolve um `GeneratedProject` em memór
 | 4 | template usa `{{naoExiste}}` | renderizar | `IllegalStateException` citando arquivo e variável |
 | 5 | pedido de referência (golden) | renderizar | igual, byte a byte, ao projeto esperado em `src/test/resources/golden/` |
 
-**Pronto quando:** `ProjectRendererTest` cobre #1 a #4; `GoldenProjectTest` cobre #5 para cada estilo.
+**Pronto quando:** `ProjectRendererTest` cobre #1 a #4; `GoldenProjectTest` cobre #5 para cada estilo (por ora `modular-basic`, `modular-none` e `legacy-boot2`; os casos em camadas entram no passo 11). Os três projetos de referência também foram compilados com `./mvnw verify`, pelo wrapper gerado, em Boot 4.1/Java 25, 3.5/Java 21 e 2.7/Java 8: verificação manual, até a [matriz de compilação](../operations/TESTING.md#matriz-de-compilação) automatizar o BR-044 (passo 12).
 
 ---
 

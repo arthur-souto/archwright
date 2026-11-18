@@ -1,0 +1,14 @@
+{
+  "artifactId": "legado",
+  "groupId": "com.acme",
+  "basePackage": "",
+  "description": "Sistema legado em Spring Boot 2.7 & Java 8",
+  "architectureStyle": "HEXAGONAL_MODULAR",
+  "modules": ["core"],
+  "bootVersion": "2.7.18",
+  "javaVersion": "8",
+  "kit": "BASIC",
+  "dependencies": ["web", "validation", "actuator", "jpa", "flyway", "lombok", "springdoc"],
+  "extras": [],
+  "fitnessFunctions": true
+}

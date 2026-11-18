@@ -1,0 +1,14 @@
+{
+  "artifactId": "pedido-api",
+  "groupId": "com.acme",
+  "basePackage": "",
+  "description": "API de pedidos",
+  "architectureStyle": "HEXAGONAL_MODULAR",
+  "modules": ["pedidos", "pagamentos"],
+  "bootVersion": "4.1.2",
+  "javaVersion": "25",
+  "kit": "BASIC",
+  "dependencies": ["web", "validation", "actuator", "jpa", "flyway", "lombok"],
+  "extras": ["docker-compose", "github-actions"],
+  "fitnessFunctions": true
+}
