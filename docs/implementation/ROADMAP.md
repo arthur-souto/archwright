@@ -8,8 +8,8 @@ Foco atual: **motor primeiro, interface depois.**
 - [x] Documentação inicial: ADRs 0001 a 0004, regras de negócio, arquitetura, contratos, roadmap e estratégia de testes.
 - [x] Licença Apache 2.0 (`LICENSE` na raiz).
 - [x] Build Maven multi-módulo: `pom.xml` agregador + `archwright-engine` + `archwright-desktop` (vazio por enquanto), Java 25, Maven Wrapper.
-- [x] Pacotes do engine com `package-info.java` ([estrutura](../architecture/ARCHITECTURE.md#pacotes-do-engine)).
-- [x] `EngineArchitectureTest` com AW-FF-01 a 04 e 06 ([regras](../architecture/ARCHITECTURE.md#regras-de-dependência-fitness-functions-do-próprio-engine)), com `archunit.properties` (`failOnEmptyShould=false`).
+- [x] Pacotes do engine ([estrutura](../architecture/ARCHITECTURE.md#pacotes-do-engine)). O próprio engine não usa `package-info.java` (decisão do autor); o BR-054 vale só para o projeto gerado.
+- [x] `EngineArchitectureTest` com AW-FF-01 a 04 e 06 ([regras](../architecture/ARCHITECTURE.md#regras-de-dependência-fitness-functions-do-próprio-engine)), com `archunit.properties` (`archRule.failOnEmptyShould=false`).
 - [x] CI no GitHub Actions: `./mvnw -B verify` em Ubuntu.
 - [x] Dependabot (Maven e GitHub Actions): só dependências estáveis e recentes, com alerta de vulnerabilidades.
 
