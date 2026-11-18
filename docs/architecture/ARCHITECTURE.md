@@ -286,7 +286,7 @@ Valores de partida para o `boot-profiles.yaml`. Os marcados com ⚠️ precisam 
 | 4.0 | 17 | 25 ⚠️ | `jakarta` | `spring-boot-starter-webmvc` | `spring-boot-starter-flyway` | sim | por tecnologia | 3.0.x ⚠️ |
 | 4.1 | 17 | 25 | `jakarta` | `spring-boot-starter-webmvc` | `spring-boot-starter-flyway` | sim | por tecnologia | 3.2.0 |
 
-A linha 4.1 com Java 25 é a combinação usada pelo Hexbank e pelo Liva, por isso não tem ⚠️. ArchUnit: `1.4.1` em todas as linhas ⚠️ (confirmar suporte a Java acima de 25).
+A linha 4.1 com Java 25 é a combinação usada pelo Hexbank e pelo Liva, por isso não tem ⚠️. ArchUnit: `1.5.1` em todas as linhas (versão mais recente estável; ⚠️ confirmar suporte a Java acima de 25).
 
 #### ENG-BPR-01 — Perfil por versão
 | # | Dado | Quando | Então |
