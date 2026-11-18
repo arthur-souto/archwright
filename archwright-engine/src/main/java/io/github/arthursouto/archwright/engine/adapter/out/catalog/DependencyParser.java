@@ -1,5 +1,6 @@
 package io.github.arthursouto.archwright.engine.adapter.out.catalog;
 
+import io.github.arthursouto.archwright.engine.adapter.out.yaml.YamlRow;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyDefinition;
 import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
 import io.github.arthursouto.archwright.engine.domain.model.MavenCoordinate;

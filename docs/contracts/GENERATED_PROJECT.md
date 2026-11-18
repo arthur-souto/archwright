@@ -21,6 +21,8 @@ Exemplos usam `groupId=com.acme`, `artifactId=pedido-api`, pacote `com.acme.pedi
 
 Nenhum arquivo contém data, hora, usuário da máquina ou caminho absoluto (BR-050).
 
+**Projeto sem banco de dados:** sem `jpa` (por exemplo, kit `NONE`) o projeto não tem driver, `datasource`, configuração JPA, `V1__baseline.sql`, `docker-compose.yml` nem `.env.example`; o extra `docker-compose` exige `jpa` (BR-034) e `flyway` implica `jpa` (BR-033). Os `package-info` de persistência continuam sendo gerados, porque o esqueleto de pacotes é o mesmo em todo projeto.
+
 ## `HEXAGONAL_MODULAR`
 
 Estilo do [Hexbank](https://github.com/arthur-souto/Hexbank): monólito modular, cada módulo com hexagonal completa.

@@ -1,0 +1,92 @@
+style: HEXAGONAL_MODULAR
+
+files:
+  - template: Application.java.mustache
+    target: src/main/java/{{basePackagePath}}/bootstrap/{{applicationClass}}.java
+
+packages:
+  - package: ""
+    description: "Raiz do projeto {{artifactId}}."
+  - package: bootstrap
+    description: "Composition root: sobe o Spring e liga os módulos. Não contém regra de negócio."
+
+  - package: shared
+    description: "Shared kernel: todos os módulos dependem dele e ele não depende de nenhum módulo."
+  - package: shared.domain
+    description: "Value objects e tipos de domínio compartilhados. Java puro, sem framework."
+  - package: shared.domain.exceptions
+    description: "Exceções de domínio compartilhadas entre os módulos."
+  - package: shared.application
+    description: "Contratos de aplicação compartilhados entre os módulos."
+  - package: shared.application.port
+    description: "Portas compartilhadas entre os módulos."
+  - package: shared.application.port.out
+    description: "Portas de saída compartilhadas, implementadas pelos adapters."
+  - package: shared.adapter
+    description: "Adapters compartilhados entre os módulos."
+  - package: shared.adapter.in
+    description: "Adapters de entrada compartilhados."
+  - package: shared.adapter.in.http
+    description: "Infraestrutura HTTP compartilhada, como tratamento de erros e filtros."
+  - package: shared.adapter.out
+    description: "Adapters de saída compartilhados."
+  - package: shared.adapter.out.persistence
+    description: "Infraestrutura de persistência compartilhada."
+
+  - forEach: modules
+    package: "{{module.name}}"
+    description: "Módulo {{module.displayName}}: hexagonal completa, com domain, application, adapter e config."
+  - forEach: modules
+    package: "{{module.name}}.domain"
+    description: "Regras e modelo de negócio do módulo {{module.name}}. Java puro, sem Spring, JPA nem Lombok."
+  - forEach: modules
+    package: "{{module.name}}.domain.exceptions"
+    description: "Exceções de domínio do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.application"
+    description: "Casos de uso e portas do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.application.port"
+    description: "Portas do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.application.port.in"
+    description: "Portas de entrada (use cases e queries) expostas pelo módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.application.port.in.command"
+    description: "Comandos recebidos pelas portas de entrada do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.application.port.in.view"
+    description: "Visões devolvidas pelas portas de entrada do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.application.port.out"
+    description: "Portas de saída do módulo {{module.name}}, implementadas pelos adapters."
+  - forEach: modules
+    package: "{{module.name}}.application.usecase"
+    description: "Implementação dos casos de uso do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.adapter"
+    description: "Adapters do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.adapter.in"
+    description: "Adapters de entrada do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.adapter.in.http"
+    description: "Controllers REST do módulo {{module.name}}. Falam com as portas de entrada."
+  - forEach: modules
+    package: "{{module.name}}.adapter.in.http.request"
+    description: "Corpos de requisição HTTP do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.adapter.out"
+    description: "Adapters de saída do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.adapter.out.persistence"
+    description: "Persistência do módulo {{module.name}}: implementa as portas de saída."
+  - forEach: modules
+    package: "{{module.name}}.adapter.out.persistence.entity"
+    description: "Entidades JPA do módulo {{module.name}}. Só existem neste pacote."
+  - forEach: modules
+    package: "{{module.name}}.adapter.out.persistence.jpa"
+    description: "Repositórios Spring Data do módulo {{module.name}}."
+  - forEach: modules
+    package: "{{module.name}}.config"
+    description: "Registro dos use cases do módulo {{module.name}} como beans."

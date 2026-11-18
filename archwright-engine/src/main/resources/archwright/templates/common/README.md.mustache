@@ -1,0 +1,61 @@
+# {{artifactId}}
+
+{{#hasDescription}}
+{{descriptionMarkdown}}
+
+{{/hasDescription}}
+Projeto gerado pelo [Archwright](https://github.com/arthur-souto/archwright), com a arquitetura montada desde o primeiro commit.
+
+## Resumo
+
+| | |
+|---|---|
+| Arquitetura | {{style.label}} |
+| Spring Boot | {{boot.version}} |
+| Java | {{java.version}} |
+| Kit de dependências | {{kit.label}} |
+| Pacote base | `{{basePackage}}` |
+
+## Estrutura de pacotes
+
+{{#style.modular}}
+Monólito modular: cada módulo tem a sua própria hexagonal (`domain`, `application`, `adapter`, `config`).
+
+- `bootstrap`: composition root, sobe o Spring e liga os módulos.
+- `shared`: shared kernel, todos os módulos dependem dele e ele não depende de nenhum.
+{{#modules}}
+- `{{name}}`: módulo {{displayName}}.
+{{/modules}}
+{{/style.modular}}
+
+Cada pacote tem um `package-info.java` explicando a responsabilidade dele.
+
+## Como rodar
+
+{{#extra.docker-compose}}
+Suba o PostgreSQL local (opcional: copie `.env.example` para `.env` e ajuste):
+
+```shell
+docker compose up -d
+```
+
+{{/extra.docker-compose}}
+```shell
+./mvnw spring-boot:run
+```
+
+Para compilar e testar:
+
+```shell
+./mvnw verify
+```
+{{#fitness.enabled}}
+
+## Fitness functions
+
+Os testes de arquitetura ficam em `src/test/java/{{basePackagePath}}/architecture` e rodam no `./mvnw verify`.
+O build quebrar quando alguém viola a arquitetura é intencional: é isso que mantém a estrutura certa ao longo do tempo.
+
+- Para aceitar as violações que já existem e barrar só as novas, envolva a regra com `FreezingArchRule.freeze(...)`.
+- Para desligar um grupo de regras, remova a classe de teste correspondente.
+{{/fitness.enabled}}

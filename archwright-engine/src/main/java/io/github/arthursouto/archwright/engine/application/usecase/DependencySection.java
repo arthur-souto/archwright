@@ -20,6 +20,9 @@ final class DependencySection {
 
     private static final String TEST_SCOPE = "test";
 
+    private static final MavenCoordinate BASE_STARTER =
+            MavenCoordinate.of("org.springframework.boot", "spring-boot-starter");
+
     private static final MavenCoordinate ARCHUNIT =
             new MavenCoordinate("com.tngtech.archunit", "archunit-junit5", "${archunit.version}", TEST_SCOPE);
 
@@ -33,16 +36,29 @@ final class DependencySection {
     }
 
     Map<String, Object> describe(ProjectSpec spec, BootProfile profile) {
-        List<MavenCoordinate> main = sorted(profile.artifactsFor(spec.dependencies()));
+        List<MavenCoordinate> main = sorted(withBaseStarter(profile.artifactsFor(spec.dependencies())));
         List<MavenCoordinate> test = sorted(testCoordinates(spec, profile));
+        List<Map<String, Object>> processors = annotationProcessors(spec.dependencies());
 
         Map<String, Object> section = new LinkedHashMap<>();
         section.put("dependencies", views(main, ""));
         section.put("testDependencies", views(test, TEST_SCOPE));
         section.put("properties", properties(profile, main, test));
-        section.put("annotationProcessors", annotationProcessors(spec.dependencies()));
+        section.put("annotationProcessors", processors);
+        section.put("hasAnnotationProcessors", !processors.isEmpty());
 
         return section;
+    }
+
+    private List<MavenCoordinate> withBaseStarter(List<MavenCoordinate> coordinates) {
+        boolean hasStarter = coordinates.stream().anyMatch(this::isSpringBootStarter);
+
+        return hasStarter ? coordinates : Stream.concat(coordinates.stream(), Stream.of(BASE_STARTER)).toList();
+    }
+
+    private boolean isSpringBootStarter(MavenCoordinate coordinate) {
+        return coordinate.groupId().equals(BASE_STARTER.groupId())
+                && coordinate.artifactId().startsWith(BASE_STARTER.artifactId());
     }
 
     private List<MavenCoordinate> testCoordinates(ProjectSpec spec, BootProfile profile) {
@@ -104,6 +120,7 @@ final class DependencySection {
         return Map.of(
                 "groupId", processor.groupId(),
                 "artifactId", processor.artifactId(),
+                "version", processor.version(),
                 "versionProperty", processor.versionProperty().orElseThrow());
     }
 

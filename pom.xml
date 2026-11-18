@@ -35,6 +35,7 @@
         <assertj.version>3.27.7</assertj.version>
         <archunit.version>1.5.1</archunit.version>
         <snakeyaml.version>2.7</snakeyaml.version>
+        <jmustache.version>1.16</jmustache.version>
     </properties>
 
     <dependencyManagement>
@@ -50,6 +51,11 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.samskivert</groupId>
+                <artifactId>jmustache</artifactId>
+                <version>${jmustache.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>

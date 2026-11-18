@@ -1,0 +1,20 @@
+services:
+  {{artifactId}}-database:
+    image: postgres:16-alpine
+    container_name: {{artifactId}}-db-container
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-{{database.name}}}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - {{artifactId}}-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  {{artifactId}}-db-data:

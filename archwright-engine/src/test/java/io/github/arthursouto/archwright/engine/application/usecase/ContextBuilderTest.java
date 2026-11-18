@@ -255,7 +255,23 @@ class ContextBuilderTest {
         assertThat(processors.getFirst().text("groupId")).isEqualTo("org.projectlombok");
         assertThat(processors.getFirst().text("artifactId")).isEqualTo("lombok");
         assertThat(processors.getFirst().text("versionProperty")).isEqualTo("lombok.version");
+        assertThat(processors.getFirst().text("version")).isEqualTo("${lombok.version}");
         assertThat(withoutLombok.sections("annotationProcessors")).isEmpty();
+        assertThat(withLombok.flag("hasAnnotationProcessors")).isTrue();
+        assertThat(withoutLombok.flag("hasAnnotationProcessors")).isFalse();
+    }
+
+    @Test
+    @DisplayName("BR-031 sem nenhum starter, o projeto leva o starter base")
+    void addsTheBaseStarterWhenNoOtherStarterIsSelected() {
+        TemplateContext withoutKit = builder.build(SpecBuilder.basic().noKit().build());
+        TemplateContext lombokOnly = builder.build(SpecBuilder.basic().noKit().dependencies("lombok").build());
+        TemplateContext withWeb = builder.build(SpecBuilder.basic().noKit().dependencies("web").build());
+
+        assertThat(coordinates(withoutKit, "dependencies")).containsExactly("org.springframework.boot:spring-boot-starter");
+        assertThat(coordinates(lombokOnly, "dependencies"))
+                .containsExactly("org.projectlombok:lombok", "org.springframework.boot:spring-boot-starter");
+        assertThat(coordinates(withWeb, "dependencies")).containsExactly("org.springframework.boot:spring-boot-starter-webmvc");
     }
 
     @Test

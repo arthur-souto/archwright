@@ -1,0 +1,4 @@
+/mvnw text eol=lf
+/mvnw.cmd text eol=crlf
+archwright-engine/src/main/resources/archwright/templates/common/mvnw text eol=lf
+archwright-engine/src/main/resources/archwright/templates/common/mvnw.cmd text eol=crlf

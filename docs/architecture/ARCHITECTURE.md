@@ -49,6 +49,7 @@ io.github.arthursouto.archwright.engine
 │   │                 # Architecture, ArchitectureStyle, BootVersion, JavaVersion, BootProfile, Catalog,
 │   │                 # DependencyId, DependencyDefinition, ExtraId, ExtraDefinition, KitId, MavenCoordinate,
 │   │                 # PersistenceNamespace, TestStrategy, TemplateContext,
+│   │                 # Manifest, ManifestFile, ManifestPackage, Repeat, LineEnding,
 │   │                 # FilePlan, PlannedFile, GeneratedProject, GeneratedFile
 │   ├── style/        # ArchitectureStyleStrategy, HexagonalModularStyle, HexagonalLayeredStyle, ArchitectureStyles
 │   ├── kit/          # KitStrategy, NoneKit, BasicKit, Kits
@@ -64,6 +65,7 @@ io.github.arthursouto.archwright.engine
 ├── adapter/
 │   └── out/
 │       ├── version/  # MavenCentralBootVersionSource, FileVersionCache, EmbeddedBootVersions
+│       ├── yaml/     # YamlResources, YamlRow (leitura estrita de YAML, usada por catálogo e templates)
 │       ├── catalog/  # YamlCatalogRepository (classpath)
 │       ├── template/ # ClasspathTemplateRepository, MustacheTemplateRenderer
 │       └── export/   # ZipProjectExporter, FolderProjectExporter
@@ -343,21 +345,31 @@ Junta `ProjectSpec` + `BootProfile` num mapa somente-leitura com tudo que os tem
 | 7 | estilo `HEXAGONAL_LAYERED`, agregados `paciente`, `pedido_item` | montar | `aggregates` preenchido (`displayName=PedidoItem`) e `modules` vazio |
 | 8 | Boot 4.1, `springdoc` + `web`, fitness ligada | montar | `properties` = `archunit.version` e `springdoc.version` (só as usadas, por nome); `testDependencies` inclui `archunit-junit5` |
 | 9 | fitness desligada | montar | sem `archunit-junit5` em `testDependencies`, sem `archunit.version` em `properties`, `fitness.enabled=false` |
-| 10 | `lombok` selecionado | montar | `annotationProcessors` = `[{org.projectlombok, lombok, versionProperty=lombok.version}]`; sem `lombok`, vazio |
+| 10 | `lombok` selecionado | montar | `annotationProcessors` = `[{org.projectlombok, lombok, version=${lombok.version}, versionProperty=lombok.version}]` e `hasAnnotationProcessors=true`; sem `lombok`, lista vazia e flag `false` |
 | 11 | sem `jpa` | montar | não existe a variável `database`; com `jpa`, `database.name=pedido_api_db` |
 | 12 | uma flag `dep.<id>` por dependência do catálogo e `extra.<id>` por extra | montar | existem para todas, `true` só para as selecionadas |
+| 13 | kit `NONE` (ou só `lombok`) | montar | `dependencies` inclui `org.springframework.boot:spring-boot-starter`; com qualquer starter selecionado, não (BR-031) |
 
 O contexto é imutável e aceita consulta por caminho (`find("boot.version")`, `flag("dep.jpa")`); `flag` recusa nome inexistente ou que não seja booleano, o que o planejador usa para o `when` do manifest. Escapes: XML troca `& < > " '`; Markdown protege `\ * _ \` [ ]` (e deixa `<`, `>` e `&` como estão).
 
-**Pronto quando:** `ContextBuilderTest` cobre #1 a #12; `TemplateContextTest`, `EscapingTest` e `NamesTest` cobrem as peças puras.
+**Pronto quando:** `ContextBuilderTest` cobre #1 a #13; `TemplateContextTest`, `EscapingTest` e `NamesTest` cobrem as peças puras.
 
 ---
 
 ## Etapa 4 — Planejar arquivos (`ENG-PLN`)
-**Status:** ⏳ a implementar. Depende do aceite do [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md).
+**Status:** ✅ ENG-PLN-01 implementado para `HEXAGONAL_MODULAR` (`FilePlanner`, `ClasspathTemplateRepository`, `MustacheTemplateRenderer`); a linha #3 (estilo em camadas) entra no passo 11 e o ENG-PLN-02 (fitness functions) no passo 10. Base: [ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md), aceito.
 Regras: [BR-035](../domain/BUSINESS_RULES.md#dependências-e-kits), [BR-040 a BR-043](../domain/BUSINESS_RULES.md#fitness-functions), [BR-052](../domain/BUSINESS_RULES.md#geração), [BR-054](../domain/BUSINESS_RULES.md#geração), [BR-055](../domain/BUSINESS_RULES.md#geração).
 
-Lê o `manifest.yaml` do estilo e o `common`, avalia as condições (`when`) contra o contexto, expande as entradas repetidas por módulo (`forEach`) e acrescenta as classes de fitness functions escolhidas. O resultado é uma lista **ordenada por caminho de destino** de `PlannedFile(template, target, executable, lineEnding)`. Não lê o conteúdo dos templates.
+Lê o `manifest.yaml` do estilo e o `common`, avalia as condições (`when`) contra o contexto, expande as entradas repetidas por módulo (`forEach`) e acrescenta as classes de fitness functions escolhidas. O resultado é uma lista **ordenada por caminho de destino** de `PlannedFile(template, target, executable, lineEnding, render, variables)`. Não lê o conteúdo dos templates.
+
+**Como o plano é montado** (`FilePlanner.plan(spec, context)`):
+- Junta o manifest de `common` com o do diretório do estilo (`templateDir` do `styles.yaml`). `template` no plano é o caminho dentro de `archwright/templates` (`common/pom.xml.mustache`).
+- `when` exige que **todas** as flags sejam verdadeiras (`!flag` nega). Flag inexistente é erro de template citando o manifest.
+- `forEach: modules|aggregates` repete a entrada por item, expondo `module` ou `aggregate` ao `target`, ao `package` e à `description`.
+- `target`, `package` e `description` passam pelo `TemplateRenderer`. O caminho final é validado (BR-052): vazio, absoluto, com `\`, `:`, `..`, `.` ou segmento vazio gera `IllegalStateException("INVALID_TEMPLATE_PATH: <caminho>")`. Dois itens com o mesmo destino também são erro.
+- Cada `packages[]` vira um `package-info.java` em `src/main/java/<pacote base>/<package>/`, com o template `common/package-info.java.mustache` e as `variables` `package` (nome completo) e `description` (já avaliada). O `package` do manifest é **relativo** ao pacote base (`""` é o próprio pacote base).
+
+Portas: `TemplateRepository` (`manifest(directory)`, `content(path)`) e `TemplateRenderer`. O manifest é lido com chaves desconhecidas recusadas, para pegar erro de digitação (`executeable`).
 
 #### ENG-PLN-01 — Plano por estilo
 | # | Dado | Quando | Então |
@@ -381,7 +393,7 @@ Lê o `manifest.yaml` do estilo e o `common`, avalia as condições (`when`) con
 | 3 | fitness desligada | planejar | nenhuma classe em `architecture/`, sem `archunit.properties`, sem dependência ArchUnit no contexto |
 | 4 | fitness ligada | planejar | `src/test/resources/archunit.properties` presente (BR-043) |
 
-**Pronto quando:** `FilePlannerTest` cobre ENG-PLN-01 e 02, comparando o plano com listas esperadas em arquivo (`src/test/resources/expected-plans/*.txt`).
+**Pronto quando:** `FilePlannerTest` cobre ENG-PLN-01 e 02, comparando o plano com listas esperadas em arquivo (`src/test/resources/expected-plans/*.txt`, geradas por script a partir do [GENERATED_PROJECT](../contracts/GENERATED_PROJECT.md), não pelo próprio planner). `ClasspathTemplateRepositoryTest` garante que todo `template` citado num manifest existe; `TemplateRenderingSmokeTest` renderiza todos os arquivos planejados (XML e YAML bem formados, nenhuma variável sobrando). O `package-info` de `src/test/.../architecture` (BR-054) será decidido no passo 10, com as classes de fitness.
 
 ---
 
@@ -395,6 +407,7 @@ Aplica o Mustache a cada `PlannedFile` e devolve um `GeneratedProject` em memór
 
     public interface TemplateRenderer { String render(String template, Map<String, Object> context); }
     // variável ausente no contexto → IllegalStateException (bug de template), nunca string vazia silenciosa
+    // seção sobre variável ausente também falha; HTML não é escapado (o contexto já vem escapado)
 
 #### ENG-RND-01 — Renderização determinística
 | # | Dado | Quando | Então |

@@ -1,0 +1,48 @@
+files:
+  - template: pom.xml.mustache
+    target: pom.xml
+
+  - template: mvnw
+    target: mvnw
+    executable: true
+    render: false
+
+  - template: mvnw.cmd
+    target: mvnw.cmd
+    render: false
+    lineEnding: CRLF
+
+  - template: maven-wrapper.properties
+    target: .mvn/wrapper/maven-wrapper.properties
+    render: false
+
+  - template: gitignore
+    target: .gitignore
+    render: false
+
+  - template: README.md.mustache
+    target: README.md
+
+  - template: application.yaml.mustache
+    target: src/main/resources/application.yaml
+
+  - template: V1__baseline.sql.mustache
+    target: src/main/resources/db/migration/V1__baseline.sql
+    when: [dep.flyway]
+
+  - template: docker-compose.yml.mustache
+    target: docker-compose.yml
+    when: [extra.docker-compose]
+
+  - template: env.example.mustache
+    target: .env.example
+    when: [extra.docker-compose]
+
+  - template: ci.yml.mustache
+    target: .github/workflows/ci.yml
+    when: [extra.github-actions]
+
+  - template: archunit.properties
+    target: src/test/resources/archunit.properties
+    render: false
+    when: [fitness.enabled]

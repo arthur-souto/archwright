@@ -1,31 +1,32 @@
-package io.github.arthursouto.archwright.engine.adapter.out.catalog;
+package io.github.arthursouto.archwright.engine.adapter.out.yaml;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
-final class YamlRow {
+public final class YamlRow {
 
-    private final String file;
+    private final String source;
     private final int position;
     private final String identity;
     private final String path;
     private final Map<String, Object> values;
 
-    YamlRow(String file, int position, Map<String, Object> values) {
-        this(file, position, identityOf(values), "", values);
+    YamlRow(String source, int position, Map<String, Object> values) {
+        this(source, position, identityOf(values), "", values);
     }
 
-    private YamlRow(String file, int position, String identity, String path, Map<String, Object> values) {
-        this.file = file;
+    private YamlRow(String source, int position, String identity, String path, Map<String, Object> values) {
+        this.source = source;
         this.position = position;
         this.identity = identity;
         this.path = path;
         this.values = values;
     }
 
-    String text(String key) {
+    public String text(String key) {
         if (!(values.get(key) instanceof String text) || text.isBlank()) {
             throw problem("'" + key + "' must be a non-blank text (quote it in YAML)");
         }
@@ -33,15 +34,33 @@ final class YamlRow {
         return text;
     }
 
-    boolean has(String key) {
+    public String textAllowingEmpty(String key) {
+        if (!(values.get(key) instanceof String text)) {
+            throw problem("'" + key + "' must be a text (use \"\" for empty)");
+        }
+
+        return text;
+    }
+
+    public void requireOnly(Set<String> allowedKeys) {
+        values.keySet().stream()
+                .filter(key -> !allowedKeys.contains(key))
+                .sorted()
+                .findFirst()
+                .ifPresent(unknown -> {
+                    throw problem("unknown key '" + unknown + "'");
+                });
+    }
+
+    public boolean has(String key) {
         return values.get(key) != null;
     }
 
-    String optionalText(String key) {
+    public String optionalText(String key) {
         return values.get(key) == null ? null : text(key);
     }
 
-    int integer(String key) {
+    public int integer(String key) {
         if (!(values.get(key) instanceof Integer number)) {
             throw problem("'" + key + "' must be an integer");
         }
@@ -49,7 +68,7 @@ final class YamlRow {
         return number;
     }
 
-    boolean flag(String key) {
+    public boolean flag(String key) {
         Object value = values.get(key);
 
         if (value == null) {
@@ -63,7 +82,11 @@ final class YamlRow {
         return flag;
     }
 
-    List<String> texts(String key) {
+    public boolean flagOrDefault(String key, boolean defaultValue) {
+        return values.get(key) == null ? defaultValue : flag(key);
+    }
+
+    public List<String> texts(String key) {
         Object value = values.get(key);
 
         if (value == null) {
@@ -77,7 +100,7 @@ final class YamlRow {
         return items.stream().map(item -> asText(key, item)).toList();
     }
 
-    Map<String, String> textMap(String key) {
+    public Map<String, String> textMap(String key) {
         Object value = values.get(key);
 
         if (value == null) {
@@ -94,7 +117,7 @@ final class YamlRow {
         return texts;
     }
 
-    Map<String, List<YamlRow>> groupedRows(String key) {
+    public Map<String, List<YamlRow>> groupedRows(String key) {
         if (!(values.get(key) instanceof Map<?, ?> mapping)) {
             throw problem("'" + key + "' must be a mapping");
         }
@@ -105,12 +128,12 @@ final class YamlRow {
         return grouped;
     }
 
-    List<YamlRow> listOfRows(String key) {
+    public List<YamlRow> listOfRows(String key) {
         return childRows(key, values.get(key));
     }
 
-    IllegalStateException problem(String message) {
-        return CatalogChecks.problem(file, describe() + ": " + message);
+    public IllegalStateException problem(String message) {
+        return new IllegalStateException(source + ": " + describe() + ": " + message);
     }
 
     private List<YamlRow> childRows(String childPath, Object entries) {
@@ -131,7 +154,7 @@ final class YamlRow {
         Map<String, Object> childValues = new LinkedHashMap<>();
         mapping.forEach((name, value) -> childValues.put(String.valueOf(name), value));
 
-        return new YamlRow(file, position, identity, childPath, childValues);
+        return new YamlRow(source, position, identity, childPath, childValues);
     }
 
     private String asText(String key, Object item) {
