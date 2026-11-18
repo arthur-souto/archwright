@@ -20,7 +20,9 @@
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
   testArtifacts:
     web:        [{ g: org.springframework.boot, a: spring-boot-starter-webmvc-test }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator-test }]
     jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa-test }]
+    flyway:     [{ g: org.springframework.boot, a: spring-boot-starter-flyway-test }]
     security:   [{ g: org.springframework.boot, a: spring-boot-starter-security-test }]
 
 - line: "4.0"
@@ -45,7 +47,9 @@
     springdoc:  [{ g: org.springdoc, a: springdoc-openapi-starter-webmvc-ui, v: "${springdoc.version}" }]
   testArtifacts:
     web:        [{ g: org.springframework.boot, a: spring-boot-starter-webmvc-test }]
+    actuator:   [{ g: org.springframework.boot, a: spring-boot-starter-actuator-test }]
     jpa:        [{ g: org.springframework.boot, a: spring-boot-starter-data-jpa-test }]
+    flyway:     [{ g: org.springframework.boot, a: spring-boot-starter-flyway-test }]
     security:   [{ g: org.springframework.boot, a: spring-boot-starter-security-test }]
 
 - line: "3.5"

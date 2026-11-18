@@ -240,7 +240,9 @@ class ContextBuilderTest {
 
         assertThat(coordinates(context, "testDependencies")).containsExactly(
                 "com.tngtech.archunit:archunit-junit5",
+                "org.springframework.boot:spring-boot-starter-actuator-test",
                 "org.springframework.boot:spring-boot-starter-data-jpa-test",
+                "org.springframework.boot:spring-boot-starter-flyway-test",
                 "org.springframework.boot:spring-boot-starter-webmvc-test");
     }
 
