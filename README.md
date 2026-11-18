@@ -31,6 +31,8 @@ Um app desktop (Windows, macOS, Linux, sem precisar de Java instalado) com 4 pas
 3. **Dependências:** kit Básico (Web, Validation, Actuator, JPA + PostgreSQL, Flyway, Lombok) ou Nenhuma, com ajuste fino, e as fitness functions.
 4. **Exportar:** ZIP ou pasta, em qualquer diretório.
 
+![Visão geral da Fase 1](docs/architecture/images/visao-geral-fase-1.png)
+
 ## Documentação
 
 | Documento | Conteúdo |
@@ -50,6 +52,6 @@ A estrutura dos estilos vem de dois projetos reais: [Hexbank](https://github.com
 
 ## Licença
 
-Apache 2.0 (arquivo `LICENSE` a adicionar na Fase 0).
+Apache 2.0 (veja o arquivo [`LICENSE`](LICENSE)).
 
 *Spring e Spring Boot são marcas registradas da Broadcom Inc. O Archwright é um projeto independente, sem vínculo com o projeto Spring.*

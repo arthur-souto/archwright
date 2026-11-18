@@ -19,6 +19,18 @@ Um build Maven com dois módulos: **`archwright-engine`**, uma biblioteca Java p
     └──────── catálogos (YAML + templates Mustache, embutidos) ──┘
 ```
 
+### Diagrama da Fase 1
+
+![Gerador Hexagonal — Fase 1: app desktop, motor, catálogos e projeto gerado](images/visao-geral-fase-1.png)
+
+Como ler:
+
+- **App desktop → motor:** o wizard monta um `ProjectRequest` (mais o `ExportTarget`) e o entrega ao motor. O motor não conhece a interface.
+- **Erro volta para o wizard:** se a etapa 1 devolver violações, elas retornam à tela correspondente ([ENG-VAL](#etapa-1--validar-e-normalizar-eng-val)); nada é renderizado nem gravado.
+- **Catálogos → motor:** versões (Maven Central + fallback), kits, regras de fitness functions e templates alimentam o motor como dados ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md)). No diagrama a seta sai das versões para o `BootProfile` (etapa 2); kits, regras e templates são lidos nas etapas 1, 4 e 5.
+- **Exportação:** na etapa 6 o formato decide o adapter. `ZipExporter` gera um `.zip` igual ao do Initializr; `FolderExporter` grava numa pasta vazia, usando diretório temporário e `move` ao final ([ENG-EXP](#etapa-6--exportar-eng-exp)).
+- **Projeto gerado:** `src/main` hexagonal com `package-info`, fitness functions ArchUnit em `src/test/.../architecture` e `mvn verify` + CI, de modo que as regras rodam a cada push/PR ([GENERATED_PROJECT](../contracts/GENERATED_PROJECT.md)).
+
 ## Módulos Maven
 
 | Módulo | Conteúdo | Depende de |
