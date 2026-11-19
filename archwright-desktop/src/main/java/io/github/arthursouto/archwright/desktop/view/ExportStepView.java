@@ -1,6 +1,7 @@
 package io.github.arthursouto.archwright.desktop.view;
 
 import atlantafx.base.theme.Styles;
+import io.github.arthursouto.archwright.desktop.history.ProjectHistory;
 import io.github.arthursouto.archwright.desktop.i18n.Messages;
 import io.github.arthursouto.archwright.desktop.wizard.FieldErrors;
 import io.github.arthursouto.archwright.desktop.wizard.ProjectForm;
@@ -44,6 +45,8 @@ final class ExportStepView implements StepView {
     private final GenerateProjectUseCase generator;
     private final Dialogs dialogs;
     private final Runnable onGenerated;
+    private final ProjectHistory history;
+    private ProjectRequest generating;
     private final Supplier<Window> window;
     private final TextField destination = new TextField();
     private final Button generate = new Button();
@@ -53,13 +56,18 @@ final class ExportStepView implements StepView {
     private final TextArea log = new TextArea();
     private final VBox root = new VBox(SPACING);
 
-    ExportStepView(DesktopContext context, ProjectForm form, LiveValidation validation, Supplier<Window> window) {
+    ExportStepView(
+            DesktopContext context, ProjectForm form, LiveValidation validation, Supplier<Window> window, Runnable afterGenerated) {
         this.messages = context.messages();
         this.form = form;
         this.validation = validation;
         this.generator = context.generator();
         this.dialogs = context.dialogs();
-        this.onGenerated = () -> context.preferences().remember(form);
+        this.history = context.history();
+        this.onGenerated = () -> {
+            context.preferences().remember(form);
+            afterGenerated.run();
+        };
         this.window = window;
 
         configureActions();
@@ -154,6 +162,7 @@ final class ExportStepView implements StepView {
 
     private void generate(boolean overwrite) {
         ProjectRequest request = form.toRequest();
+        generating = request;
         working.setVisible(true);
         hide(openFolder);
         hide(log);
@@ -178,6 +187,7 @@ final class ExportStepView implements StepView {
                 "value", String.valueOf(success.fileCount()), "bytes", readable(success.totalBytes()))) + "\n" + success.output());
         openFolder.setOnAction(event -> dialogs.openFolder(folderOf(success.output())));
         show(openFolder);
+        history.record(generating, form.format().get(), form.destination().get().strip(), success.output().toString(), success.fileCount());
         onGenerated.run();
     }
 

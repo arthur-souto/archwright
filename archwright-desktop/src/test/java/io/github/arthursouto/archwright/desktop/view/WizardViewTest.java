@@ -1,5 +1,6 @@
 package io.github.arthursouto.archwright.desktop.view;
 
+import io.github.arthursouto.archwright.desktop.history.ProjectHistory;
 import io.github.arthursouto.archwright.desktop.i18n.Messages;
 import io.github.arthursouto.archwright.desktop.preferences.UserPreferences;
 import io.github.arthursouto.archwright.desktop.wizard.PackageNode;
@@ -38,6 +39,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,8 @@ class WizardViewTest {
     Path workspace;
 
     private Preferences node;
+    private Preferences historyNode;
+    private ProjectHistory history;
     private UserPreferences preferences;
     private ProjectForm form;
     private WizardView view;
@@ -71,6 +75,8 @@ class WizardViewTest {
 
         node = Preferences.userRoot().node("archwright-test-" + UUID.randomUUID());
         preferences = new UserPreferences(node);
+        historyNode = Preferences.userRoot().node("archwright-test-history-" + UUID.randomUUID());
+        history = new ProjectHistory(historyNode, Clock.systemDefaultZone());
         destination = Files.createDirectory(workspace.resolve("out"));
         engine = ArchwrightEngine.builder().cacheDirectory(workspace.resolve("cache")).offline(true).build();
 
@@ -83,7 +89,7 @@ class WizardViewTest {
 
     private void open(CatalogQuery catalog, PreviewProjectQuery preview, GenerateProjectUseCase generator) {
         DesktopContext context = new DesktopContext(
-                catalog, preview, generator, Messages.portuguese(), preferences, dialogs);
+                catalog, preview, generator, Messages.portuguese(), preferences, history, dialogs);
 
         form = new ProjectForm();
         preferences.restoreInto(form);
@@ -99,6 +105,10 @@ class WizardViewTest {
     void closeTheWizard() throws BackingStoreException {
         if (node != null) {
             node.removeNode();
+        }
+
+        if (historyNode != null) {
+            historyNode.removeNode();
         }
     }
 
@@ -524,20 +534,6 @@ class WizardViewTest {
     }
 
     @Test
-    void themeToggleSwitchesTheLabelAndIsRemembered() {
-        assertThat(preferences.darkTheme()).isFalse();
-
-        click("Tema escuro");
-
-        assertThat(preferences.darkTheme()).isTrue();
-        assertThat(Fx.call(() -> button("Tema claro").isVisible())).isTrue();
-
-        click("Tema claro");
-
-        assertThat(preferences.darkTheme()).isFalse();
-    }
-
-    @Test
     void chooseButtonFillsTheDestinationFromTheDialogAndCancelKeepsIt() {
         goToExport();
         dialogs.directory = Optional.of(destination);
@@ -805,8 +801,17 @@ class WizardViewTest {
         }
 
         @Override
+        public boolean confirmAction(Window owner, String message, String action) {
+            return true;
+        }
+
+        @Override
         public void openFolder(Path folder) {
             opened.add(folder);
+        }
+
+        @Override
+        public void openUrl(String url) {
         }
     }
 

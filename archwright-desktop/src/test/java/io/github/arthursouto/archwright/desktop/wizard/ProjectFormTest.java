@@ -69,4 +69,33 @@ class ProjectFormTest {
 
         assertThat(changes.get()).isEqualTo(5);
     }
+
+    @Test
+    void loadingAHistoryEntryRestoresEverything() {
+        var entry = new io.github.arthursouto.archwright.desktop.history.HistoryEntry(
+                "1", java.time.Instant.EPOCH, "pedido-api", "com.acme", "com.acme.base", "descricao", "HEXAGONAL_MODULAR",
+                java.util.List.of("pedidos", "pagamentos"), "4.1.2", "25", "BASIC", java.util.List.of("web", "jpa"),
+                java.util.List.of("docker-compose"), false,
+                io.github.arthursouto.archwright.engine.application.port.in.ExportFormat.FOLDER,
+                "/tmp/out", "/tmp/out/pedido-api", 69);
+        ProjectForm form = new ProjectForm();
+
+        form.load(entry);
+
+        assertThat(form.artifactId().get()).isEqualTo("pedido-api");
+        assertThat(form.basePackage().get()).isEqualTo("com.acme.base");
+        assertThat(form.modules().get()).isEqualTo("pedidos, pagamentos");
+        assertThat(form.bootVersion().get()).isEqualTo("4.1.2");
+        assertThat(form.kit().get()).isEqualTo("BASIC");
+        assertThat(form.selectedDependencies()).containsExactly("jpa", "web");
+        assertThat(form.extras()).containsExactly("docker-compose");
+        assertThat(form.fitnessFunctions().get()).isFalse();
+        assertThat(form.destination().get()).isEqualTo("/tmp/out");
+        assertThat(form.dependenciesChosen()).isTrue();
+    }
+
+    @Test
+    void aFreshFormHasNotChosenItsDependencies() {
+        assertThat(new ProjectForm().dependenciesChosen()).isFalse();
+    }
 }

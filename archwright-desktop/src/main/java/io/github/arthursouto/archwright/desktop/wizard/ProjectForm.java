@@ -1,5 +1,6 @@
 package io.github.arthursouto.archwright.desktop.wizard;
 
+import io.github.arthursouto.archwright.desktop.history.HistoryEntry;
 import io.github.arthursouto.archwright.engine.application.port.in.ExportFormat;
 import io.github.arthursouto.archwright.engine.application.port.in.ExportTarget;
 import io.github.arthursouto.archwright.engine.application.port.in.ProjectRequest;
@@ -15,6 +16,7 @@ import javafx.collections.SetChangeListener;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public final class ProjectForm {
@@ -33,6 +35,7 @@ public final class ProjectForm {
     private final BooleanProperty fitnessFunctions = new SimpleBooleanProperty(true);
     private final ObjectProperty<ExportFormat> format = new SimpleObjectProperty<>(ExportFormat.ZIP);
     private final StringProperty destination = new SimpleStringProperty("");
+    private boolean dependenciesChosen;
 
     public StringProperty artifactId() {
         return artifactId;
@@ -116,6 +119,34 @@ public final class ProjectForm {
                 .forEach(property -> property.addListener(observable -> listener.run()));
         dependencies.addListener((SetChangeListener<String>) change -> listener.run());
         extras.addListener((SetChangeListener<String>) change -> listener.run());
+    }
+
+    public void useDependencies(Collection<String> chosen) {
+        dependencies.clear();
+        dependencies.addAll(chosen);
+        dependenciesChosen = true;
+    }
+
+    public boolean dependenciesChosen() {
+        return dependenciesChosen;
+    }
+
+    public void load(HistoryEntry entry) {
+        artifactId.set(entry.artifactId());
+        groupId.set(entry.groupId());
+        basePackage.set(entry.basePackage());
+        description.set(entry.description());
+        architectureStyle.set(entry.architectureStyle());
+        modules.set(String.join(", ", entry.modules()));
+        bootVersion.set(entry.bootVersion());
+        javaVersion.set(entry.javaVersion());
+        kit.set(entry.kit());
+        useDependencies(entry.dependencies());
+        extras.clear();
+        extras.addAll(entry.extras());
+        fitnessFunctions.set(entry.fitnessFunctions());
+        format.set(entry.format());
+        destination.set(entry.destination());
     }
 
     public boolean hasDestination() {

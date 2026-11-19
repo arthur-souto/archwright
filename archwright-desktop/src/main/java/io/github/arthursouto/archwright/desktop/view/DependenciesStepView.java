@@ -105,7 +105,13 @@ final class DependenciesStepView implements StepView {
         kits.setCellFactory(list -> Cells.of(KitOption::label));
         kits.setButtonCell(Cells.of(KitOption::label));
         kits.getSelectionModel().select(initialKit(options));
-        applyKit(kits.getValue());
+
+        if (form.dependenciesChosen()) {
+            form.kit().set(kits.getValue().id());
+        } else {
+            applyKit(kits.getValue());
+        }
+
         kits.valueProperty().addListener((observable, before, after) -> applyKit(after));
     }
 

@@ -95,7 +95,7 @@ archwright-engine/src/main/resources/archwright/
 | AW-FF-05 | O módulo `archwright-desktop` só importa `..engine.application.port.in..` e `..engine.config..`. |
 | AW-FF-06 | Sem ciclos entre pacotes. |
 | AW-FF-07 | `application.port.in` é autocontido: não depende de `domain`, `port.out` nem `usecase`. É o que permite ao desktop usar só `port.in` e `config` (AW-FF-05). |
-| AW-FF-08 | No desktop, `wizard`, `i18n` e `preferences` não dependem de `view`: o modelo e as mensagens não conhecem as telas. |
+| AW-FF-08 | No desktop, `wizard`, `i18n`, `preferences` e `history` não dependem de `view`: o modelo e as mensagens não conhecem as telas. |
 
 Ficam em `archwright-engine/src/test/java/.../architecture/EngineArchitectureTest.java` e `archwright-desktop/src/test/java/.../architecture/DesktopArchitectureTest.java`.
 
@@ -516,6 +516,8 @@ Alimenta as telas 1 a 3: estilos, versões do Spring Boot ([ENG-VER](#versões-d
 `dependencies.yaml` e `extras.yaml` agora levam `label`, `description` e `group` (dependências) e `label` (extras) para o domínio, porque o `CatalogQuery` os expõe; se ausentes, o rótulo cai no `id` e o resto fica vazio, e o `OfficialCatalogTest` garante que o catálogo oficial os preenche.
 
 ## App desktop (`archwright-desktop`)
+
+A janela é uma casca (`AppShell`) com barra lateral e cinco seções: Início (números, gráficos, modelos `Preset`, recentes e dicas), Novo projeto (o wizard), Documentação, Histórico e Sobre. O pacote `history` guarda os últimos 20 projetos gerados (`ProjectHistory` sobre `java.util.prefs`, com contador total) e permite reutilizar as escolhas. O estilo (paleta âmbar e grafite, cantos de 3 px) fica em `archwright.css`.
 
 O desktop só coleta escolhas e chama o engine em processo, pelas portas de entrada e por `ArchwrightEngine` ([ADR-0002](../adr/0002-desktop-javafx-atlantafx.md), AW-FF-05).
 

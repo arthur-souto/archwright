@@ -11,5 +11,9 @@ public interface Dialogs {
 
     Optional<Path> chooseDirectory(Window owner, Path initial);
 
+    boolean confirmAction(Window owner, String message, String action);
+
     void openFolder(Path folder);
+
+    void openUrl(String url);
 }
