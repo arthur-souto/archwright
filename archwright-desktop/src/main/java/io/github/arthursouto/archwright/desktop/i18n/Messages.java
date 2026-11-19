@@ -27,6 +27,10 @@ public final class Messages {
         return new Messages(ResourceBundle.getBundle(BUNDLE, locale));
     }
 
+    public boolean has(String key) {
+        return bundle.containsKey(key);
+    }
+
     public String text(String key) {
         return bundle.containsKey(key) ? bundle.getString(key) : key;
     }

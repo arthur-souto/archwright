@@ -71,7 +71,8 @@ final class ProjectStepView implements StepView {
     }
 
     private FieldRow styleRow() {
-        return new FieldRow(messages.text("project.style"), styles, WizardStep.PROJECT, "architectureStyle",
+        return new FieldRow(messages.text("project.style"), messages.text("project.style.help"), styles,
+                WizardStep.PROJECT, "architectureStyle",
                 validation, form.architectureStyle());
     }
 
@@ -79,11 +80,12 @@ final class ProjectStepView implements StepView {
         TextField modules = field(form.modules(), "project.modules.prompt");
         modulesCaption.set(modulesCaption());
 
-        return new FieldRow(modulesCaption, modules, WizardStep.PROJECT, "modules", validation, form.modules());
+        return new FieldRow(modulesCaption, messages.text("project.modules.help"), modules, WizardStep.PROJECT, "modules", validation, form.modules());
     }
 
     private FieldRow row(String captionKey, Node control, String field, Property<?> value) {
-        return new FieldRow(messages.text(captionKey), control, WizardStep.PROJECT, field, validation, value);
+        return new FieldRow(messages.text(captionKey), messages.text(captionKey + ".help"), control, WizardStep.PROJECT,
+                field, validation, value);
     }
 
     private TextField field(StringProperty property, String promptKey) {

@@ -2,6 +2,7 @@ package io.github.arthursouto.archwright.desktop.view;
 
 import atlantafx.base.theme.Styles;
 import io.github.arthursouto.archwright.desktop.i18n.Messages;
+import io.github.arthursouto.archwright.desktop.wizard.Coordinates;
 import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewResult;
 import io.github.arthursouto.archwright.engine.application.port.in.ResolvedDependency;
@@ -100,9 +101,7 @@ final class PreviewSummaryView extends VBox {
     }
 
     private String dependencyText(ResolvedDependency dependency) {
-        String version = dependency.version() == null || dependency.version().isBlank() ? "" : ":" + dependency.version();
-
-        return dependency.groupId() + ":" + dependency.artifactId() + version + " (" + dependency.scope() + ")";
+        return Coordinates.format(dependency);
     }
 
     private String ruleText(FitnessRuleSummary rule) {

@@ -2,6 +2,7 @@ package io.github.arthursouto.archwright.desktop.view;
 
 import io.github.arthursouto.archwright.desktop.i18n.Messages;
 import io.github.arthursouto.archwright.desktop.preferences.UserPreferences;
+import io.github.arthursouto.archwright.desktop.wizard.PackageNode;
 import io.github.arthursouto.archwright.desktop.wizard.ProjectForm;
 import io.github.arthursouto.archwright.engine.application.port.in.ArchitectureStyleOption;
 import io.github.arthursouto.archwright.engine.application.port.in.BootVersionOption;
@@ -9,6 +10,9 @@ import io.github.arthursouto.archwright.engine.application.port.in.CatalogQuery;
 import io.github.arthursouto.archwright.engine.application.port.in.GenerateProjectUseCase;
 import io.github.arthursouto.archwright.engine.application.port.in.JavaVersionOption;
 import io.github.arthursouto.archwright.engine.application.port.in.KitOption;
+import io.github.arthursouto.archwright.engine.application.port.in.PreviewProjectQuery;
+import io.github.arthursouto.archwright.engine.application.port.in.PreviewResult;
+import io.github.arthursouto.archwright.engine.application.port.in.Violation;
 import io.github.arthursouto.archwright.engine.config.ArchwrightEngine;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -21,6 +25,8 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -71,8 +78,12 @@ class WizardViewTest {
     }
 
     private void open(CatalogQuery catalog, GenerateProjectUseCase generator) {
+        open(catalog, engine.previewProject(), generator);
+    }
+
+    private void open(CatalogQuery catalog, PreviewProjectQuery preview, GenerateProjectUseCase generator) {
         DesktopContext context = new DesktopContext(
-                catalog, engine.previewProject(), generator, Messages.portuguese(), preferences, dialogs);
+                catalog, preview, generator, Messages.portuguese(), preferences, dialogs);
 
         form = new ProjectForm();
         preferences.restoreInto(form);
@@ -89,6 +100,204 @@ class WizardViewTest {
         if (node != null) {
             node.removeNode();
         }
+    }
+
+    @Test
+    void everyFieldOfTheProjectStepExplainsWhatItIs() {
+        Messages messages = Messages.portuguese();
+
+        assertThat(labels()).contains(
+                messages.text("project.artifactId.help"), messages.text("project.groupId.help"),
+                messages.text("project.basePackage.help"), messages.text("project.description.help"),
+                messages.text("project.style.help"), messages.text("project.modules.help"));
+    }
+
+    @Test
+    void everyFieldOfTheVersionsStepExplainsWhatItIs() {
+        goToVersions();
+        Messages messages = Messages.portuguese();
+
+        assertThat(labels()).contains(messages.text("versions.boot.help"), messages.text("versions.java.help"));
+    }
+
+    @Test
+    void theDependenciesStepExplainsKitDependenciesExtrasAndFitnessFunctions() {
+        goToDependencies();
+        Messages messages = Messages.portuguese();
+
+        assertThat(labels()).contains(
+                messages.text("dependencies.kit.help"), messages.text("dependencies.extras.help"),
+                messages.text("dependencies.fitness.help"), messages.text("extra.docker-compose.help"),
+                messages.text("extra.github-actions.help"),
+                "API REST com Spring MVC e Tomcat.", "Migrations versionadas do banco.");
+    }
+
+    @Test
+    void theKitShowsWhichDependenciesItMarks() {
+        goToDependencies();
+
+        assertThat(labels()).contains("Marca: Spring Web, Validation, Actuator, JPA + PostgreSQL, Flyway, Lombok.");
+
+        selectKit("NONE");
+
+        Fx.await(() -> labels().contains("Não marca nenhuma dependência; você escolhe tudo na lista abaixo."));
+    }
+
+    @Test
+    void eachDependencyShowsTheMavenArtifactsItBrings() {
+        goToDependencies();
+
+        assertThat(labels()).contains(
+                "Maven: spring-boot-starter-webmvc", "Maven: postgresql (runtime)");
+        assertThat(labels()).anyMatch(text -> text.startsWith("Maven: springdoc-openapi-starter-webmvc-ui:"));
+    }
+
+    @Test
+    void eachExtraSaysWhichFilesItGenerates() {
+        goToDependencies();
+
+        assertThat(labels()).contains("Gera: docker-compose.yml e .env.example", "Gera: .github/workflows/ci.yml");
+    }
+
+    @Test
+    void eachRuleExplainsWhyItMatters() {
+        goToDependencies();
+        Messages messages = Messages.portuguese();
+
+        assertThat(labels()).contains(
+                messages.text("rule.FF-ADP-01.help"), messages.text("rule.FF-MOD-01.help"), messages.text("rule.FF-COD-01.help"));
+    }
+
+    @Test
+    void theExportStepExplainsFormatAndDestination() {
+        goToExport();
+        Messages messages = Messages.portuguese();
+
+        assertThat(labels()).contains(messages.text("export.format.help"), messages.text("export.destination.help"));
+    }
+
+    @Test
+    void theTreeShowsTheTotalsOfTheGeneratedProject() {
+        fillProject();
+
+        Fx.await(() -> labels().stream().anyMatch(text -> text.matches("Projeto gerado: \\d+ arquivos, \\d+ linhas no total\\.")));
+    }
+
+    @Test
+    void selectingAPackageShowsWhatItIsForAndItsNumbers() {
+        fillProject();
+        Fx.await(() -> treeNames().contains("pedidos"));
+
+        selectInTree("com.acme.pedidoapi.pedidos");
+
+        Fx.await(() -> labels().contains("com.acme.pedidoapi.pedidos"));
+        assertThat(labels()).anyMatch(text -> text.matches("Pacotes: \\d+ · Classes Java: \\d+ · Linhas: \\d+ \\(com os package-info\\)\\."));
+        assertThat(labels()).anyMatch(text -> text.startsWith("Módulo Pedidos:"));
+    }
+
+    @Test
+    void selectingAClassShowsItsLines() {
+        fillProject();
+        Fx.await(() -> treeNames().contains("PedidoApiApplication.java"));
+
+        selectInTree("PedidoApiApplication.java");
+
+        Fx.await(() -> labels().stream().anyMatch(text -> text.matches("Classe Java · Linhas: \\d+")));
+    }
+
+    @Test
+    void theTreeStartsWithAProvisionalExampleAndSaysSo() {
+        Fx.await(() -> treeNames().contains("com.empresa.projeto"));
+
+        assertThat(treeNames()).contains("modulo", "shared", "bootstrap");
+        assertThat(labels()).contains("Exemplo com nomes provisórios: a estrutura final aparece quando os campos estiverem preenchidos.");
+    }
+
+    @Test
+    void theTreeFollowsGroupArtifactAndBasePackageWhileTyping() {
+        fillProject();
+
+        Fx.await(() -> treeNames().contains("com.acme.pedidoapi"));
+        Fx.await(() -> labels().stream().noneMatch(text -> text.startsWith("Exemplo com nomes provisórios")));
+
+        type("Sugestão: com.acme.pedidoapi", "br.pedido");
+
+        Fx.await(() -> treeNames().contains("br.pedido"));
+        assertThat(treeNames()).doesNotContain("com.acme.pedidoapi");
+    }
+
+    @Test
+    void theTreeShowsEachModuleAsItIsTyped() {
+        fillIdentity();
+        type("pedidos, pagamentos", "pedidos");
+
+        Fx.await(() -> treeNames().contains("pedidos"));
+        assertThat(treeNames()).doesNotContain("pagamentos");
+
+        type("pedidos, pagamentos", "pedidos, pagamentos");
+
+        Fx.await(() -> treeNames().contains("pagamentos"));
+        assertThat(treeNames()).contains("pedidos", "shared", "bootstrap");
+    }
+
+    @Test
+    void theTreeChangesWithTheArchitectureStyle() {
+        fillProject();
+        Fx.await(() -> treeNames().contains("bootstrap"));
+
+        Fx.run(() -> comboBox(0).getSelectionModel().select(1));
+        type("pedidos, pagamentos", "pedido, cliente");
+
+        Fx.await(() -> treeNames().contains("infrastructure"));
+        Fx.await(() -> treeNames().contains("cliente"));
+        assertThat(treeNames()).contains("application", "domain.model", "PedidoApiApplication.java")
+                .doesNotContain("bootstrap", "shared");
+
+        Fx.run(() -> comboBox(0).getSelectionModel().select(0));
+        type("pedidos, pagamentos", "pedidos");
+
+        Fx.await(() -> treeNames().contains("shared"));
+        assertThat(treeNames()).doesNotContain("infrastructure");
+    }
+
+    @Test
+    void anInvalidNameKeepsTheTreeWithAProvisionalName() {
+        type("com.empresa", "com.acme");
+        type("pedido-api", "Pedido API");
+
+        Fx.await(() -> treeNames().contains("com.acme.projeto"));
+        assertThat(labels()).anyMatch(text -> text.startsWith("Exemplo com nomes provisórios"));
+    }
+
+    @Test
+    void theTreeIsMarkedAsOutdatedWhenNothingCanBeShown() {
+        open(engine.catalog(), request -> new PreviewResult.Failure(List.of(
+                new Violation("UNSUPPORTED_BOOT_VERSION", "bootVersion", Map.of("value", "")))), engine.generateProject());
+
+        Fx.await(() -> labels().contains("Corrija os campos destacados para atualizar a estrutura."));
+        assertThat(treeNames()).isEmpty();
+    }
+
+    @Test
+    void theDefaultVersionsAreFilledBeforeTheVersionsStepIsOpened() {
+        Fx.await(() -> !form.bootVersion().get().isBlank() && !form.javaVersion().get().isBlank());
+
+        assertThat(catalogJavaVersionsFor(form.bootVersion().get())).contains(form.javaVersion().get());
+    }
+
+    @Test
+    void theTreePanelStaysVisibleOnEveryStep() {
+        goToVersions();
+        assertThat(labels()).contains("Estrutura de pacotes");
+
+        click("Avançar");
+        Fx.await(() -> labels().contains("Dependências e fitness functions"));
+        assertThat(labels()).contains("Estrutura de pacotes");
+
+        click("Avançar");
+        Fx.await(() -> labels().contains("Exportar"));
+        assertThat(labels()).contains("Estrutura de pacotes");
+        Fx.await(() -> treeNames().contains("pedidos"));
     }
 
     @Test
@@ -417,17 +626,18 @@ class WizardViewTest {
     void aFailedVersionSearchShowsAMessageAndTriesAgainOnTheNextVisit() {
         AtomicInteger calls = new AtomicInteger();
         open(failingVersions(calls), engine.generateProject());
+        Fx.await(() -> calls.get() == 1);
         fillProject();
 
         click("Avançar");
 
         Fx.await(() -> labels().stream().anyMatch(text -> text.startsWith("Não foi possível buscar as versões")));
-        assertThat(calls.get()).isEqualTo(1);
+        assertThat(calls.get()).isEqualTo(2);
 
         click("Voltar");
         click("Avançar");
 
-        Fx.await(() -> calls.get() == 2);
+        Fx.await(() -> calls.get() == 3);
     }
 
     @Test
@@ -490,6 +700,49 @@ class WizardViewTest {
 
         Fx.await(() -> labels().stream().anyMatch(text -> text.startsWith("Projeto gerado:")));
         assertThat(Fx.call(() -> button("Gerar projeto").isDisabled())).isFalse();
+    }
+
+    private void selectInTree(String qualifiedName) {
+        Fx.run(() -> {
+            TreeView<PackageNode> tree = tree();
+            find(tree.getRoot(), qualifiedName).ifPresentOrElse(
+                    item -> tree.getSelectionModel().select(item), () -> { throw new AssertionError("node not found: " + qualifiedName); });
+        });
+    }
+
+    private Optional<TreeItem<PackageNode>> find(TreeItem<PackageNode> from, String qualifiedName) {
+        if (from.getValue() != null && from.getValue().qualifiedName().equals(qualifiedName)) {
+            return Optional.of(from);
+        }
+
+        return from.getChildren().stream().map(child -> find(child, qualifiedName)).flatMap(Optional::stream).findFirst();
+    }
+
+    private List<String> treeNames() {
+        return Fx.call(() -> {
+            TreeView<PackageNode> tree = tree();
+            List<String> names = new ArrayList<>();
+            collect(tree.getRoot(), names);
+
+            return names;
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private TreeView<PackageNode> tree() {
+        return (TreeView<PackageNode>) nodes(".tree-view").iterator().next();
+    }
+
+    private void collect(TreeItem<PackageNode> item, List<String> names) {
+        if (item.getValue() != null) {
+            names.add(item.getValue().name());
+        }
+
+        item.getChildren().forEach(child -> collect(child, names));
+    }
+
+    private List<String> catalogJavaVersionsFor(String boot) {
+        return engine.catalog().javaVersions(boot).stream().map(JavaVersionOption::version).toList();
     }
 
     private List<String> javaVersionsOffered() {

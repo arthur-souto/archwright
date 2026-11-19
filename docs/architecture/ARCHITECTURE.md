@@ -491,12 +491,13 @@ Ordem: validar (etapa 1) → se inválido, devolve `Failure` → resolver perfil
 #### ENG-UC-02 — Pré-visualizar projeto
 **Status:** ✅ implementado (`PreviewProject`). As fitness functions vêm de `fitness.rules` do contexto.
 
-Executa as etapas 1 a 4 e devolve a árvore de caminhos, as dependências resolvidas (com coordenadas Maven) e as fitness functions escolhidas, sem renderizar nem gravar. Alimenta o resumo da tela 4 do desktop.
+Executa as etapas 1 a 4, renderiza os arquivos em memória (sem gravar) e devolve a árvore de caminhos com as linhas de cada arquivo e a descrição de cada pacote, as dependências resolvidas (com coordenadas Maven) e as fitness functions escolhidas. Alimenta a árvore de pacotes do desktop e o resumo da tela 4.
 
 | # | Dado | Quando | Então |
 |---|---|---|---|
 | 1 | pedido válido | pré-visualizar | mesma lista de caminhos que o `GenerateProject` grava |
 | 2 | pedido inválido | pré-visualizar | `Failure` com as violações |
+| 3 | pedido válido | pré-visualizar | `files` com as mesmas linhas que a geração grava e a descrição de cada `package-info` |
 
 #### ENG-UC-03 — Consultar catálogo
 **Status:** ✅ implementado (`BrowseCatalog`). `fitnessRules(estilo, dependências, boot)` avalia o `when` de cada regra com flags montadas a partir dos argumentos.
@@ -527,6 +528,8 @@ O desktop só coleta escolhas e chama o engine em processo, pelas portas de entr
 | `view` | `WizardView` e as quatro telas, `LiveValidation`, `FieldRow`, `Background`, `ThemeSwitcher` (AtlantaFX Primer claro/escuro) e `Dialogs`, a interface das interações com o sistema (seletor de pastas, confirmação de sobrescrita, abrir pasta), com `NativeDialogs` no app e uma dublê nos testes. |
 
 Como o wizard funciona:
+- **Descrições:** cada campo mostra, abaixo do título, uma dica do que ele é (`*.help` em `messages_pt_BR.properties`; `Hint`). As dependências mostram a `description` do catálogo e o artifact Maven que trazem (`DependencyOption.artifacts`); o kit lista o que marca; os extras dizem quais arquivos geram (`extra.<id>.files`); cada regra de fitness traz o porquê (`rule.<id>.help`). As dicas dos extras e das regras ficam nas mensagens porque o catálogo não as traz.
+- **Árvore de pacotes:** o painel à direita (`PackageTreePanel`, `LivePackageTree`) mostra os pacotes do código gerado e muda com o pacote base, os módulos e o estilo. Os arquivos vêm do `PreviewProjectQuery` (caminho, linhas e descrição do pacote); selecionar um nó mostra o propósito do pacote, subpacotes, classes e linhas, e o painel mostra o total do projeto. `PackageTrees` monta a árvore (`package-info.java` vira pacote, cadeias vazias são compactadas). Enquanto algum campo estiver inválido, `ProvisionalRequest` troca só o que falta por nomes provisórios (`projeto`, `com.empresa`, `modulo`) e a tela avisa que é um exemplo; se nem assim der, a árvore fica esmaecida. `VersionPreload` escolhe o Boot e o Java padrão ao abrir, para a árvore existir já na primeira tela. Nada disso altera o motor.
 - **Validação ao digitar:** cada mudança no formulário reinicia um atraso de 350 ms e então chama `PreviewProjectQuery` fora da thread de UI. `Failure` vira `FieldErrors`; `Preview` alimenta o resumo da tela 4. Cada campo mostra seu erro só depois de editado ou de uma tentativa de avançar, e esconde a mensagem antiga enquanto o resultado novo não chega.
 - **Avançar:** repete a validação e só passa se a tela atual não tiver erro (`FieldErrors.hasErrorIn`); senão revela os erros dela.
 - **Versões:** `CatalogQuery.bootVersions()` roda em segundo plano na primeira visita à tela 2 e mostra a origem (`REMOTE`, `CACHE`, `STALE_CACHE`, `EMBEDDED`). A lista de Java vem de `javaVersions(boot)` e se refaz a cada troca.

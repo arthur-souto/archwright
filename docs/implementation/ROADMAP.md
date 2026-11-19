@@ -42,6 +42,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 - [x] Busca de versões fora da thread de UI, com indicador de origem (`REMOTE`/`CACHE`/`EMBEDDED`).
 - [x] Escolha de destino (`DirectoryChooser`), formato ZIP ou pasta, confirmação de sobrescrita do ZIP (`TARGET_EXISTS`) e botão "abrir pasta" ao final.
 - [x] Lembrar as últimas escolhas (`java.util.prefs`).
+- [x] Descrição visível em cada campo e árvore de pacotes ao vivo no canto direito (muda com pacote base, módulos e estilo), com detalhe do pacote (propósito, subpacotes, classes, linhas), artifacts Maven, kits, extras e regras na tela de dependências.
 - [x] `DesktopArchitectureTest` (AW-FF-05).
 - [ ] Roteiro manual do desktop ([TESTING](../operations/TESTING.md#roteiro-manual-do-desktop)): falta ver o seletor de pastas, a confirmação e o "Abrir pasta" nativos (a lógica já é testada com `Dialogs` de teste) e repetir no Windows e no Linux.
 
@@ -71,8 +72,6 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 - [ ] Gradle e Kotlin.
 
 ## Próxima tarefa concreta
-**Fase 0.** Na ordem:
-1. Revisar e versionar esta documentação.
-2. Adicionar `LICENSE` (Apache 2.0) pelo GitHub.
-3. Criar o build multi-módulo, os pacotes do engine com `package-info` e o `EngineArchitectureTest`.
-4. CI com `./mvnw -B verify`.
+**Fase 2, fechamento.** Na ordem:
+1. Terminar o teste manual do desktop ([roteiro](../operations/TESTING.md#roteiro-manual-do-desktop)) e ajustar o que aparecer.
+2. Começar a Fase 3: `.dmg` local com `jpackage`, depois CI para os três sistemas.

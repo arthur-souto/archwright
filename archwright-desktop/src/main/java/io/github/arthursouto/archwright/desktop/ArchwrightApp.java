@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 public final class ArchwrightApp extends Application {
 
-    private static final double WIDTH = 920;
+    private static final double WIDTH = 1240;
     private static final double HEIGHT = 760;
 
     private ArchwrightEngine engine;

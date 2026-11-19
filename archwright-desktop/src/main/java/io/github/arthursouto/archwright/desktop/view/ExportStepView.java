@@ -66,7 +66,7 @@ final class ExportStepView implements StepView {
         root.getChildren().addAll(
                 title(),
                 formatRow(),
-                new FieldRow(messages.text("export.destination"), destinationRow(), WizardStep.EXPORT, "destination",
+                new FieldRow(messages.text("export.destination"), messages.text("export.destination.help"), destinationRow(), WizardStep.EXPORT, "destination",
                         validation, form.destination()),
                 actionRow(),
                 outcome,
@@ -101,7 +101,7 @@ final class ExportStepView implements StepView {
         group.selectToggle(form.format().get() == ExportFormat.ZIP ? zip : folder);
         group.selectedToggleProperty().addListener((observable, before, after) -> form.format().set((ExportFormat) after.getUserData()));
 
-        return new VBox(4, caption, new HBox(SPACING, zip, folder));
+        return new VBox(4, caption, Hint.of(messages.text("export.format.help")), new HBox(SPACING, zip, folder));
     }
 
     private RadioButton formatButton(ExportFormat format, ToggleGroup group) {

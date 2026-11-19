@@ -3,6 +3,7 @@ package io.github.arthursouto.archwright.desktop.view;
 import atlantafx.base.theme.Styles;
 import io.github.arthursouto.archwright.desktop.i18n.Messages;
 import io.github.arthursouto.archwright.desktop.wizard.ProjectForm;
+import io.github.arthursouto.archwright.desktop.wizard.VersionDefaults;
 import io.github.arthursouto.archwright.desktop.wizard.WizardStep;
 import io.github.arthursouto.archwright.engine.application.port.in.BootVersionOption;
 import io.github.arthursouto.archwright.engine.application.port.in.BootVersions;
@@ -43,8 +44,8 @@ final class VersionsStepView implements StepView {
         configureJava();
         root.getChildren().addAll(
                 title(),
-                new FieldRow(messages.text("versions.boot"), boot, WizardStep.VERSIONS, "bootVersion", validation, form.bootVersion()),
-                new FieldRow(messages.text("versions.java"), java, WizardStep.VERSIONS, "javaVersion", validation, form.javaVersion()),
+                new FieldRow(messages.text("versions.boot"), messages.text("versions.boot.help"), boot, WizardStep.VERSIONS, "bootVersion", validation, form.bootVersion()),
+                new FieldRow(messages.text("versions.java"), messages.text("versions.java.help"), java, WizardStep.VERSIONS, "javaVersion", validation, form.javaVersion()),
                 statusLine());
     }
 
@@ -95,11 +96,7 @@ final class VersionsStepView implements StepView {
     }
 
     private BootVersionOption initialBoot(List<BootVersionOption> options) {
-        return options.stream()
-                .filter(option -> option.version().equals(form.bootVersion().get()))
-                .findFirst()
-                .or(() -> options.stream().filter(option -> !option.legacy() && option.latestOfLine()).findFirst())
-                .orElse(options.getFirst());
+        return VersionDefaults.boot(options, form.bootVersion().get()).orElseThrow();
     }
 
     private void configureBoot() {
@@ -117,11 +114,7 @@ final class VersionsStepView implements StepView {
         form.bootVersion().set(selected.version());
         List<JavaVersionOption> options = catalog.javaVersions(selected.version());
         java.setItems(FXCollections.observableList(new ArrayList<>(options)));
-        options.stream()
-                .filter(option -> option.version().equals(form.javaVersion().get()))
-                .findFirst()
-                .or(() -> options.stream().filter(JavaVersionOption::isDefault).findFirst())
-                .ifPresent(option -> java.getSelectionModel().select(option));
+        VersionDefaults.java(options, form.javaVersion().get()).ifPresent(option -> java.getSelectionModel().select(option));
     }
 
     private void configureJava() {

@@ -2,6 +2,7 @@ package io.github.arthursouto.archwright.desktop.view;
 
 import atlantafx.base.theme.Styles;
 import io.github.arthursouto.archwright.desktop.i18n.Messages;
+import io.github.arthursouto.archwright.desktop.wizard.Coordinates;
 import io.github.arthursouto.archwright.desktop.wizard.ProjectForm;
 import io.github.arthursouto.archwright.desktop.wizard.WizardStep;
 import io.github.arthursouto.archwright.engine.application.port.in.CatalogQuery;
@@ -9,6 +10,7 @@ import io.github.arthursouto.archwright.engine.application.port.in.DependencyOpt
 import io.github.arthursouto.archwright.engine.application.port.in.ExtraOption;
 import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
 import io.github.arthursouto.archwright.engine.application.port.in.KitOption;
+import io.github.arthursouto.archwright.engine.application.port.in.ResolvedDependency;
 import javafx.collections.FXCollections;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Node;
@@ -29,8 +31,9 @@ final class DependenciesStepView implements StepView {
 
     private static final double SPACING = 16;
     private static final double GROUP_SPACING = 6;
+    private static final double HINT_GAP = 2;
     private static final double GROUP_GAP = 40;
-    private static final double GROUP_MIN_WIDTH = 220;
+    private static final double GROUP_WIDTH = 300;
 
     private final CatalogQuery catalog;
     private final Messages messages;
@@ -43,7 +46,9 @@ final class DependenciesStepView implements StepView {
     private final CheckBox fitness = new CheckBox();
     private final Map<String, CheckBox> dependencyBoxes = new LinkedHashMap<>();
     private final Map<String, CheckBox> extraBoxes = new LinkedHashMap<>();
+    private final Label kitMarks = new Label();
     private final VBox root = new VBox(SPACING);
+    private List<DependencyOption> available = List.of();
 
     DependenciesStepView(DesktopContext context, ProjectForm form, LiveValidation validation) {
         this.catalog = context.catalog();
@@ -56,11 +61,11 @@ final class DependenciesStepView implements StepView {
         buildExtras();
         root.getChildren().addAll(
                 title(),
-                new FieldRow(messages.text("dependencies.kit"), kits, WizardStep.DEPENDENCIES, "kit", validation, form.kit()),
+                new FieldRow(messages.text("dependencies.kit"), messages.text("dependencies.kit.help"), new VBox(GROUP_SPACING, kits, kitMarks), WizardStep.DEPENDENCIES, "kit", validation, form.kit()),
                 dependencyGroups,
-                heading("dependencies.extras"),
+                new VBox(HINT_GAP, heading("dependencies.extras"), Hint.of(messages.text("dependencies.extras.help"))),
                 extrasBox,
-                fitness,
+                new VBox(HINT_GAP, fitness, Hint.indented(messages.text("dependencies.fitness.help"))),
                 rulesBox);
         keepViewsInSyncWithForm();
     }
@@ -95,6 +100,8 @@ final class DependenciesStepView implements StepView {
         List<KitOption> options = catalog.kits();
         kits.setItems(FXCollections.observableList(options));
         kits.setMaxWidth(Double.MAX_VALUE);
+        kitMarks.setWrapText(true);
+        kitMarks.getStyleClass().addAll(Styles.TEXT_MUTED, Styles.TEXT_SMALL);
         kits.setCellFactory(list -> Cells.of(KitOption::label));
         kits.setButtonCell(Cells.of(KitOption::label));
         kits.getSelectionModel().select(initialKit(options));
@@ -117,6 +124,19 @@ final class DependenciesStepView implements StepView {
         form.kit().set(kit.id());
         form.dependencies().clear();
         form.dependencies().addAll(kit.dependencies());
+        showKitMarks(kit);
+    }
+
+    private void showKitMarks(KitOption kit) {
+        String labels = kit.dependencies().stream().map(this::labelOf).collect(Collectors.joining(", "));
+
+        kitMarks.setText(kit.dependencies().isEmpty()
+                ? messages.text("dependencies.kit.empty")
+                : messages.text("dependencies.kit.marks", "value", labels));
+    }
+
+    private String labelOf(String id) {
+        return available.stream().filter(option -> option.id().equals(id)).map(DependencyOption::label).findFirst().orElse(id);
     }
 
     private void configureFitness() {
@@ -130,17 +150,34 @@ final class DependenciesStepView implements StepView {
             CheckBox box = new CheckBox(extra.label());
             box.selectedProperty().addListener((observable, before, after) -> toggle(form.extras(), extra.id(), after));
             extraBoxes.put(extra.id(), box);
-            extrasBox.getChildren().add(box);
+            extrasBox.getChildren().add(extraRow(extra, box));
         }
     }
 
+    private Node extraRow(ExtraOption extra, CheckBox box) {
+        String key = "extra." + extra.id() + ".help";
+
+        VBox row = new VBox(HINT_GAP, box);
+
+        if (messages.has(key)) {
+            row.getChildren().add(Hint.indented(messages.text(key)));
+        }
+
+        if (messages.has("extra." + extra.id() + ".files")) {
+            row.getChildren().add(Hint.indented(messages.text("extra." + extra.id() + ".files")));
+        }
+
+        return row;
+    }
+
     private void rebuildDependencies() {
-        List<DependencyOption> available = catalog.dependencies(form.bootVersion().get());
+        available = catalog.dependencies(form.bootVersion().get());
         Set<String> availableIds = available.stream().map(DependencyOption::id).collect(Collectors.toSet());
         form.dependencies().removeIf(id -> !availableIds.contains(id));
 
         dependencyBoxes.clear();
         dependencyGroups.getChildren().setAll(groups(available));
+        showKitMarks(kits.getValue());
     }
 
     private List<Node> groups(List<DependencyOption> available) {
@@ -156,7 +193,8 @@ final class DependenciesStepView implements StepView {
 
     private Node group(String name, List<DependencyOption> options) {
         VBox box = new VBox(GROUP_SPACING);
-        box.setMinWidth(GROUP_MIN_WIDTH);
+        box.setPrefWidth(GROUP_WIDTH);
+        box.setMaxWidth(GROUP_WIDTH);
         Label label = new Label(name);
         label.getStyleClass().add(Styles.TEXT_BOLD);
         box.getChildren().add(label);
@@ -169,17 +207,23 @@ final class DependenciesStepView implements StepView {
         CheckBox box = new CheckBox(option.label());
         box.setSelected(form.dependencies().contains(option.id()));
         box.selectedProperty().addListener((observable, before, after) -> toggle(form.dependencies(), option.id(), after));
-        box.setTooltip(new Tooltip(option.description()));
         dependencyBoxes.put(option.id(), box);
 
-        if (option.implies().isEmpty()) {
-            return box;
+        VBox row = new VBox(HINT_GAP, box, Hint.indented(option.description()));
+        option.artifacts().forEach(artifact -> row.getChildren().add(artifactHint(artifact)));
+
+        if (!option.implies().isEmpty()) {
+            row.getChildren().add(Hint.indented(messages.text("dependencies.implies", "value", String.join(", ", option.implies()))));
         }
 
-        Label implied = new Label(messages.text("dependencies.implies", "value", String.join(", ", option.implies())));
-        implied.getStyleClass().addAll(Styles.TEXT_MUTED, Styles.TEXT_SMALL);
+        return row;
+    }
 
-        return new VBox(2, box, implied);
+    private Node artifactHint(ResolvedDependency artifact) {
+        Label hint = Hint.indented(messages.text("dependencies.artifact", "value", Coordinates.artifact(artifact)));
+        hint.setTooltip(new Tooltip(Coordinates.format(artifact)));
+
+        return hint;
     }
 
     private void toggle(Set<String> values, String id, boolean selected) {
@@ -223,7 +267,7 @@ final class DependenciesStepView implements StepView {
         }
 
         rulesBox.getChildren().add(heading("dependencies.fitness.rules"));
-        rules().forEach(rule -> rulesBox.getChildren().add(ruleLabel(rule)));
+        rules().forEach(rule -> rulesBox.getChildren().add(ruleRow(rule)));
     }
 
     private List<FitnessRuleSummary> rules() {
@@ -231,11 +275,17 @@ final class DependenciesStepView implements StepView {
                 form.architectureStyle().get(), form.selectedDependencies(), form.bootVersion().get());
     }
 
-    private Label ruleLabel(FitnessRuleSummary rule) {
+    private Node ruleRow(FitnessRuleSummary rule) {
         Label label = new Label(rule.id() + " — " + rule.description());
         label.setWrapText(true);
-        label.getStyleClass().add(Styles.TEXT_SMALL);
+        label.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_BOLD);
+        VBox row = new VBox(HINT_GAP, label);
+        String key = "rule." + rule.id() + ".help";
 
-        return label;
+        if (messages.has(key)) {
+            row.getChildren().add(Hint.of(messages.text(key)));
+        }
+
+        return row;
     }
 }

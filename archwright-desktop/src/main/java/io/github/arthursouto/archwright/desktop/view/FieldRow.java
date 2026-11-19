@@ -21,11 +21,13 @@ final class FieldRow extends VBox {
     private final BooleanProperty touched = new SimpleBooleanProperty(false);
     private final BooleanProperty awaitingResult = new SimpleBooleanProperty(false);
 
-    FieldRow(String caption, Node control, WizardStep step, String field, LiveValidation validation, Property<?> value) {
-        this(new SimpleStringProperty(caption), control, step, field, validation, value);
+    FieldRow(String caption, String description, Node control, WizardStep step, String field, LiveValidation validation,
+             Property<?> value) {
+        this(new SimpleStringProperty(caption), description, control, step, field, validation, value);
     }
 
-    FieldRow(ObservableValue<String> caption, Node control, WizardStep step, String field, LiveValidation validation, Property<?> value) {
+    FieldRow(ObservableValue<String> caption, String description, Node control, WizardStep step, String field,
+             LiveValidation validation, Property<?> value) {
         super(SPACING);
 
         Label title = new Label();
@@ -50,6 +52,6 @@ final class FieldRow extends VBox {
         });
         validation.completed().addListener(observable -> awaitingResult.set(false));
 
-        getChildren().addAll(title, control, error);
+        getChildren().addAll(title, Hint.of(description), control, error);
     }
 }

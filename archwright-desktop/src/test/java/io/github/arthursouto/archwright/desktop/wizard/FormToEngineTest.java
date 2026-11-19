@@ -50,6 +50,35 @@ class FormToEngineTest {
     }
 
     @Test
+    void theModularPackageTreeShowsTheBasePackageAndEachModule() {
+        form.modules().set("pedidos, pagamentos");
+
+        PreviewResult.Preview preview = (PreviewResult.Preview) engine.previewProject().preview(form.toRequest());
+        PackageNode root = PackageTrees.from(preview.files()).getFirst();
+
+        assertThat(root.name()).isEqualTo("com.acme.pedidoapi");
+        assertThat(root.children()).extracting(PackageNode::name).contains("bootstrap", "pagamentos", "pedidos", "shared");
+    }
+
+    @Test
+    void theLayeredPackageTreeShowsTheLayersAndTheAggregates() {
+        catalog.architectureStyles().stream()
+                .filter(style -> !style.modulesRequired())
+                .findFirst()
+                .ifPresent(style -> form.architectureStyle().set(style.id()));
+        form.modules().set("pedido, cliente");
+
+        PreviewResult.Preview preview = (PreviewResult.Preview) engine.previewProject().preview(form.toRequest());
+        PackageNode root = PackageTrees.from(preview.files()).getFirst();
+
+        assertThat(root.name()).isEqualTo("com.acme.pedidoapi");
+        assertThat(root.children()).extracting(PackageNode::name)
+                .contains("application", "domain.model", "infrastructure", "PedidoApiApplication.java");
+        PackageNode model = root.children().stream().filter(node -> node.name().equals("domain.model")).findFirst().orElseThrow();
+        assertThat(model.children()).extracting(PackageNode::name).containsExactly("cliente", "pedido");
+    }
+
+    @Test
     void previewListsFilesDependenciesAndFitnessRules() {
         PreviewResult.Preview preview = (PreviewResult.Preview) engine.previewProject().preview(form.toRequest());
 

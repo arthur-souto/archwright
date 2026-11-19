@@ -28,6 +28,7 @@ public final class WizardView extends BorderPane {
     private final DesktopContext context;
     private final Messages messages;
     private final LiveValidation validation;
+    private final PackageTreePanel packageTree;
     private final Map<WizardStep, StepView> views = new EnumMap<>(WizardStep.class);
     private final Map<WizardStep, Label> indicators = new EnumMap<>(WizardStep.class);
     private final ObjectProperty<WizardStep> current = new SimpleObjectProperty<>(WizardStep.PROJECT);
@@ -39,6 +40,7 @@ public final class WizardView extends BorderPane {
         this.context = context;
         this.messages = context.messages();
         this.validation = new LiveValidation(context.preview(), messages, form);
+        this.packageTree = new PackageTreePanel(messages, new LivePackageTree(context.preview(), form));
 
         views.put(WizardStep.PROJECT, new ProjectStepView(context, form, validation));
         views.put(WizardStep.VERSIONS, new VersionsStepView(context, form, validation));
@@ -50,6 +52,7 @@ public final class WizardView extends BorderPane {
         configureTheme();
         keepIndicatorsAndButtonsUpToDate();
         show(WizardStep.PROJECT);
+        VersionPreload.start(context.catalog(), form);
         validation.refresh();
     }
 
@@ -121,7 +124,8 @@ public final class WizardView extends BorderPane {
         scroll.setPadding(new Insets(0, PADDING, 0, PADDING));
         scroll.getStyleClass().add(Styles.FLAT);
 
-        setCenter(scroll);
+        HBox.setHgrow(scroll, Priority.ALWAYS);
+        setCenter(new HBox(SPACING, scroll, packageTree));
         current.set(step);
         view.onShow();
     }

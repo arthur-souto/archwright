@@ -4,7 +4,7 @@
 
 *Architecture-first project generator for Spring Boot — hexagonal today, more styles soon. Fitness functions included.*
 
-> 🚧 **Em construção.** Estamos na [Fase 0](docs/implementation/ROADMAP.md#fase-0--fundação). Ainda não há release.
+> 🚧 **Em construção.** O motor ([Fase 1](docs/implementation/ROADMAP.md#fase-1--motor)) e o app desktop ([Fase 2](docs/implementation/ROADMAP.md#fase-2--app-desktop)) funcionam e estão em teste manual. Falta a [Fase 3](docs/implementation/ROADMAP.md#fase-3--distribuição) (instaladores). Ainda não há release.
 
 ## O que é
 
@@ -24,7 +24,7 @@ O Spring Initializr gera um projeto vazio: a estrutura de pacotes e as regras de
 
 ## Como vai funcionar
 
-Um app desktop (Windows, macOS, Linux, sem precisar de Java instalado) com 4 passos:
+Um app desktop (o instalador sem Java chega na Fase 3; por enquanto roda a partir do código) com 4 passos e uma árvore de pacotes ao vivo no canto direito:
 
 1. **Projeto:** nome, group, pacote e estilo de arquitetura.
 2. **Versões:** Spring Boot (do 2.7 ao mais recente, lista direto do Maven Central) e Java, só em combinações válidas.
@@ -35,12 +35,14 @@ Um app desktop (Windows, macOS, Linux, sem precisar de Java instalado) com 4 pas
 
 ## Rodando o app desktop (desenvolvimento)
 
-Precisa de JDK 25. O instalador sem JDK chega na [Fase 3](docs/implementation/ROADMAP.md#fase-3--distribuição).
+Precisa de JDK 25 e de internet só na primeira vez (para baixar as dependências; sem conexão o app usa a lista de versões embutida). O instalador sem JDK chega na [Fase 3](docs/implementation/ROADMAP.md#fase-3--distribuição).
 
     ./mvnw -pl .,archwright-engine install -DskipTests
     ./mvnw -pl archwright-desktop exec:java
 
-O primeiro comando instala o engine no repositório Maven local; o segundo abre o wizard. As escolhas (group, estilo, kit, formato, destino e tema) ficam salvas entre as execuções.
+O primeiro comando instala o POM pai e o engine no repositório Maven local (refaça sempre que o engine mudar); o segundo abre o wizard. As escolhas (group, estilo, kit, formato, destino e tema) ficam salvas entre as execuções.
+
+Para rodar todos os testes (engine e desktop), use `./mvnw verify`. Os testes de tela do desktop precisam de um ambiente gráfico e são pulados quando não há (por exemplo, no CI em Linux).
 
 ## Documentação
 
