@@ -6,6 +6,8 @@
 
 > **Pré-lançamento [v0.2.0](https://github.com/arthur-souto/archwright/releases/tag/v0.2.0).** O motor e o app desktop funcionam (a v0.2.0 traz a interface nova, com tela de início, histórico e documentação), e há instaladores para macOS, Windows e Linux. Eles ainda não são assinados (o sistema mostra um aviso na primeira abertura) e o do Windows e o do Linux ainda não foram testados em máquina real. Veja [o que ainda falta](#limitações-conhecidas).
 
+![Tela de início do Archwright](docs/images/tela-inicio.png)
+
 ## O que é
 
 O Spring Initializr gera um projeto vazio: a estrutura de pacotes e as regras de arquitetura ficam por sua conta. O Archwright faz o mesmo papel (você escolhe versões e dependências e recebe um ZIP ou uma pasta), mas o projeto já sai:
@@ -43,6 +45,12 @@ Cada campo tem uma descrição logo abaixo do título, e uma **árvore de pacote
 4. **Exportar:** formato ZIP ou pasta, destino, e **Gerar projeto**. O resumo mostra os arquivos, as dependências e as regras. O botão **Abrir pasta** leva ao resultado.
 
 O app abre numa **tela de início** com números, gráficos do seu uso, modelos de início rápido e os projetos recentes. A barra lateral leva ao **Histórico** (reutilize as escolhas de um projeto já gerado), à **Documentação** e ao tema claro/escuro. O app lembra as últimas escolhas (group, estilo, kit, formato, destino e tema).
+
+![Novo projeto, com a árvore de pacotes ao vivo no canto direito](docs/images/tela-novo-projeto.png)
+
+Na tela de início ficam os modelos de início rápido, os projetos recentes e as dicas:
+
+![Modelos de início rápido, projetos recentes e dicas](docs/images/tela-recentes.png)
 
 ![Visão geral da Fase 1](docs/architecture/images/visao-geral-fase-1.png)
 
