@@ -13,7 +13,7 @@ Pegue o instalador do seu sistema na página de [Releases](../../releases) do re
 | Windows 10 ou 11 | `Archwright-1.0.0-windows-x64.msi` |
 | Linux (Debian, Ubuntu e derivados) | `archwright_1.0.0_amd64-linux-x64.deb` |
 
-Ainda não há release publicada. Até lá, gere o instalador do seu sistema seguindo o [README](README.md#gerando-o-instalador).
+As releases são pré-lançamentos (instaladores sem assinatura). Se a sua versão ainda não tiver instalador, gere o do seu sistema seguindo o [README](README.md#gerando-o-instalador). Nos arquivos, o `1.0.0` é só o número do instalador; a versão do Archwright é a da release.
 
 ## 2. Instalar
 

@@ -55,4 +55,8 @@ jobs:
       - name: Publicar no GitHub Releases
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" installers/* --repo "${{ github.repository }}" --title "${{ github.ref_name }}" --generate-notes
+          NOTES: |
+            **Pré-lançamento.** Os instaladores ainda não são assinados: o macOS e o Windows mostram um aviso de app não verificado na primeira abertura. O passo a passo está no [INSTALL.md](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/INSTALL.md).
+
+            A versão do Archwright é a desta tag. Os arquivos têm `1.0.0` no nome porque o macOS recusa instaladores com versão começando em 0; é só o número do instalador.
+        run: gh release create "${{ github.ref_name }}" installers/* --repo "${{ github.repository }}" --title "${{ github.ref_name }}" --prerelease --notes "$NOTES" --generate-notes
