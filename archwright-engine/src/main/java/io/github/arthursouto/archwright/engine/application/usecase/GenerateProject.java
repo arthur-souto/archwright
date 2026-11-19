@@ -8,7 +8,7 @@ import io.github.arthursouto.archwright.engine.application.port.in.ProjectReques
 import io.github.arthursouto.archwright.engine.application.port.out.ExportResult;
 import io.github.arthursouto.archwright.engine.application.port.out.ProjectExporter;
 import io.github.arthursouto.archwright.engine.domain.model.GeneratedProject;
-import io.github.arthursouto.archwright.engine.domain.validation.Violation;
+import io.github.arthursouto.archwright.engine.application.port.in.Violation;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -33,7 +33,7 @@ public final class GenerateProject implements GenerateProjectUseCase {
 
     @Override
     public GenerationResult generate(ProjectRequest request, ExportTarget target) {
-        return switch (planning.prepare(request.toDraft())) {
+        return switch (planning.prepare(request)) {
             case ProjectPlanning.Outcome.Rejected rejected -> new GenerationResult.Failure(rejected.violations());
             case ProjectPlanning.Outcome.Ready ready -> export(ready, target);
         };
@@ -43,7 +43,7 @@ public final class GenerateProject implements GenerateProjectUseCase {
         ProjectExporter exporter = exporterFor(target.format());
         String artifactId = ready.spec().identity().artifactId().value();
 
-        List<Violation> destination = exporter.check(target, artifactId);
+        List<Violation> destination = PortViews.violations(exporter.check(target, artifactId));
 
         if (!destination.isEmpty()) {
             return new GenerationResult.Failure(destination);

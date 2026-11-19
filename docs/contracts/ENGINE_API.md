@@ -105,8 +105,9 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
 
 ## Violações
 
-    public record Violation(ViolationCode code, String field, Map<String, String> params) {}
-    // code é o enum ViolationCode (o nome é o `code` da tabela); o mesmo vale para Warning/WarningCode
+    public record Violation(String code, String field, Map<String, String> params) {}
+    // code é o nome do ViolationCode do domínio (o `code` da tabela). `port.in` não depende do domínio (AW-FF-07),
+    // por isso a porta expõe texto; o mesmo vale para Warning/WarningCode
 
 | `code` | `field` | `params` | Mensagem sugerida (pt-BR) |
 |---|---|---|---|

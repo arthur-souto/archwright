@@ -11,8 +11,7 @@ import io.github.arthursouto.archwright.engine.domain.model.FilePlan;
 import io.github.arthursouto.archwright.engine.domain.model.GeneratedFile;
 import io.github.arthursouto.archwright.engine.domain.model.Manifest;
 import io.github.arthursouto.archwright.engine.domain.model.TemplateContext;
-import io.github.arthursouto.archwright.engine.domain.validation.Violation;
-import io.github.arthursouto.archwright.engine.domain.validation.ViolationCode;
+import io.github.arthursouto.archwright.engine.application.port.in.Violation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +48,7 @@ class PreviewProjectTest {
         PreviewResult result = preview.preview(UseCaseFixtures.withTwoViolations());
 
         assertThat(((PreviewResult.Failure) result).violations()).extracting(Violation::code)
-                .containsExactlyInAnyOrder(ViolationCode.INVALID_ARTIFACT_ID, ViolationCode.UNKNOWN_EXTRA);
+                .containsExactlyInAnyOrder("INVALID_ARTIFACT_ID", "UNKNOWN_EXTRA");
     }
 
     @Test
@@ -100,11 +99,11 @@ class PreviewProjectTest {
     }
 
     private FilePlan planOf(ProjectRequest request) {
-        return ((ProjectPlanning.Outcome.Ready) planning.prepare(request.toDraft())).plan();
+        return ((ProjectPlanning.Outcome.Ready) planning.prepare(request)).plan();
     }
 
     private TemplateContext contextOf(ProjectRequest request) {
-        return ((ProjectPlanning.Outcome.Ready) planning.prepare(request.toDraft())).context();
+        return ((ProjectPlanning.Outcome.Ready) planning.prepare(request)).context();
     }
 
     private TemplateRepository countingTemplates() {

@@ -11,7 +11,7 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
 
 /**
  * Fitness functions do próprio engine (ARCHITECTURE.md > Regras de dependência).
- * AW-FF-05 vive no módulo desktop (Fase 2).
+ * AW-FF-05 vive no módulo desktop.
  */
 @AnalyzeClasses(
         packages = "io.github.arthursouto.archwright.engine",
@@ -57,6 +57,13 @@ class EngineArchitectureTest {
                     .and().areNotNestedClasses()
                     .should().beInterfaces().orShould().beRecords().orShould().beEnums()
                     .because("portas são contratos, não implementações");
+
+    @ArchTest // AW-FF-07
+    static final ArchRule portaDeEntradaEhAutocontida =
+            noClasses().that().resideInAPackage(ROOT + ".application.port.in..")
+                    .should().dependOnClassesThat().resideInAnyPackage(
+                            ROOT + ".domain..", ROOT + ".application.port.out..", ROOT + ".application.usecase..")
+                    .because("o desktop só enxerga port.in e config (AW-FF-05)");
 
     @ArchTest // AW-FF-06
     static final ArchRule semCiclosEntrePacotes =

@@ -1,7 +1,5 @@
 package io.github.arthursouto.archwright.engine.application.port.in;
 
-import io.github.arthursouto.archwright.engine.domain.validation.Violation;
-import io.github.arthursouto.archwright.engine.domain.validation.Warning;
 
 import java.nio.file.Path;
 import java.util.List;

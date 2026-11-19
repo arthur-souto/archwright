@@ -27,7 +27,7 @@ public final class PreviewProject implements PreviewProjectQuery {
 
     @Override
     public PreviewResult preview(ProjectRequest request) {
-        return switch (planning.prepare(request.toDraft())) {
+        return switch (planning.prepare(request)) {
             case ProjectPlanning.Outcome.Rejected rejected -> new PreviewResult.Failure(rejected.violations());
             case ProjectPlanning.Outcome.Ready ready -> preview(ready);
         };

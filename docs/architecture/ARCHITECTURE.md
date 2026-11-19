@@ -94,6 +94,8 @@ archwright-engine/src/main/resources/archwright/
 | AW-FF-04 | Tipos em `port.in` e `port.out` são interfaces, records ou enums. |
 | AW-FF-05 | O módulo `archwright-desktop` só importa `..engine.application.port.in..` e `..engine.config..`. |
 | AW-FF-06 | Sem ciclos entre pacotes. |
+| AW-FF-07 | `application.port.in` é autocontido: não depende de `domain`, `port.out` nem `usecase`. É o que permite ao desktop usar só `port.in` e `config` (AW-FF-05). |
+| AW-FF-08 | No desktop, `wizard`, `i18n` e `preferences` não dependem de `view`: o modelo e as mensagens não conhecem as telas. |
 
 Ficam em `archwright-engine/src/test/java/.../architecture/EngineArchitectureTest.java` e `archwright-desktop/src/test/java/.../architecture/DesktopArchitectureTest.java`.
 
@@ -510,3 +512,24 @@ Alimenta as telas 1 a 3: estilos, versões do Spring Boot ([ENG-VER](#versões-d
 **Pronto quando:** `GenerateProjectTest`, `PreviewProjectTest` e `BrowseCatalogTest` (portas de saída com fakes) cobrem os casos acima; `EngineEndToEndTest` gera um ZIP real com o catálogo oficial. ✅
 
 `dependencies.yaml` e `extras.yaml` agora levam `label`, `description` e `group` (dependências) e `label` (extras) para o domínio, porque o `CatalogQuery` os expõe; se ausentes, o rótulo cai no `id` e o resto fica vazio, e o `OfficialCatalogTest` garante que o catálogo oficial os preenche.
+
+## App desktop (`archwright-desktop`)
+
+O desktop só coleta escolhas e chama o engine em processo, pelas portas de entrada e por `ArchwrightEngine` ([ADR-0002](../adr/0002-desktop-javafx-atlantafx.md), AW-FF-05).
+
+| Pacote | Papel |
+|---|---|
+| `desktop` | `Launcher` (`main`) e `ArchwrightApp`, que cria o engine em `init()` e monta o wizard. |
+| `wizard` | Modelo sem tela: `ProjectForm` (propriedades JavaFX que viram `ProjectRequest` e `ExportTarget`), `WizardStep` (quais campos de `Violation` pertencem a cada tela) e `FieldErrors` (violações agrupadas por campo, já em texto). |
+| `i18n` | `Messages` lê `messages_pt_BR.properties` (pronto para outro `Locale`) e traduz `Violation`/`Warning` pelo `code`, preenchendo `{param}`. Sem mensagem, mostra o próprio `code`. |
+| `preferences` | `UserPreferences` guarda group, estilo, kit, fitness functions, formato, destino e tema em `java.util.prefs`. |
+| `view` | `WizardView` e as quatro telas, `LiveValidation`, `FieldRow`, `Background`, `ThemeSwitcher` (AtlantaFX Primer claro/escuro) e `Dialogs`, a interface das interações com o sistema (seletor de pastas, confirmação de sobrescrita, abrir pasta), com `NativeDialogs` no app e uma dublê nos testes. |
+
+Como o wizard funciona:
+- **Validação ao digitar:** cada mudança no formulário reinicia um atraso de 350 ms e então chama `PreviewProjectQuery` fora da thread de UI. `Failure` vira `FieldErrors`; `Preview` alimenta o resumo da tela 4. Cada campo mostra seu erro só depois de editado ou de uma tentativa de avançar, e esconde a mensagem antiga enquanto o resultado novo não chega.
+- **Avançar:** repete a validação e só passa se a tela atual não tiver erro (`FieldErrors.hasErrorIn`); senão revela os erros dela.
+- **Versões:** `CatalogQuery.bootVersions()` roda em segundo plano na primeira visita à tela 2 e mostra a origem (`REMOTE`, `CACHE`, `STALE_CACHE`, `EMBEDDED`). A lista de Java vem de `javaVersions(boot)` e se refaz a cada troca.
+- **Estilo:** o campo de lista da tela 1 vem do `modulesLabel` do estilo ("Módulos" no modular, "Agregados" no camadas) e é esvaziado ao trocar de estilo.
+- **Dependências:** trocar o kit substitui a seleção pelas dependências dele; extras ficam desabilitados sem a dependência exigida; as regras de fitness functions listadas vêm de `fitnessRules(...)`.
+- **Exportar:** o botão "Gerar projeto" fica no topo da tela, acima do resumo (recolhível: arquivos, dependências, regras; avisos em destaque). `TARGET_EXISTS` pede confirmação por `Dialogs.confirmOverwrite` e repete com `overwrite = true`; um erro de destino reportado cancela qualquer validação pendente para não ser apagado por ela. Erro inesperado mostra mensagem genérica e o detalhe técnico num painel de log (BR-071). "Abrir pasta" abre a pasta do ZIP ou a do projeto.
+

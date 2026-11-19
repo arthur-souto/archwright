@@ -12,7 +12,8 @@ O Archwright tem duas responsabilidades a testar: o **próprio código** (motor 
 | Golden | saída completa do motor comparada byte a byte | JUnit 5 | disco temporário |
 | Arquitetura | AW-FF do próprio Archwright | ArchUnit | nenhum |
 | Matriz de compilação | projetos gerados compilam e passam nas próprias fitness functions | CI + Maven | rede (Maven Central) |
-| Desktop | fluxo do wizard | manual na Fase 2; TestFX avaliado depois | — |
+| Desktop | `Messages` (todo código do engine tem texto), `FieldErrors`, `WizardStep`, `ProjectForm`, `UserPreferences` e o formulário contra o engine real (ZIP e pasta); sem toolkit gráfico | JUnit 5, AssertJ, `@TempDir` | disco temporário; **nunca rede** |
+| Desktop (telas) | `WizardViewTest` dirige o `WizardView` real (cliques, digitação, as quatro telas, engine real offline, `Dialogs` de teste, falhas injetadas); roda com o toolkit JavaFX e é **pulado** quando não há tela (`Assumptions`) | JUnit 5, AssertJ | disco temporário; **nunca rede** |
 
 Convenções:
 - Testes de domínio e aplicação não usam arquivos nem rede.
@@ -54,13 +55,28 @@ Localmente: `./mvnw -pl archwright-engine test -Dtest=CompilationMatrixTest -Dma
 
 Achado da primeira rodada: no Boot 2.7 e 3.0 (maven-compiler-plugin 3.10.1) o javac não gera `package-info.class`, então um projeto recém-gerado tinha as três camadas vazias e o `FF-LAY-01` falhava. Corrigido com `withOptionalLayers(true)` no template.
 
+## Roteiro manual do desktop
+
+A lógica das telas é coberta por `WizardViewTest` (28 casos: validação ao digitar, bloqueio do Avançar, navegação, versões e falha na busca, kits, extras, estilos, fitness functions, geração de ZIP e pasta nos dois estilos, falha de destino, queda inesperada, sobrescrita confirmada e recusada, seletor de pastas, "Abrir pasta", preferências e tema). Isso foi repetido 5 vezes seguidas sem falha. Sobra ao roteiro manual o que só o sistema operacional mostra, e cada rodada termina rodando `./mvnw verify` no projeto gerado.
+
+| # | Passo | Esperado | Última verificação |
+|---|---|---|---|
+| 1 | Gerar pela interface: modular + ZIP e camadas (com agregados) + pasta, `./mvnw verify` no resultado | 16 e 13 testes verdes | macOS, 2026-11-18 |
+| 2 | Temas claro e escuro | legíveis; a escolha persiste ao reabrir | macOS, 2026-11-18 (capturas offscreen) |
+| 3 | "Escolher..." no destino | o seletor de pastas nativo abre no destino atual | pendente |
+| 4 | Gerar de novo o mesmo ZIP | a janela de confirmação nativa aparece; "Cancelar" não grava e "Substituir" grava | pendente |
+| 5 | "Abrir pasta" após gerar | o gerenciador de arquivos abre na pasta certa | pendente |
+| 6 | Repetir 1 a 5 no Windows e no Linux | mesmo resultado | pendente |
+
+Em ambiente sem tela (CI no Linux), `WizardViewTest` é pulado; rodá-lo no CI exige um display virtual (`xvfb`) e as bibliotecas GTK, ainda não configurados.
+
 ## Aceitação mínima por fase
 
 | Fase | Teste obrigatório |
 |---|---|
 | 0 | `./mvnw verify` verde com `EngineArchitectureTest` |
 | 1 | todos os `ENG-*`; golden dos 5 casos; matriz de compilação verde |
-| 2 | `DesktopArchitectureTest`; roteiro manual do wizard gerando ZIP e pasta nos dois estilos |
+| 2 | `DesktopArchitectureTest`; roteiro manual do wizard gerando ZIP e pasta nos dois estilos e rodando `./mvnw verify` no resultado |
 | 3 | instalador de cada SO instala e gera projeto numa máquina sem JDK |
 
 ## Matriz de falhas

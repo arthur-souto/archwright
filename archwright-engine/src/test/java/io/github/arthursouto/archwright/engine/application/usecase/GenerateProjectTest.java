@@ -5,12 +5,12 @@ import io.github.arthursouto.archwright.engine.adapter.out.template.MustacheTemp
 import io.github.arthursouto.archwright.engine.application.port.in.ExportFormat;
 import io.github.arthursouto.archwright.engine.application.port.in.ExportTarget;
 import io.github.arthursouto.archwright.engine.application.port.in.GenerationResult;
+import io.github.arthursouto.archwright.engine.application.port.in.Violation;
 import io.github.arthursouto.archwright.engine.application.port.out.ExportResult;
 import io.github.arthursouto.archwright.engine.application.port.out.ProjectExporter;
 import io.github.arthursouto.archwright.engine.application.port.out.TemplateRepository;
 import io.github.arthursouto.archwright.engine.domain.model.GeneratedProject;
 import io.github.arthursouto.archwright.engine.domain.model.Manifest;
-import io.github.arthursouto.archwright.engine.domain.validation.Violation;
 import io.github.arthursouto.archwright.engine.domain.validation.ViolationCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class GenerateProjectTest {
 
         GenerationResult.Failure failure = (GenerationResult.Failure) result;
         assertThat(failure.violations()).extracting(Violation::code)
-                .containsExactlyInAnyOrder(ViolationCode.INVALID_ARTIFACT_ID, ViolationCode.UNKNOWN_EXTRA);
+                .containsExactlyInAnyOrder("INVALID_ARTIFACT_ID", "UNKNOWN_EXTRA");
         assertThat(templateReads).hasValue(0);
         assertThat(exporter.written).isEmpty();
         assertThat(exporter.checkedArtifactIds).isEmpty();
@@ -81,13 +81,13 @@ class GenerateProjectTest {
     @Test
     @DisplayName("ENG-UC-01 #4 destino ocupado devolve a violação do exportador e nada é renderizado")
     void reportsTheOccupiedTargetBeforeRendering() {
-        exporter.violations = List.of(Violation.of(ViolationCode.TARGET_NOT_EMPTY, "destination", "path", "/tmp/x/pedido-api"));
+        exporter.violations = List.of(io.github.arthursouto.archwright.engine.domain.validation.Violation.of(ViolationCode.TARGET_NOT_EMPTY, "destination", "path", "/tmp/x/pedido-api"));
         GenerateProject generate = generator(countingTemplates());
 
         GenerationResult result = generate.generate(UseCaseFixtures.validRequest(), new ExportTarget(ExportFormat.ZIP, DESTINATION, false));
 
         assertThat(((GenerationResult.Failure) result).violations()).extracting(Violation::code)
-                .containsExactly(ViolationCode.TARGET_NOT_EMPTY);
+                .containsExactly("TARGET_NOT_EMPTY");
         assertThat(exporter.written).isEmpty();
     }
 
@@ -152,7 +152,7 @@ class GenerateProjectTest {
         private final ExportFormat format;
         private final List<String> checkedArtifactIds = new ArrayList<>();
         private final List<ExportResult> written = new ArrayList<>();
-        private List<Violation> violations = List.of();
+        private List<io.github.arthursouto.archwright.engine.domain.validation.Violation> violations = List.of();
         private IOException failure;
 
         private FakeExporter(ExportFormat format) {
@@ -165,7 +165,7 @@ class GenerateProjectTest {
         }
 
         @Override
-        public List<Violation> check(ExportTarget target, String artifactId) {
+        public List<io.github.arthursouto.archwright.engine.domain.validation.Violation> check(ExportTarget target, String artifactId) {
             checkedArtifactIds.add(artifactId);
             return violations;
         }

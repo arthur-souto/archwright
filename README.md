@@ -33,6 +33,15 @@ Um app desktop (Windows, macOS, Linux, sem precisar de Java instalado) com 4 pas
 
 ![Visão geral da Fase 1](docs/architecture/images/visao-geral-fase-1.png)
 
+## Rodando o app desktop (desenvolvimento)
+
+Precisa de JDK 25. O instalador sem JDK chega na [Fase 3](docs/implementation/ROADMAP.md#fase-3--distribuição).
+
+    ./mvnw -pl .,archwright-engine install -DskipTests
+    ./mvnw -pl archwright-desktop exec:java
+
+O primeiro comando instala o engine no repositório Maven local; o segundo abre o wizard. As escolhas (group, estilo, kit, formato, destino e tema) ficam salvas entre as execuções.
+
 ## Documentação
 
 | Documento | Conteúdo |

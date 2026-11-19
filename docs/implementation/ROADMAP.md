@@ -36,13 +36,14 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 **Pronto quando:** todos os testes `ENG-*` passam; golden dos dois estilos estável; a matriz de compilação gera e roda `./mvnw verify` com sucesso em todas as combinações (linha do Boot × estilo × kit) com fitness functions ligadas (BR-044).
 
 ## Fase 2 — App desktop
-- [ ] Módulo `archwright-desktop` com JavaFX + AtlantaFX, tema claro/escuro.
-- [ ] Wizard: (1) Projeto, (2) Versões, (3) Dependências + fitness functions, (4) Exportar com resumo da pré-visualização (ENG-UC-02).
-- [ ] Validação enquanto o usuário digita, destacando o campo de cada `Violation`; textos das mensagens em `messages_pt_BR.properties` (preparado para `en`).
-- [ ] Busca de versões fora da thread de UI, com indicador de origem (`REMOTE`/`CACHE`/`EMBEDDED`).
-- [ ] Escolha de destino (`DirectoryChooser`), formato ZIP ou pasta, confirmação de sobrescrita do ZIP (`TARGET_EXISTS`) e botão "abrir pasta" ao final.
-- [ ] Lembrar as últimas escolhas (`java.util.prefs`).
-- [ ] `DesktopArchitectureTest` (AW-FF-05).
+- [x] Módulo `archwright-desktop` com JavaFX + AtlantaFX, tema claro/escuro.
+- [x] Wizard: (1) Projeto, (2) Versões, (3) Dependências + fitness functions, (4) Exportar com resumo da pré-visualização (ENG-UC-02).
+- [x] Validação enquanto o usuário digita, destacando o campo de cada `Violation`; textos das mensagens em `messages_pt_BR.properties` (preparado para `en`).
+- [x] Busca de versões fora da thread de UI, com indicador de origem (`REMOTE`/`CACHE`/`EMBEDDED`).
+- [x] Escolha de destino (`DirectoryChooser`), formato ZIP ou pasta, confirmação de sobrescrita do ZIP (`TARGET_EXISTS`) e botão "abrir pasta" ao final.
+- [x] Lembrar as últimas escolhas (`java.util.prefs`).
+- [x] `DesktopArchitectureTest` (AW-FF-05).
+- [ ] Roteiro manual do desktop ([TESTING](../operations/TESTING.md#roteiro-manual-do-desktop)): falta ver o seletor de pastas, a confirmação e o "Abrir pasta" nativos (a lógica já é testada com `Dialogs` de teste) e repetir no Windows e no Linux.
 
 **Pronto quando:** dá para gerar ZIP e pasta pelos dois estilos só pela interface, e o projeto gerado passa no `./mvnw verify`.
 

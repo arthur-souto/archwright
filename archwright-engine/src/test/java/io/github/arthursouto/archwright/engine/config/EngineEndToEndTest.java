@@ -6,8 +6,7 @@ import io.github.arthursouto.archwright.engine.application.port.in.GenerationRes
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewResult;
 import io.github.arthursouto.archwright.engine.application.port.in.ProjectRequest;
 import io.github.arthursouto.archwright.engine.application.port.in.VersionOrigin;
-import io.github.arthursouto.archwright.engine.domain.validation.Violation;
-import io.github.arthursouto.archwright.engine.domain.validation.ViolationCode;
+import io.github.arthursouto.archwright.engine.application.port.in.Violation;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,7 +73,7 @@ class EngineEndToEndTest {
         GenerationResult third = engine.generateProject().generate(request(), replace);
 
         assertThat(((GenerationResult.Failure) second).violations()).extracting(Violation::code)
-                .containsExactly(ViolationCode.TARGET_EXISTS);
+                .containsExactly("TARGET_EXISTS");
         assertThat(third).isInstanceOf(GenerationResult.Success.class);
     }
 
