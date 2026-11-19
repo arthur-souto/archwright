@@ -63,6 +63,40 @@ class IdentityValidatorTest {
     }
 
     @Test
+    @DisplayName("ENG-VAL-01 #10 pacote de um trecho só é recusado")
+    void rejectsSingleSegmentBasePackage() {
+        Checked<ProjectIdentity> result = validator.validate(draft("pedido", "com.empresa", "main", ""));
+
+        assertThat(result.violations())
+                .containsExactly(Violation.of(ViolationCode.BASE_PACKAGE_TOO_SHORT, BASE_PACKAGE));
+    }
+
+    @Test
+    @DisplayName("ENG-VAL-01 #10 pacote de dois trechos é aceito")
+    void acceptsTwoSegmentBasePackage() {
+        Checked<ProjectIdentity> result = validator.validate(draft("pedido", "com.empresa", "br.pedido", ""));
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @Test
+    @DisplayName("ENG-VAL-01 #10 trecho reservado em pacote de um trecho continua INVALID_BASE_PACKAGE")
+    void reservedWordWinsOverTooShort() {
+        Checked<ProjectIdentity> result = validator.validate(draft("pedido", "com.empresa", "new", ""));
+
+        assertThat(result.violations())
+                .containsExactly(Violation.of(ViolationCode.INVALID_BASE_PACKAGE, BASE_PACKAGE, "segment", "new"));
+    }
+
+    @Test
+    @DisplayName("BR-003 pacote derivado nunca é curto: group de um trecho + artifact tem dois")
+    void derivedPackageFromSingleSegmentGroupIsValid() {
+        Checked<ProjectIdentity> result = validator.validate(draft("pedido", "acme", "", ""));
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @Test
     @DisplayName("ENG-VAL-01 #6 coleta todas as violações na ordem dos campos")
     void collectsAllViolationsInFieldOrder() {
         Checked<ProjectIdentity> result = validator.validate(draft("1app", "", "", ""));

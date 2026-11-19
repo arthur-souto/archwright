@@ -225,6 +225,7 @@ Transforma o `ProjectDraft` (strings cruas, com nulos já normalizados) num `Pro
 | 7 | `artifactId="3d-viewer"` (começa com dígito) | validar | `INVALID_ARTIFACT_ID` |
 | 8 | descrição com quebra de linha | validar | `INVALID_DESCRIPTION` |
 | 9 | descrição `"API <beta> & cia"` | validar | válido; escapar é responsabilidade do contexto ([ENG-CTX-01 #4](#etapa-3--montar-contexto-eng-ctx)) |
+| 10 | pacote `"main"` (um trecho só) | validar | `BASE_PACKAGE_TOO_SHORT` em `basePackage`; `"new"` continua `INVALID_BASE_PACKAGE` |
 
 #### ENG-VAL-02 — Estilo e módulos
 > **Como** usuário, **quero** escolher a arquitetura e os módulos sem gerar pacotes inválidos (BR-010 a BR-012).

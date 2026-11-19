@@ -15,6 +15,7 @@ final class IdentityValidator {
     private static final String ARTIFACT_ID = "artifactId";
     private static final String GROUP_ID = "groupId";
     private static final String BASE_PACKAGE = "basePackage";
+    private static final int MIN_PACKAGE_SEGMENTS = 2;
     private static final String DESCRIPTION = "description";
 
     Checked<ProjectIdentity> validate(ProjectDraft draft) {
@@ -73,6 +74,10 @@ final class IdentityValidator {
         if (invalidSegment.isPresent()) {
             return Checked.invalid(
                     Violation.of(ViolationCode.INVALID_BASE_PACKAGE, BASE_PACKAGE, "segment", invalidSegment.get()));
+        }
+
+        if (PackageSegments.split(candidate).size() < MIN_PACKAGE_SEGMENTS) {
+            return Checked.invalid(Violation.of(ViolationCode.BASE_PACKAGE_TOO_SHORT, BASE_PACKAGE));
         }
 
         return Checked.valid(new BasePackage(candidate));

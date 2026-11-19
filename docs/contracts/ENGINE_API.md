@@ -114,6 +114,7 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
 | `INVALID_ARTIFACT_ID` | `artifactId` | — | Use letras minúsculas, números, `-` ou `.`, começando com letra (até 64). |
 | `INVALID_GROUP_ID` | `groupId` | — | Use segmentos em minúsculas separados por ponto, como `com.empresa`. |
 | `INVALID_BASE_PACKAGE` | `basePackage` | `segment` | O trecho `{segment}` não pode ser usado como nome de pacote Java. |
+| `BASE_PACKAGE_TOO_SHORT` | `basePackage` | — | O pacote base precisa de ao menos dois trechos, como `com.empresa.projeto`. |
 | `INVALID_DESCRIPTION` | `description` | `max` | Descrição deve ter uma linha só, até `{max}` caracteres. |
 | `UNKNOWN_ARCHITECTURE_STYLE` | `architectureStyle` | `value` | Estilo de arquitetura desconhecido. |
 | `MODULES_REQUIRED` | `modules` | — | Informe ao menos um módulo. |

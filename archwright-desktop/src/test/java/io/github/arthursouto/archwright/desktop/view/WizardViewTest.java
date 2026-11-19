@@ -122,6 +122,17 @@ class WizardViewTest {
     }
 
     @Test
+    void aSingleSegmentBasePackageIsRejectedOnTheBasePackageField() {
+        type("com.empresa.projeto", "main");
+
+        Fx.await(() -> labels().contains("O pacote base precisa de ao menos dois trechos, como com.empresa.projeto."));
+
+        type("com.empresa.projeto", "com.empresa.pedido");
+
+        Fx.await(() -> labels().stream().noneMatch(text -> text.startsWith("O pacote base precisa")));
+    }
+
+    @Test
     void validProjectDataLetsTheUserWalkThroughEveryStep() {
         fillProject();
         click("Avançar");

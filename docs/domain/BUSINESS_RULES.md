@@ -13,7 +13,7 @@ Vocabulário:
 ## Identificação do projeto
 - **BR-001** `artifactId`: após `trim` e conversão para minúsculas, deve casar com `[a-z][a-z0-9]*([.-][a-z0-9]+)*` e ter de 1 a 64 caracteres. Fora disso: `INVALID_ARTIFACT_ID`. O motor não faz outras correções silenciosas.
 - **BR-002** `groupId`: segmentos separados por ponto, cada um casando com `[a-z][a-z0-9_]*`, ao menos um segmento, até 128 caracteres. Fora disso: `INVALID_GROUP_ID`.
-- **BR-003** Pacote base: se vier vazio, o padrão é `groupId + "." + artifactId` sem `-` e `.` (ex.: `com.acme` + `pedido-api` → `com.acme.pedidoapi`). Cada segmento deve ser identificador Java válido em minúsculas e **não** pode ser palavra reservada (`new`, `class`, `record`, `var`…). Fora disso: `INVALID_BASE_PACKAGE`.
+- **BR-003** Pacote base: se vier vazio, o padrão é `groupId + "." + artifactId` sem `-` e `.` (ex.: `com.acme` + `pedido-api` → `com.acme.pedidoapi`). Cada segmento deve ser identificador Java válido em minúsculas e **não** pode ser palavra reservada (`new`, `class`, `record`, `var`…). Fora disso: `INVALID_BASE_PACKAGE`. O pacote tem de ter ao menos dois segmentos (`main` ou `app` sozinhos não servem); com um só: `BASE_PACKAGE_TOO_SHORT`. O padrão derivado sempre tem dois ou mais.
 - **BR-004** Descrição: opcional, até 255 caracteres, sem quebra de linha. Fora disso: `INVALID_DESCRIPTION`. É escapada para XML e Markdown na saída.
 - **BR-005** Classe principal: `PascalCase(artifactId) + "Application"` (ex.: `pedido-api` → `PedidoApiApplication`). Se começar com dígito, recebe o prefixo `App`.
 
