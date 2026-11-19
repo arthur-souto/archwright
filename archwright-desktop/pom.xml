@@ -19,6 +19,8 @@
         <atlantafx.version>3.0.0</atlantafx.version>
         <exec-maven-plugin.version>3.7.0</exec-maven-plugin.version>
         <desktop.main-class>io.github.arthursouto.archwright.desktop.Launcher</desktop.main-class>
+        <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
+        <installer.input>${project.build.directory}/installer/input</installer.input>
     </properties>
 
     <dependencies>
@@ -67,4 +69,92 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>platform-mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <installer.platform>mac</installer.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>platform-windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <installer.platform>windows</installer.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>platform-linux</id>
+            <activation>
+                <os>
+                    <name>Linux</name>
+                </os>
+            </activation>
+            <properties>
+                <installer.platform>linux</installer.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>installer</id>
+            <build>
+                <finalName>archwright-desktop</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${installer.input}</outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>${maven-dependency-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>copy-runtime-libraries</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${installer.input}</outputDirectory>
+                                    <includeScope>runtime</includeScope>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>build-installer</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/jpackage</executable>
+                                    <arguments>
+                                        <argument>@packaging/jpackage-${installer.platform}.txt</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

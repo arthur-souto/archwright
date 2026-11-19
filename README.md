@@ -44,6 +44,16 @@ O primeiro comando instala o POM pai e o engine no repositório Maven local (ref
 
 Para rodar todos os testes (engine e desktop), use `./mvnw verify`. Os testes de tela do desktop precisam de um ambiente gráfico e são pulados quando não há (por exemplo, no CI em Linux).
 
+## Gerando o instalador
+
+Cada sistema gera o instalador dele (o `jpackage` não faz cruzado): `.dmg` no macOS, `.msi` no Windows (precisa do [WiX 3](https://wixtoolset.org/)) e `.deb` no Linux. Com JDK 25:
+
+    ./mvnw -B -Pinstaller -pl archwright-desktop -am package -DskipTests
+
+O arquivo sai em `archwright-desktop/target/installer/dist/` e já leva o Java dentro. O workflow [`Installers`](.github/workflows/installers.yml) faz isso nos três sistemas (execução manual ou tag `v*`). Os instaladores ainda **não são assinados**: no macOS, abra com clique direito > Abrir; no Windows, "Mais informações" > "Executar assim mesmo".
+
+O ícone vem de [`archwright.svg`](archwright-desktop/packaging/archwright.svg); para regerar `.icns`, `.ico` e `.png`, rode `python3 scripts/generate-icons.py` (precisa do Pillow).
+
 ## Documentação
 
 | Documento | Conteúdo |

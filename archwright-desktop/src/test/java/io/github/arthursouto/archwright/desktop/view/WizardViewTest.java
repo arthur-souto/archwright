@@ -180,7 +180,7 @@ class WizardViewTest {
     void theTreeShowsTheTotalsOfTheGeneratedProject() {
         fillProject();
 
-        Fx.await(() -> labels().stream().anyMatch(text -> text.matches("Projeto gerado: \\d+ arquivos, \\d+ linhas no total\\.")));
+        Fx.await(() -> labels().stream().anyMatch(text -> text.matches("Prévia: \\d+ arquivos, \\d+ linhas no total\\.")));
     }
 
     @Test

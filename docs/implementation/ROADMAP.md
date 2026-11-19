@@ -49,8 +49,10 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 **Pronto quando:** dá para gerar ZIP e pasta pelos dois estilos só pela interface, e o projeto gerado passa no `./mvnw verify`.
 
 ## Fase 3 — Distribuição
-- [ ] `jpackage` no CI para Windows, macOS e Linux.
-- [ ] GitHub Releases com instaladores e notas de versão.
+- [x] Logo (monograma A num hexágono, `archwright-desktop/packaging/archwright.svg`) e ícones `.icns`, `.ico` e `.png` gerados por `scripts/generate-icons.py`.
+- [x] Perfil Maven `installer` com `jpackage`: `.dmg` gerado e aberto localmente no macOS (sem assinatura).
+- [ ] `jpackage` no CI para Windows, macOS e Linux: workflow `installers.yml` escrito, falta rodar nos três sistemas (o `.msi` e o `.deb` ainda não foram testados).
+- [ ] GitHub Releases com instaladores e notas de versão (o job `release` do workflow cria a release a partir de uma tag `v*`; falta testar).
 - [ ] Publicar `archwright-engine` no Maven Central (`io.github.arthursouto`).
 - [ ] Política de versão (SemVer) e atualização dos perfis a cada nova linha do Spring Boot.
 
@@ -72,6 +74,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 - [ ] Gradle e Kotlin.
 
 ## Próxima tarefa concreta
-**Fase 2, fechamento.** Na ordem:
+**Fase 3, em andamento.** Na ordem:
 1. Terminar o teste manual do desktop ([roteiro](../operations/TESTING.md#roteiro-manual-do-desktop)) e ajustar o que aparecer.
-2. Começar a Fase 3: `.dmg` local com `jpackage`, depois CI para os três sistemas.
+2. Rodar o workflow `Installers` (execução manual) e abrir o `.msi` e o `.deb`.
+3. Decidir a primeira versão e criar a tag `v*` para a primeira release.

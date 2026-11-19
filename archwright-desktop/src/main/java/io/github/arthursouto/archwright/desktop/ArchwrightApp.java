@@ -9,12 +9,14 @@ import io.github.arthursouto.archwright.desktop.wizard.ProjectForm;
 import io.github.arthursouto.archwright.engine.config.ArchwrightEngine;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public final class ArchwrightApp extends Application {
 
     private static final double WIDTH = 1240;
     private static final double HEIGHT = 760;
+    private static final String ICON = "icon.png";
 
     private ArchwrightEngine engine;
 
@@ -35,6 +37,7 @@ public final class ArchwrightApp extends Application {
                 new NativeDialogs(messages, getHostServices()));
 
         stage.setTitle(messages.text("app.title"));
+        stage.getIcons().add(new Image(ArchwrightApp.class.getResourceAsStream(ICON)));
         stage.setScene(new Scene(new WizardView(context, form), WIDTH, HEIGHT));
         stage.show();
     }

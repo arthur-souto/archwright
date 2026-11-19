@@ -1,0 +1,18 @@
+--name Archwright
+--description "Gerador de projetos Spring Boot com arquitetura hexagonal e fitness functions"
+--vendor Archwright
+--app-version 1.0.0
+--input target/installer/input
+--main-jar archwright-desktop.jar
+--main-class io.github.arthursouto.archwright.desktop.Launcher
+--dest target/installer/dist
+--add-modules java.base,java.desktop,java.logging,java.management,java.net.http,java.prefs,java.sql,java.xml,jdk.unsupported
+--java-options -Dfile.encoding=UTF-8
+--type msi
+--icon packaging/icon.ico
+--win-menu
+--win-menu-group Archwright
+--win-shortcut
+--win-dir-chooser
+--win-upgrade-uuid 6f4b3e0a-2c1d-4e8a-9b57-3a1f0c7d9e21
+--java-options --enable-native-access=ALL-UNNAMED

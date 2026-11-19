@@ -1,0 +1,61 @@
+name: Installers
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  installer:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-latest, label: macos-arm64 }
+          - { runner: macos-15-intel, label: macos-x64 }
+          - { runner: windows-latest, label: windows-x64 }
+          - { runner: ubuntu-latest, label: linux-x64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Instalar o WiX (necessário para o .msi)
+        if: runner.os == 'Windows'
+        run: choco install wixtoolset --version 3.14.1 -y --no-progress
+      - name: Gerar o instalador
+        shell: bash
+        run: ./mvnw -B -Pinstaller -pl archwright-desktop -am package -DskipTests
+      - name: Nomear o arquivo pela plataforma
+        shell: bash
+        working-directory: archwright-desktop/target/installer/dist
+        run: |
+          for file in *; do
+            mv "$file" "${file%.*}-${{ matrix.label }}.${file##*.}"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: archwright-${{ matrix.label }}
+          path: archwright-desktop/target/installer/dist/*
+          retention-days: 14
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: installer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - name: Publicar no GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" installers/* --repo "${{ github.repository }}" --title "${{ github.ref_name }}" --generate-notes
