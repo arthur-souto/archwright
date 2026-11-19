@@ -52,12 +52,13 @@ Cada sistema gera o instalador dele (o `jpackage` não faz cruzado): `.dmg` no m
 
 O arquivo sai em `archwright-desktop/target/installer/dist/` e já leva o Java dentro. O workflow [`Installers`](.github/workflows/installers.yml) faz isso nos três sistemas (execução manual ou tag `v*`). Os instaladores ainda **não são assinados**: no macOS, abra com clique direito > Abrir; no Windows, "Mais informações" > "Executar assim mesmo".
 
-O ícone vem de [`archwright.svg`](archwright-desktop/packaging/archwright.svg); para regerar `.icns`, `.ico` e `.png`, rode `python3 scripts/generate-icons.py` (precisa do Pillow).
+O guia para quem só quer usar o app, com o passo a passo de instalação e de uso, está em [INSTALL.md](INSTALL.md). O ícone (uma girafa de mosaico hexagonal) vem de [`archwright.svg`](archwright-desktop/packaging/archwright.svg), com `.icns`, `.ico` e `.png` na mesma pasta.
 
 ## Documentação
 
 | Documento | Conteúdo |
 |---|---|
+| [Instalação](INSTALL.md) | baixar, instalar e usar o app |
 | [Roadmap](docs/implementation/ROADMAP.md) | fases, critérios de pronto e próxima tarefa |
 | [Regras de negócio](docs/domain/BUSINESS_RULES.md) | regras `BR-*` testáveis |
 | [Arquitetura](docs/architecture/ARCHITECTURE.md) | módulos, pacotes e a especificação de cada etapa do motor |

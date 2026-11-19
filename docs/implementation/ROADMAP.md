@@ -49,7 +49,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 **Pronto quando:** dá para gerar ZIP e pasta pelos dois estilos só pela interface, e o projeto gerado passa no `./mvnw verify`.
 
 ## Fase 3 — Distribuição
-- [x] Logo (monograma A num hexágono, `archwright-desktop/packaging/archwright.svg`) e ícones `.icns`, `.ico` e `.png` gerados por `scripts/generate-icons.py`.
+- [x] Logo (girafa de mosaico hexagonal, `archwright-desktop/packaging/archwright.svg`) com ícones `.icns`, `.ico` e `.png`, e guia de instalação em `INSTALL.md`.
 - [x] Perfil Maven `installer` com `jpackage`: `.dmg` gerado e aberto localmente no macOS (sem assinatura).
 - [ ] `jpackage` no CI para Windows, macOS e Linux: workflow `installers.yml` escrito, falta rodar nos três sistemas (o `.msi` e o `.deb` ainda não foram testados).
 - [ ] GitHub Releases com instaladores e notas de versão (o job `release` do workflow cria a release a partir de uma tag `v*`; falta testar).
