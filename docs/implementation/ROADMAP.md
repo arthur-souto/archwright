@@ -51,7 +51,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 ## Fase 3 — Distribuição
 - [x] Logo (girafa de mosaico hexagonal, `archwright-desktop/packaging/archwright.svg`) com ícones `.icns`, `.ico` e `.png`, e guia de instalação em `INSTALL.md`.
 - [x] Perfil Maven `installer` com `jpackage`: `.dmg` gerado e aberto localmente no macOS (sem assinatura).
-- [ ] `jpackage` no CI para Windows, macOS e Linux: workflow `installers.yml` escrito, falta rodar nos três sistemas (o `.msi` e o `.deb` ainda não foram testados).
+- [ ] `jpackage` no CI para Windows, macOS e Linux: workflow `installers.yml` rodou nos quatro alvos (macOS arm64 e Intel, Windows, Linux) e gerou `.dmg`, `.msi` e `.deb`; falta instalar e abrir o `.msi` e o `.deb` numa máquina de verdade.
 - [ ] GitHub Releases com instaladores e notas de versão (o job `release` do workflow cria a release a partir de uma tag `v*`; falta testar).
 - [ ] Publicar `archwright-engine` no Maven Central (`io.github.arthursouto`).
 - [ ] Política de versão (SemVer) e atualização dos perfis a cada nova linha do Spring Boot.

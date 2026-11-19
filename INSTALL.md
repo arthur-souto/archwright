@@ -8,10 +8,10 @@ Pegue o instalador do seu sistema na página de [Releases](../../releases) do re
 
 | Sistema | Arquivo |
 |---|---|
-| macOS (Apple Silicon: M1, M2, M3…) | `Archwright-…-macos-arm64.dmg` |
-| macOS (Intel) | `Archwright-…-macos-x64.dmg` |
-| Windows 10 ou 11 | `Archwright-…-windows-x64.msi` |
-| Linux (Debian, Ubuntu e derivados) | `archwright_…-linux-x64.deb` |
+| macOS (Apple Silicon: M1, M2, M3…) | `Archwright-1.0.0-macos-arm64.dmg` |
+| macOS (Intel) | `Archwright-1.0.0-macos-x64.dmg` |
+| Windows 10 ou 11 | `Archwright-1.0.0-windows-x64.msi` |
+| Linux (Debian, Ubuntu e derivados) | `archwright_1.0.0_amd64-linux-x64.deb` |
 
 Ainda não há release publicada. Até lá, gere o instalador do seu sistema seguindo o [README](README.md#gerando-o-instalador).
 
@@ -21,7 +21,7 @@ Os instaladores **ainda não são assinados**, então o sistema mostra um aviso 
 
 ### macOS
 
-1. Abra o `.dmg` e arraste o **Archwright** para a pasta **Applications**.
+1. Dê dois cliques no `.dmg`. Ele **não instala sozinho**: só abre uma janela com o app e um atalho para a pasta Applications. **Arraste o Archwright para a pasta Applications** (essa é a instalação). Depois, ejete o disco no Finder, pelo botão de ejetar ao lado do volume "Archwright". Se abrir o app de dentro da janela do `.dmg`, ele roda do disco e some quando você ejetar.
 2. Na primeira vez, **clique com o botão direito** no app, escolha **Abrir** e confirme em **Abrir**.
 3. Se o macOS bloquear mesmo assim (Sequoia ou mais novo): **Ajustes do Sistema > Privacidade e Segurança**, role até o aviso do Archwright e clique em **Abrir Mesmo Assim**.
 4. Alternativa pelo Terminal: `xattr -dr com.apple.quarantine /Applications/Archwright.app`
