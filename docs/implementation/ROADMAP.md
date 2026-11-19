@@ -50,11 +50,13 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 
 ## Fase 3 — Distribuição
 - [x] Logo (girafa de mosaico hexagonal, `archwright-desktop/packaging/archwright.svg`) com ícones `.icns`, `.ico` e `.png`, e guia de instalação em `INSTALL.md`.
-- [x] Perfil Maven `installer` com `jpackage`: `.dmg` gerado e aberto localmente no macOS (sem assinatura).
-- [ ] `jpackage` no CI para Windows, macOS e Linux: workflow `installers.yml` rodou nos quatro alvos (macOS arm64 e Intel, Windows, Linux) e gerou `.dmg`, `.msi` e `.deb`; falta instalar e abrir o `.msi` e o `.deb` numa máquina de verdade.
-- [ ] GitHub Releases com instaladores e notas de versão (o job `release` do workflow cria a release a partir de uma tag `v*`; falta testar).
+- [x] Perfil Maven `installer` com `jpackage`: `.dmg` gerado, instalado e aberto no macOS (sem assinatura).
+- [x] `jpackage` no CI para Windows, macOS e Linux: workflow `installers.yml` roda nos quatro alvos (macOS arm64 e Intel, Windows, Linux) e gera `.dmg`, `.msi` e `.deb`.
+- [ ] Instalar e abrir o `.msi` (Windows) e o `.deb` (Linux) numa máquina de verdade.
+- [x] GitHub Releases com instaladores e notas de versão: o job `release` publica um pré-lançamento a partir de uma tag `v*`. [v0.1.0](https://github.com/arthur-souto/archwright/releases/tag/v0.1.0) saiu com os quatro instaladores.
 - [ ] Publicar `archwright-engine` no Maven Central (`io.github.arthursouto`).
-- [ ] Política de versão (SemVer) e atualização dos perfis a cada nova linha do Spring Boot.
+- [ ] Política de versão (SemVer), incluindo o número do instalador (hoje fixo em `1.0.0` nos arquivos `jpackage-<so>.txt`, por causa do macOS), e atualização dos perfis a cada nova linha do Spring Boot.
+- [ ] Assinatura e notarização dos instaladores (Apple Developer no macOS, certificado de código no Windows).
 
 **Pronto quando:** um usuário sem JDK instala pelo GitHub Releases e gera um projeto.
 
@@ -75,6 +77,6 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 
 ## Próxima tarefa concreta
 **Fase 3, em andamento.** Na ordem:
-1. Terminar o teste manual do desktop ([roteiro](../operations/TESTING.md#roteiro-manual-do-desktop)) e ajustar o que aparecer.
-2. Rodar o workflow `Installers` (execução manual) e abrir o `.msi` e o `.deb`.
-3. Decidir a primeira versão e criar a tag `v*` para a primeira release.
+1. Terminar o roteiro manual do desktop ([TESTING](../operations/TESTING.md#roteiro-manual-do-desktop)): seletor de pastas, confirmação e "Abrir pasta" nativos, e instalar o `.msi` e o `.deb`.
+2. Definir a política de versão e o número do instalador.
+3. Publicar o engine no Maven Central.

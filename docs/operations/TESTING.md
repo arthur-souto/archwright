@@ -66,7 +66,10 @@ A lógica das telas é coberta por `WizardViewTest` (48 casos: detalhe do pacote
 | 3 | "Escolher..." no destino | o seletor de pastas nativo abre no destino atual | pendente |
 | 4 | Gerar de novo o mesmo ZIP | a janela de confirmação nativa aparece; "Cancelar" não grava e "Substituir" grava | pendente |
 | 5 | "Abrir pasta" após gerar | o gerenciador de arquivos abre na pasta certa | pendente |
-| 6 | Repetir 1 a 5 no Windows e no Linux | mesmo resultado | pendente |
+| 6 | Instalar o `.dmg` (arrastar para Applications) e abrir o app instalado | o app abre com o ícone da girafa | macOS, 2026-11-18 |
+| 7 | Instalar o `.msi` e abrir o app | mesmo resultado do passo 6 | pendente |
+| 8 | Instalar o `.deb` (`sudo apt install ./arquivo.deb`) e abrir o app | mesmo resultado do passo 6 | pendente |
+| 9 | Repetir 1 a 5 no Windows e no Linux | mesmo resultado | pendente |
 
 Em ambiente sem tela (CI no Linux), `WizardViewTest` é pulado; rodá-lo no CI exige um display virtual (`xvfb`) e as bibliotecas GTK, ainda não configurados.
 
@@ -77,7 +80,7 @@ Em ambiente sem tela (CI no Linux), `WizardViewTest` é pulado; rodá-lo no CI e
 | 0 | `./mvnw verify` verde com `EngineArchitectureTest` |
 | 1 | todos os `ENG-*`; golden dos 5 casos; matriz de compilação verde |
 | 2 | `DesktopArchitectureTest`; roteiro manual do wizard gerando ZIP e pasta nos dois estilos e rodando `./mvnw verify` no resultado |
-| 3 | instalador de cada SO instala e gera projeto numa máquina sem JDK |
+| 3 | instalador de cada SO instala e gera projeto numa máquina sem JDK (macOS verificado; Windows e Linux pendentes) |
 
 ## Matriz de falhas
 
