@@ -25,9 +25,6 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
-      - name: Instalar o WiX (necessário para o .msi)
-        if: runner.os == 'Windows'
-        run: choco install wixtoolset --version 3.14.1 -y --no-progress
       - name: Gerar o instalador
         shell: bash
         run: ./mvnw -B -Pinstaller -pl archwright-desktop -am package -DskipTests

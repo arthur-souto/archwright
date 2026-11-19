@@ -46,7 +46,7 @@ Para rodar todos os testes (engine e desktop), use `./mvnw verify`. Os testes de
 
 ## Gerando o instalador
 
-Cada sistema gera o instalador dele (o `jpackage` não faz cruzado): `.dmg` no macOS, `.msi` no Windows (precisa do [WiX 3](https://wixtoolset.org/)) e `.deb` no Linux. Com JDK 25:
+Cada sistema gera o instalador dele (o `jpackage` não faz cruzado): `.dmg` no macOS, `.msi` no Windows (precisa do [WiX 3](https://wixtoolset.org/); os runners do GitHub já trazem) e `.deb` no Linux. Com JDK 25:
 
     ./mvnw -B -Pinstaller -pl archwright-desktop -am package -DskipTests
 
