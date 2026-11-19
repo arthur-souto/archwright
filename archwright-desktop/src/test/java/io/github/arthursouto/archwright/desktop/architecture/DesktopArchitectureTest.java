@@ -33,7 +33,7 @@ class DesktopArchitectureTest {
 
     @ArchTest // AW-FF-08
     static final ArchRule modeloDoWizardNaoConheceATela =
-            noClasses().that().resideInAnyPackage(DESKTOP + ".wizard..", DESKTOP + ".i18n..", DESKTOP + ".preferences..")
+            noClasses().that().resideInAnyPackage(DESKTOP + ".wizard..", DESKTOP + ".i18n..", DESKTOP + ".preferences..", DESKTOP + ".history..")
                     .should().dependOnClassesThat().resideInAPackage(DESKTOP + ".view..");
 
     @ArchTest // AW-FF-06

@@ -44,6 +44,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 - [x] Lembrar as últimas escolhas (`java.util.prefs`).
 - [x] Descrição visível em cada campo e árvore de pacotes ao vivo no canto direito (muda com pacote base, módulos e estilo), com detalhe do pacote (propósito, subpacotes, classes, linhas), artifacts Maven, kits, extras e regras na tela de dependências.
 - [x] `DesktopArchitectureTest` (AW-FF-05).
+- [x] Redesenho da interface (branch `ui/redesign`): barra lateral com a logo (Início, Novo projeto, Documentação, Histórico, Sobre e tema), tela de início com números, gráficos de uso, modelos de início rápido, projetos recentes e dicas, histórico de projetos gerados (reutilizar, abrir pasta, remover), documentação com links, paleta quente da logo (âmbar e grafite) e cantos de 3 px, no estilo do Jira.
 - [ ] Roteiro manual do desktop ([TESTING](../operations/TESTING.md#roteiro-manual-do-desktop)): falta ver o seletor de pastas, a confirmação e o "Abrir pasta" nativos (a lógica já é testada com `Dialogs` de teste) e repetir no Windows e no Linux.
 
 **Pronto quando:** dá para gerar ZIP e pasta pelos dois estilos só pela interface, e o projeto gerado passa no `./mvnw verify`.

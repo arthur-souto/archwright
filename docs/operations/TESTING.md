@@ -13,7 +13,7 @@ O Archwright tem duas responsabilidades a testar: o **próprio código** (motor 
 | Arquitetura | AW-FF do próprio Archwright | ArchUnit | nenhum |
 | Matriz de compilação | projetos gerados compilam e passam nas próprias fitness functions | CI + Maven | rede (Maven Central) |
 | Desktop | `Messages` (todo código do engine tem texto), `FieldErrors`, `WizardStep`, `ProjectForm`, `UserPreferences` e o formulário contra o engine real (ZIP e pasta); sem toolkit gráfico | JUnit 5, AssertJ, `@TempDir` | disco temporário; **nunca rede** |
-| Desktop (telas) | `WizardViewTest` dirige o `WizardView` real (cliques, digitação, as quatro telas, engine real offline, `Dialogs` de teste, falhas injetadas); roda com o toolkit JavaFX e é **pulado** quando não há tela (`Assumptions`) | JUnit 5, AssertJ | disco temporário; **nunca rede** |
+| Desktop (telas) | `AppShellTest` dirige a casca (início, histórico, documentação, sobre, tema) e `WizardViewTest` dirige o `WizardView` real (cliques, digitação, as quatro telas, engine real offline, `Dialogs` de teste, falhas injetadas); roda com o toolkit JavaFX e é **pulado** quando não há tela (`Assumptions`) | JUnit 5, AssertJ | disco temporário; **nunca rede** |
 
 Convenções:
 - Testes de domínio e aplicação não usam arquivos nem rede.
@@ -57,7 +57,7 @@ Achado da primeira rodada: no Boot 2.7 e 3.0 (maven-compiler-plugin 3.10.1) o ja
 
 ## Roteiro manual do desktop
 
-A lógica das telas é coberta por `WizardViewTest` (48 casos: detalhe do pacote, kit, artifacts, extras e regras, árvore de pacotes ao vivo, descrições dos campos, validação ao digitar, bloqueio do Avançar, navegação, versões e falha na busca, kits, extras, estilos, fitness functions, geração de ZIP e pasta nos dois estilos, falha de destino, queda inesperada, sobrescrita confirmada e recusada, seletor de pastas, "Abrir pasta", preferências e tema). Isso foi repetido 5 vezes seguidas sem falha. Sobra ao roteiro manual o que só o sistema operacional mostra, e cada rodada termina rodando `./mvnw verify` no projeto gerado.
+A lógica das telas é coberta por `AppShellTest` (13 casos: início, modelos, histórico, links, tema) e `WizardViewTest` (47 casos: detalhe do pacote, kit, artifacts, extras e regras, árvore de pacotes ao vivo, descrições dos campos, validação ao digitar, bloqueio do Avançar, navegação, versões e falha na busca, kits, extras, estilos, fitness functions, geração de ZIP e pasta nos dois estilos, falha de destino, queda inesperada, sobrescrita confirmada e recusada, seletor de pastas, "Abrir pasta", preferências e tema). Isso foi repetido 5 vezes seguidas sem falha. Sobra ao roteiro manual o que só o sistema operacional mostra, e cada rodada termina rodando `./mvnw verify` no projeto gerado.
 
 | # | Passo | Esperado | Última verificação |
 |---|---|---|---|

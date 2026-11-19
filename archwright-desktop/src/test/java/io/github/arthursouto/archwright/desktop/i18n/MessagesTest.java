@@ -90,6 +90,19 @@ class MessagesTest {
     }
 
     @Test
+    void textsTheNewShellNeeds() {
+        for (String key : new String[] {
+                "brand.tagline", "section.HOME", "section.WIZARD", "section.HISTORY", "section.ABOUT",
+                "home.welcome", "home.subtitle", "home.start", "home.stats.generated", "home.stats.boot", "home.stats.styles",
+                "home.presets.title", "home.recent.title", "home.recent.empty", "home.tips.title",
+                "tip.fitness.title", "tip.fitness.text", "tip.styles.title", "tip.styles.text", "tip.guide.title", "tip.guide.text",
+                "link.guide", "link.repository", "link.releases", "history.title", "history.empty", "history.clear",
+                "section.DOCS", "home.charts.title", "chart.styles.title", "chart.dependencies.title", "chart.empty", "docs.title", "docs.open", "history.open", "history.reuse", "history.remove", "about.description", "about.license", "about.trademark"}) {
+            assertThat(messages.has(key)).as(key).isTrue();
+        }
+    }
+
+    @Test
     void namesEveryWizardStep() {
         for (var step : io.github.arthursouto.archwright.desktop.wizard.WizardStep.values()) {
             assertThat(messages.text("step." + step.name())).isNotEqualTo("step." + step.name());

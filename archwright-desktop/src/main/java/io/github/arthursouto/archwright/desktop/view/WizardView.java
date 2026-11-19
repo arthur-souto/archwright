@@ -34,9 +34,13 @@ public final class WizardView extends BorderPane {
     private final ObjectProperty<WizardStep> current = new SimpleObjectProperty<>(WizardStep.PROJECT);
     private final Button back = new Button();
     private final Button next = new Button();
-    private final Button theme = new Button();
 
     public WizardView(DesktopContext context, ProjectForm form) {
+        this(context, form, () -> {
+        });
+    }
+
+    public WizardView(DesktopContext context, ProjectForm form, Runnable afterGenerated) {
         this.context = context;
         this.messages = context.messages();
         this.validation = new LiveValidation(context.preview(), messages, form);
@@ -45,11 +49,10 @@ public final class WizardView extends BorderPane {
         views.put(WizardStep.PROJECT, new ProjectStepView(context, form, validation));
         views.put(WizardStep.VERSIONS, new VersionsStepView(context, form, validation));
         views.put(WizardStep.DEPENDENCIES, new DependenciesStepView(context, form, validation));
-        views.put(WizardStep.EXPORT, new ExportStepView(context, form, validation, this::window));
+        views.put(WizardStep.EXPORT, new ExportStepView(context, form, validation, this::window, afterGenerated));
 
         setTop(header());
         setBottom(footer());
-        configureTheme();
         keepIndicatorsAndButtonsUpToDate();
         show(WizardStep.PROJECT);
         VersionPreload.start(context.catalog(), form);
@@ -61,7 +64,7 @@ public final class WizardView extends BorderPane {
     }
 
     private HBox header() {
-        Label title = new Label(messages.text("app.title"));
+        Label title = new Label(messages.text("section.WIZARD"));
         title.getStyleClass().add(Styles.TITLE_3);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -76,7 +79,7 @@ public final class WizardView extends BorderPane {
             steps.getChildren().add(indicator);
         }
 
-        HBox header = new HBox(SPACING * 2, title, steps, spacer, theme);
+        HBox header = new HBox(SPACING * 2, title, steps, spacer);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(PADDING, PADDING, SPACING, PADDING));
 
@@ -156,20 +159,5 @@ public final class WizardView extends BorderPane {
                 label.getStyleClass().add(Styles.TEXT_BOLD);
             }
         });
-    }
-
-    private void configureTheme() {
-        boolean dark = context.preferences().darkTheme();
-        ThemeSwitcher.apply(dark);
-        theme.setText(messages.text(dark ? "theme.toggle.light" : "theme.toggle.dark"));
-        theme.getStyleClass().add(Styles.FLAT);
-        theme.setOnAction(event -> toggleTheme());
-    }
-
-    private void toggleTheme() {
-        boolean dark = !context.preferences().darkTheme();
-        context.preferences().darkTheme(dark);
-        ThemeSwitcher.apply(dark);
-        theme.setText(messages.text(dark ? "theme.toggle.light" : "theme.toggle.dark"));
     }
 }

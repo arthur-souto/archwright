@@ -35,6 +35,17 @@ public final class NativeDialogs implements Dialogs {
     }
 
     @Override
+    public boolean confirmAction(Window owner, String message, String action) {
+        ButtonType confirm = new ButtonType(action, ButtonBar.ButtonData.OK_DONE);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, confirm, ButtonType.CANCEL);
+        alert.setTitle(messages.text("app.title"));
+        alert.setHeaderText(null);
+        alert.initOwner(owner);
+
+        return alert.showAndWait().filter(confirm::equals).isPresent();
+    }
+
+    @Override
     public Optional<Path> chooseDirectory(Window owner, Path initial) {
         DirectoryChooser chooser = new DirectoryChooser();
 
@@ -48,5 +59,10 @@ public final class NativeDialogs implements Dialogs {
     @Override
     public void openFolder(Path folder) {
         hostServices.showDocument(folder.toUri().toString());
+    }
+
+    @Override
+    public void openUrl(String url) {
+        hostServices.showDocument(url);
     }
 }

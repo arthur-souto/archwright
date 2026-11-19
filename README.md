@@ -42,7 +42,7 @@ Cada campo tem uma descrição logo abaixo do título, e uma **árvore de pacote
 3. **Dependências:** kit **Básico** (Web, Validation, Actuator, JPA + PostgreSQL, Flyway, Lombok) ou **Nenhum**, com ajuste fino. Cada dependência mostra o que faz e o artifact Maven que entra no `pom.xml`. Aqui você marca os extras (Docker Compose com PostgreSQL, GitHub Actions) e as **fitness functions**, com a explicação de cada regra.
 4. **Exportar:** formato ZIP ou pasta, destino, e **Gerar projeto**. O resumo mostra os arquivos, as dependências e as regras. O botão **Abrir pasta** leva ao resultado.
 
-O app lembra as últimas escolhas (group, estilo, kit, formato, destino e tema claro/escuro).
+O app abre numa **tela de início** com números, gráficos do seu uso, modelos de início rápido e os projetos recentes. A barra lateral leva ao **Histórico** (reutilize as escolhas de um projeto já gerado), à **Documentação** e ao tema claro/escuro. O app lembra as últimas escolhas (group, estilo, kit, formato, destino e tema).
 
 ![Visão geral da Fase 1](docs/architecture/images/visao-geral-fase-1.png)
 
