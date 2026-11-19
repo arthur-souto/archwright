@@ -6,6 +6,7 @@ import io.github.arthursouto.archwright.engine.application.port.in.DependencyOpt
 import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
 import io.github.arthursouto.archwright.engine.application.port.in.JavaVersionOption;
 import io.github.arthursouto.archwright.engine.application.port.in.KitOption;
+import io.github.arthursouto.archwright.engine.application.port.in.ResolvedDependency;
 import io.github.arthursouto.archwright.engine.application.port.in.VersionOrigin;
 import io.github.arthursouto.archwright.engine.adapter.out.version.EmbeddedBootVersions;
 import io.github.arthursouto.archwright.engine.application.port.out.CachedVersions;
@@ -75,6 +76,19 @@ class BrowseCatalogTest {
         assertThat(kits).extracting(KitOption::id).containsExactly("BASIC", "NONE");
         assertThat(kits.getFirst().dependencies()).containsExactly("web", "validation", "actuator", "jpa", "flyway", "lombok");
         assertThat(kits.getLast().dependencies()).isEmpty();
+    }
+
+    @Test
+    void everyDependencyCarriesTheMavenArtifactsItBringsForTheChosenBoot() {
+        List<DependencyOption> options = catalog.dependencies("4.1.2");
+
+        assertThat(options).allSatisfy(option -> assertThat(option.artifacts()).isNotEmpty());
+        assertThat(options).filteredOn(option -> option.id().equals("jpa")).singleElement()
+                .satisfies(option -> assertThat(option.artifacts()).extracting(ResolvedDependency::artifactId)
+                        .contains("postgresql"));
+        assertThat(options).filteredOn(option -> option.id().equals("springdoc")).singleElement()
+                .satisfies(option -> assertThat(option.artifacts()).extracting(ResolvedDependency::version)
+                        .containsExactly("3.2.0"));
     }
 
     @Test

@@ -65,9 +65,11 @@ public final class ArchwrightEngine {
                 new ContextBuilder(resolver, loaded, repository.styles(), kits),
                 new FilePlanner(templates, renderer, repository.styles()));
 
+        ProjectRenderer projectRenderer = new ProjectRenderer(templates, renderer);
+
         this.generateProject = new GenerateProject(
-                planning, new ProjectRenderer(templates, renderer), List.of(new ZipProjectExporter(), new FolderProjectExporter()));
-        this.previewProject = new PreviewProject(planning, resolver);
+                planning, projectRenderer, List.of(new ZipProjectExporter(), new FolderProjectExporter()));
+        this.previewProject = new PreviewProject(planning, resolver, projectRenderer);
         this.catalog = new BrowseCatalog(loaded, repository.styles(), styles, kits, versionLookup(builder, loaded));
     }
 

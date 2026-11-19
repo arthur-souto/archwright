@@ -180,17 +180,18 @@ public final class BrowseCatalog implements CatalogQuery {
     private List<DependencyOption> dependencyOptions(BootProfile profile) {
         return catalog.dependencies().stream()
                 .filter(definition -> profile.isAvailable(definition.id()))
-                .map(this::dependencyOption)
+                .map(definition -> dependencyOption(definition, profile))
                 .toList();
     }
 
-    private DependencyOption dependencyOption(DependencyDefinition definition) {
+    private DependencyOption dependencyOption(DependencyDefinition definition, BootProfile profile) {
         return new DependencyOption(
                 definition.id().value(),
                 definition.label(),
                 definition.description(),
                 definition.group(),
-                definition.implies().stream().map(DependencyId::value).toList());
+                definition.implies().stream().map(DependencyId::value).toList(),
+                DependencyArtifacts.of(definition.id(), profile));
     }
 
     private ExtraOption extraOption(ExtraDefinition definition) {

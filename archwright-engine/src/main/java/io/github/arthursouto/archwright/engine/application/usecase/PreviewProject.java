@@ -1,28 +1,34 @@
 package io.github.arthursouto.archwright.engine.application.usecase;
 
 import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
+import io.github.arthursouto.archwright.engine.application.port.in.PreviewFile;
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewProjectQuery;
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewResult;
 import io.github.arthursouto.archwright.engine.application.port.in.ProjectRequest;
 import io.github.arthursouto.archwright.engine.application.port.in.ResolvedDependency;
 import io.github.arthursouto.archwright.engine.domain.model.BootProfile;
-import io.github.arthursouto.archwright.engine.domain.model.DependencyId;
-import io.github.arthursouto.archwright.engine.domain.model.MavenCoordinate;
+import io.github.arthursouto.archwright.engine.domain.model.GeneratedFile;
+import io.github.arthursouto.archwright.engine.domain.model.PlannedFile;
 import io.github.arthursouto.archwright.engine.domain.model.ProjectSpec;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class PreviewProject implements PreviewProjectQuery {
 
-    private static final String DEFAULT_SCOPE = "compile";
+    private static final String DESCRIPTION = "description";
+    private static final byte LINE_FEED = '\n';
 
     private final ProjectPlanning planning;
     private final ProfileResolver resolver;
+    private final ProjectRenderer renderer;
 
-    public PreviewProject(ProjectPlanning planning, ProfileResolver resolver) {
+    public PreviewProject(ProjectPlanning planning, ProfileResolver resolver, ProjectRenderer renderer) {
         this.planning = planning;
         this.resolver = resolver;
+        this.renderer = renderer;
     }
 
     @Override
@@ -34,15 +40,38 @@ public final class PreviewProject implements PreviewProjectQuery {
     }
 
     private PreviewResult preview(ProjectPlanning.Outcome.Ready ready) {
+        List<PreviewFile> files = files(ready);
+
         return new PreviewResult.Preview(
-                paths(ready),
+                files.stream().map(PreviewFile::path).toList(),
+                files,
                 dependencies(ready.spec()),
                 fitnessRules(ready),
                 ready.warnings());
     }
 
-    private List<String> paths(ProjectPlanning.Outcome.Ready ready) {
-        return ready.plan().targets().stream().sorted().toList();
+    private List<PreviewFile> files(ProjectPlanning.Outcome.Ready ready) {
+        Map<String, String> descriptions = ready.plan().files().stream()
+                .filter(planned -> planned.variables().containsKey(DESCRIPTION))
+                .collect(Collectors.toMap(PlannedFile::target, planned -> planned.variables().get(DESCRIPTION)));
+
+        return renderer.render(ready.plan(), ready.context()).files().stream()
+                .map(file -> new PreviewFile(file.path(), lines(file), descriptions.get(file.path())))
+                .sorted(Comparator.comparing(PreviewFile::path))
+                .toList();
+    }
+
+    private int lines(GeneratedFile file) {
+        byte[] content = file.content();
+        int lines = 0;
+
+        for (byte value : content) {
+            if (value == LINE_FEED) {
+                lines++;
+            }
+        }
+
+        return content.length > 0 && content[content.length - 1] != LINE_FEED ? lines + 1 : lines;
     }
 
     private List<FitnessRuleSummary> fitnessRules(ProjectPlanning.Outcome.Ready ready) {
@@ -55,27 +84,7 @@ public final class PreviewProject implements PreviewProjectQuery {
         BootProfile profile = resolver.profileFor(spec.bootVersion());
 
         return spec.dependencies().stream()
-                .flatMap(dependency -> resolved(dependency, profile))
+                .flatMap(dependency -> DependencyArtifacts.of(dependency, profile).stream())
                 .toList();
-    }
-
-    private Stream<ResolvedDependency> resolved(DependencyId dependency, BootProfile profile) {
-        return profile.artifactsFor(List.of(dependency)).stream()
-                .map(coordinate -> resolvedDependency(dependency, coordinate, profile));
-    }
-
-    private ResolvedDependency resolvedDependency(DependencyId dependency, MavenCoordinate coordinate, BootProfile profile) {
-        return new ResolvedDependency(
-                dependency.value(),
-                coordinate.groupId(),
-                coordinate.artifactId(),
-                version(coordinate, profile),
-                coordinate.scope() == null ? DEFAULT_SCOPE : coordinate.scope());
-    }
-
-    private String version(MavenCoordinate coordinate, BootProfile profile) {
-        return coordinate.versionProperty()
-                .map(property -> profile.pinnedVersions().get(property))
-                .orElse(coordinate.version());
     }
 }

@@ -3,6 +3,7 @@ package io.github.arthursouto.archwright.engine.application.usecase;
 import io.github.arthursouto.archwright.engine.adapter.out.template.ClasspathTemplateRepository;
 import io.github.arthursouto.archwright.engine.adapter.out.template.MustacheTemplateRenderer;
 import io.github.arthursouto.archwright.engine.application.port.in.FitnessRuleSummary;
+import io.github.arthursouto.archwright.engine.application.port.in.PreviewFile;
 import io.github.arthursouto.archwright.engine.application.port.in.PreviewResult;
 import io.github.arthursouto.archwright.engine.application.port.in.ProjectRequest;
 import io.github.arthursouto.archwright.engine.application.port.in.ResolvedDependency;
@@ -15,8 +16,11 @@ import io.github.arthursouto.archwright.engine.application.port.in.Violation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +29,8 @@ class PreviewProjectTest {
     private final ClasspathTemplateRepository realTemplates = new ClasspathTemplateRepository();
     private final AtomicInteger contentReads = new AtomicInteger();
     private final ProjectPlanning planning = UseCaseFixtures.planning(countingTemplates(), new MustacheTemplateRenderer());
-    private final PreviewProject preview = new PreviewProject(planning, new ProfileResolver(SpecBuilder.catalog()));
+    private final PreviewProject preview = new PreviewProject(
+            planning, new ProfileResolver(SpecBuilder.catalog()), new ProjectRenderer(countingTemplates(), new MustacheTemplateRenderer()));
 
     @Test
     @DisplayName("ENG-UC-02 #1 a pré-visualização lista os mesmos caminhos que a geração grava")
@@ -66,10 +71,18 @@ class PreviewProjectTest {
     }
 
     @Test
-    void neverReadsTemplateContentBecauseNothingIsRendered() {
-        preview.preview(UseCaseFixtures.validRequest());
+    void countsTheLinesOfEachFileLikeGenerationWouldWriteThem() {
+        ProjectRequest request = UseCaseFixtures.validRequest();
 
-        assertThat(contentReads).hasValue(0);
+        PreviewResult.Preview result = (PreviewResult.Preview) preview.preview(request);
+        Map<String, Integer> written = new ProjectRenderer(realTemplates, new MustacheTemplateRenderer())
+                .render(planOf(request), contextOf(request)).files().stream()
+                .collect(Collectors.toMap(GeneratedFile::path, file -> lines(new String(file.content(), StandardCharsets.UTF_8))));
+
+        assertThat(result.files()).extracting(PreviewFile::path).isEqualTo(result.paths());
+        assertThat(result.files()).filteredOn(file -> file.path().equals("pom.xml")).singleElement()
+                .satisfies(file -> assertThat(file.lines()).isPositive());
+        assertThat(result.files()).allSatisfy(file -> assertThat(file.lines()).isEqualTo(written.get(file.path())));
     }
 
     @Test
@@ -96,6 +109,27 @@ class PreviewProjectTest {
 
         assertThat(result.warnings()).hasSize(1);
         assertThat(result.warnings().getFirst().params()).containsEntry("added", "web");
+    }
+
+    @Test
+    void eachPackageInfoCarriesTheDescriptionOfItsPackage() {
+        PreviewResult.Preview result = (PreviewResult.Preview) preview.preview(UseCaseFixtures.validRequest());
+
+        assertThat(result.files()).filteredOn(file -> file.path().endsWith("/package-info.java"))
+                .isNotEmpty()
+                .allSatisfy(file -> assertThat(file.description()).isNotBlank().doesNotContain("{{"));
+        assertThat(result.files()).filteredOn(file -> file.path().equals("pom.xml")).singleElement()
+                .satisfies(file -> assertThat(file.description()).isEmpty());
+    }
+
+    private int lines(String text) {
+        if (text.isEmpty()) {
+            return 0;
+        }
+
+        long breaks = text.chars().filter(character -> character == '\n').count();
+
+        return (int) (text.endsWith("\n") ? breaks : breaks + 1);
     }
 
     private FilePlan planOf(ProjectRequest request) {

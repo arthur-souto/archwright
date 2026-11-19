@@ -62,12 +62,16 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
 
     public sealed interface PreviewResult {
         record Preview(List<String> paths,                         // ordenados, relativos à raiz do projeto
+                       List<PreviewFile> files,                    // mesmos caminhos, com linhas e descrição
                        List<ResolvedDependency> dependencies,      // coordenadas Maven finais
                        List<FitnessRuleSummary> fitnessRules,
                        List<Warning> warnings) implements PreviewResult {}
         record Failure(List<Violation> violations) implements PreviewResult {}
     }
 
+    public record PreviewFile(String path, int lines, String description) {}
+    // lines: linhas do arquivo como a geração o grava; description: o propósito do pacote nos package-info
+    // (vem do manifest do estilo), vazio nos demais arquivos
     public record ResolvedDependency(String id, String groupId, String artifactId, String version, String scope) {}
     // version == null quando gerenciada pelo BOM do Spring Boot
     public record FitnessRuleSummary(String id, String testClass, String description) {}
@@ -100,7 +104,9 @@ Campos de texto nulos são tratados como vazios. Listas nulas, como vazias.
     public record KitOption(String id, String label, List<String> dependencies) {}
     // vem da estratégia do kit (id, label, dependências padrão); a interface traduz o rótulo por id
     public record DependencyOption(String id, String label, String description, String group,
-                                   List<String> implies) {}           // implies: BR-033
+                                   List<String> implies,              // implies: BR-033
+                                   List<ResolvedDependency> artifacts) {}
+    // artifacts: coordenadas Maven que a dependência traz para o Boot informado (mesma regra da pré-visualização)
     public record ExtraOption(String id, String label, List<String> requires) {}
 
 ## Violações
