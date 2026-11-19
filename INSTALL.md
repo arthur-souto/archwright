@@ -13,7 +13,7 @@ Pegue o instalador do seu sistema na página de [Releases](../../releases) do re
 | Windows 10 ou 11 | `Archwright-1.0.0-windows-x64.msi` |
 | Linux (Debian, Ubuntu e derivados) | `archwright_1.0.0_amd64-linux-x64.deb` |
 
-As releases são pré-lançamentos (instaladores sem assinatura). Se a sua versão ainda não tiver instalador, gere o do seu sistema seguindo o [README](README.md#gerando-o-instalador). Nos arquivos, o `1.0.0` é só o número do instalador; a versão do Archwright é a da release.
+As releases são pré-lançamentos (instaladores sem assinatura). Se a sua versão ainda não tiver instalador, gere o do seu sistema seguindo o [README](README.md#para-desenvolvedores). Nos arquivos, o `1.0.0` é só o número do instalador; a versão do Archwright é a da release.
 
 ## 2. Instalar
 
@@ -21,12 +21,31 @@ Os instaladores **ainda não são assinados**, então o sistema mostra um aviso 
 
 ### macOS
 
-1. Dê dois cliques no `.dmg`. Ele **não instala sozinho**: só abre uma janela com o app e um atalho para a pasta Applications. **Arraste o Archwright para a pasta Applications** (essa é a instalação). Depois, ejete o disco no Finder, pelo botão de ejetar ao lado do volume "Archwright". Se abrir o app de dentro da janela do `.dmg`, ele roda do disco e some quando você ejetar.
-2. Na primeira vez, **clique com o botão direito** no app, escolha **Abrir** e confirme em **Abrir**.
-3. Se o macOS bloquear mesmo assim (Sequoia ou mais novo): **Ajustes do Sistema > Privacidade e Segurança**, role até o aviso do Archwright e clique em **Abrir Mesmo Assim**.
-4. Alternativa pelo Terminal: `xattr -dr com.apple.quarantine /Applications/Archwright.app`
+1. Dê dois cliques no `.dmg`. Ele **não instala sozinho**: só abre uma janela com o app e um atalho para a pasta Applications. **Arraste o Archwright para a pasta Applications** (essa é a instalação). Não abra o app de dentro da janela do `.dmg`: ele roda do disco e some quando você ejetar.
+2. Ejete o disco no Finder, pelo botão de ejetar ao lado do volume "Archwright".
+3. Abra o Archwright (Launchpad ou pasta Applications). Na primeira vez o macOS mostra este aviso e **não abre o app**:
 
-Depois da primeira vez, abre normalmente pelo Launchpad.
+   > **"Archwright" Not Opened** (em português, **"Archwright" não foi aberto**)
+   > Apple could not verify "Archwright" is free of malware that may harm your Mac or compromise your privacy.
+
+   Isso não é um defeito do app. O macOS bloqueia todo app baixado da internet que não seja assinado e notarizado pela Apple, e o Archwright ainda não é. Clique em **Done** (**Concluído**), **não** em "Move to Trash", e libere o app por um destes dois caminhos.
+
+**Caminho A: pelo Terminal (o mais rápido).** Com o app já na pasta Applications, rode:
+
+    xattr -dr com.apple.quarantine /Applications/Archwright.app
+
+Isso remove só a marca de "baixado da internet" desse app. Depois, abra o Archwright normalmente.
+
+**Caminho B: pelos Ajustes do Sistema.**
+
+1. Tente abrir o app uma vez (o aviso acima aparece) e clique em **Done**.
+2. Abra **Ajustes do Sistema > Privacidade e Segurança**.
+3. Role até a seção **Segurança**. Aparece uma mensagem sobre o Archwright ter sido bloqueado.
+4. Clique em **Abrir Mesmo Assim** e confirme com a sua senha ou Touch ID.
+
+O clique com o botão direito > **Abrir** funcionava em versões antigas do macOS e **não funciona mais** a partir do macOS 15 (Sequoia); use um dos dois caminhos acima.
+
+Você só faz isso na primeira vez. Depois, o app abre normalmente.
 
 ### Windows
 
@@ -65,7 +84,8 @@ Isso compila, roda os testes e as fitness functions (ArchUnit). Se alguém viola
 | "Já existe um arquivo com esse nome" | Confirme para substituir ou escolha outra pasta. |
 | "A pasta já existe e não está vazia" | No formato pasta, o destino precisa estar livre; mude o nome do artifact ou apague a pasta. |
 | Aviso "Sem conexão" na tela de versões | O app usou a lista embutida; as versões mais novas podem faltar. |
-| O app não abre no macOS | Veja os passos 2 a 4 da seção macOS acima. |
+| No macOS aparece "Archwright Not Opened" ou "Apple could not verify…" | O app não é assinado. Siga os caminhos A ou B da seção macOS acima. |
+| No macOS o app abre e fecha ao ejetar o disco | Ele estava rodando de dentro do `.dmg`. Arraste para Applications e abra de lá. |
 
 ## Desinstalar
 
