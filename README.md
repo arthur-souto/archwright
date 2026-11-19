@@ -4,7 +4,7 @@
 
 *Architecture-first project generator for Spring Boot — hexagonal today, more styles soon. Fitness functions included.*
 
-> **Pré-lançamento [v0.1.0](https://github.com/arthur-souto/archwright/releases/tag/v0.1.0).** O motor e o app desktop funcionam, e há instaladores para macOS, Windows e Linux. Eles ainda não são assinados (o sistema mostra um aviso na primeira abertura) e o do Windows e o do Linux ainda não foram testados em máquina real. Veja [o que ainda falta](#limitações-conhecidas).
+> **Pré-lançamento [v0.2.0](https://github.com/arthur-souto/archwright/releases/tag/v0.2.0).** O motor e o app desktop funcionam (a v0.2.0 traz a interface nova, com tela de início, histórico e documentação), e há instaladores para macOS, Windows e Linux. Eles ainda não são assinados (o sistema mostra um aviso na primeira abertura) e o do Windows e o do Linux ainda não foram testados em máquina real. Veja [o que ainda falta](#limitações-conhecidas).
 
 ## O que é
 
