@@ -66,6 +66,17 @@ Os dois estilos já geram, em Java puro, as exceções padrão (`DomainException
 
 O que cada estilo gera, arquivo por arquivo, está em [Projeto gerado](docs/contracts/GENERATED_PROJECT.md).
 
+## Novidades da v0.3.0
+
+- **Exceções padrão no projeto gerado:** `DomainException`, `ResourceNotFoundException` (404), `ConflictException` (409) e `BusinessRuleException` (422), em Java puro. No estilo modular ficam em `shared.domain.exceptions`; no em camadas, em `domain.exceptions`.
+- **`GlobalExceptionHandler`** (com a dependência `web`): traduz as exceções em respostas `application/problem+json` (RFC 9457). Falhas inesperadas viram 500 sem expor detalhes internos.
+  - Spring Boot 3 e 4 usam `ProblemDetail`; o 2.7, que não tem essa classe, usa um `ApiError` com os mesmos campos.
+  - Falhas de validação (`@Valid`, `ConstraintViolationException` e, no Spring 6.1+, `HandlerMethodValidationException`) voltam em 400 com a lista `errors` de campo e mensagem.
+  - No Boot 2.7, 3.0 e 3.1, rota inexistente também vira 404 no mesmo formato.
+- **Pacotes de persistência só com `jpa`:** sem a dependência, não saem mais `persistence`, `entity` e `jpa`.
+- **Lombok fixado numa versão recente**, para o projeto gerado compilar também no JDK 24 e 25.
+- **CI mais firme:** a matriz de compilação tenta o download do Maven até 3 vezes. Ela cobre 53 combinações de Spring Boot, estilo e kit, e tudo passou antes da release.
+
 ## Depois de gerar
 
 Descompacte o ZIP (ou abra a pasta) e, dentro do projeto, com um JDK na versão que você escolheu:
