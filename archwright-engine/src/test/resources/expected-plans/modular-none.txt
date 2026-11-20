@@ -11,9 +11,6 @@ src/main/java/com/acme/pedidoapi/pagamentos/adapter/in/http/package-info.java
 src/main/java/com/acme/pedidoapi/pagamentos/adapter/in/http/request/package-info.java
 src/main/java/com/acme/pedidoapi/pagamentos/adapter/in/package-info.java
 src/main/java/com/acme/pedidoapi/pagamentos/adapter/out/package-info.java
-src/main/java/com/acme/pedidoapi/pagamentos/adapter/out/persistence/entity/package-info.java
-src/main/java/com/acme/pedidoapi/pagamentos/adapter/out/persistence/jpa/package-info.java
-src/main/java/com/acme/pedidoapi/pagamentos/adapter/out/persistence/package-info.java
 src/main/java/com/acme/pedidoapi/pagamentos/adapter/package-info.java
 src/main/java/com/acme/pedidoapi/pagamentos/application/package-info.java
 src/main/java/com/acme/pedidoapi/pagamentos/application/port/in/command/package-info.java
@@ -30,9 +27,6 @@ src/main/java/com/acme/pedidoapi/pedidos/adapter/in/http/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/adapter/in/http/request/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/adapter/in/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/adapter/out/package-info.java
-src/main/java/com/acme/pedidoapi/pedidos/adapter/out/persistence/entity/package-info.java
-src/main/java/com/acme/pedidoapi/pedidos/adapter/out/persistence/jpa/package-info.java
-src/main/java/com/acme/pedidoapi/pedidos/adapter/out/persistence/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/adapter/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/application/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/application/port/in/command/package-info.java
@@ -48,11 +42,14 @@ src/main/java/com/acme/pedidoapi/pedidos/package-info.java
 src/main/java/com/acme/pedidoapi/shared/adapter/in/http/package-info.java
 src/main/java/com/acme/pedidoapi/shared/adapter/in/package-info.java
 src/main/java/com/acme/pedidoapi/shared/adapter/out/package-info.java
-src/main/java/com/acme/pedidoapi/shared/adapter/out/persistence/package-info.java
 src/main/java/com/acme/pedidoapi/shared/adapter/package-info.java
 src/main/java/com/acme/pedidoapi/shared/application/package-info.java
 src/main/java/com/acme/pedidoapi/shared/application/port/out/package-info.java
 src/main/java/com/acme/pedidoapi/shared/application/port/package-info.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/BusinessRuleException.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/ConflictException.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/DomainException.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/ResourceNotFoundException.java
 src/main/java/com/acme/pedidoapi/shared/domain/exceptions/package-info.java
 src/main/java/com/acme/pedidoapi/shared/domain/package-info.java
 src/main/java/com/acme/pedidoapi/shared/package-info.java

@@ -76,9 +76,10 @@ packages:                                   # vira um package-info.java por item
 **Regras do manifest**
 - `target` e `package` são templates Mustache avaliados com o mesmo [contexto](#contexto-disponível-nos-templates).
 - `when` aceita apenas nomes de **flags** do contexto, opcionalmente negados com `!` (ex.: `!dep.jpa`). Não existe `or` nem comparação: se precisar, o engine cria uma flag nova ([ADR-0003](../adr/0003-templates-e-catalogos-como-dados.md) item 5).
+- `when` também vale em `packages`, com as mesmas regras: o pacote (e o seu `package-info.java`) só entra quando todas as condições são verdadeiras, como `when: [dep.jpa]` nos pacotes de persistência.
 - `forEach` aceita `modules` (estilo modular) ou `aggregates` (estilo em camadas); a variável do item é `module` ou `aggregate`, respectivamente.
 - `package` é **relativo ao pacote base** (`""` é o próprio pacote base) e o `package-info.java` é gerado com o template `common/package-info.java.mustache`, que o engine fornece. Escreva `description` entre aspas: um `: ` sem aspas quebra o YAML.
-- Só existem as chaves documentadas (`style`, `files`, `packages`; em `files`: `template`, `target`, `when`, `executable`, `render`, `lineEnding`, `forEach`; em `packages`: `package`, `description`, `forEach`). Chave desconhecida é erro, para pegar digitação (`executeable`).
+- Só existem as chaves documentadas (`style`, `files`, `packages`; em `files`: `template`, `target`, `when`, `executable`, `render`, `lineEnding`, `forEach`; em `packages`: `package`, `description`, `when`, `forEach`). Chave desconhecida é erro, para pegar digitação (`executeable`).
 - `when` só aceita nomes de flag (`dep.jpa`, `!dep.jpa`); qualquer outra coisa é erro de leitura do manifest.
 - O caminho final passa pela verificação do BR-052; se houver violação, é erro de template.
 - Dois itens com o mesmo `target` final: erro de template.

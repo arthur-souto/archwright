@@ -1,0 +1,21 @@
+{{#style.modular}}
+package {{basePackage}}.shared.domain.exceptions;
+{{/style.modular}}
+{{#style.layered}}
+package {{basePackage}}.domain.exception;
+{{/style.layered}}
+
+/**
+ * Base das exceções de domínio. Java puro, sem framework.
+ */
+public abstract class DomainException extends RuntimeException {
+
+    protected DomainException(String message) {
+        super(message);
+    }
+
+    protected DomainException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+}

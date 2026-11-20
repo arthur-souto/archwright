@@ -103,7 +103,7 @@ public final class FilePlanner {
         Stream<PlannedFile> files = manifest.files().stream()
                 .flatMap(file -> planFile(directory, file, context).stream());
         Stream<PlannedFile> packages = manifest.packages().stream()
-                .flatMap(entry -> planPackage(entry, context).stream());
+                .flatMap(entry -> planPackage(directory, entry, context).stream());
 
         return Stream.concat(files, packages).toList();
     }
@@ -125,7 +125,11 @@ public final class FilePlanner {
                 directory + "/" + file.template(), target, file.executable(), file.lineEnding(), file.render(), Map.of());
     }
 
-    private List<PlannedFile> planPackage(ManifestPackage entry, TemplateContext context) {
+    private List<PlannedFile> planPackage(String directory, ManifestPackage entry, TemplateContext context) {
+        if (!satisfied(directory, entry.when(), context)) {
+            return List.of();
+        }
+
         return scopes(entry.repeat(), context).stream()
                 .map(scope -> packageInfo(entry, context.text("basePackage"), scope))
                 .toList();

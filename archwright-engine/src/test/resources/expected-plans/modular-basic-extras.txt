@@ -48,6 +48,7 @@ src/main/java/com/acme/pedidoapi/pedidos/config/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/domain/exceptions/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/domain/package-info.java
 src/main/java/com/acme/pedidoapi/pedidos/package-info.java
+src/main/java/com/acme/pedidoapi/shared/adapter/in/http/GlobalExceptionHandler.java
 src/main/java/com/acme/pedidoapi/shared/adapter/in/http/package-info.java
 src/main/java/com/acme/pedidoapi/shared/adapter/in/package-info.java
 src/main/java/com/acme/pedidoapi/shared/adapter/out/package-info.java
@@ -56,6 +57,10 @@ src/main/java/com/acme/pedidoapi/shared/adapter/package-info.java
 src/main/java/com/acme/pedidoapi/shared/application/package-info.java
 src/main/java/com/acme/pedidoapi/shared/application/port/out/package-info.java
 src/main/java/com/acme/pedidoapi/shared/application/port/package-info.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/BusinessRuleException.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/ConflictException.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/DomainException.java
+src/main/java/com/acme/pedidoapi/shared/domain/exceptions/ResourceNotFoundException.java
 src/main/java/com/acme/pedidoapi/shared/domain/exceptions/package-info.java
 src/main/java/com/acme/pedidoapi/shared/domain/package-info.java
 src/main/java/com/acme/pedidoapi/shared/package-info.java

@@ -10,6 +10,8 @@ packages:
 
   - package: domain
     description: "Camada de domínio: regras e modelo de negócio. Java puro, sem Spring, JPA nem Lombok."
+  - package: domain.exception
+    description: "Exceções de domínio: a base e as padrão (recurso não encontrado, conflito, regra de negócio)."
   - package: domain.model
     description: "Modelo de domínio, agrupado por agregado."
   - forEach: aggregates
@@ -41,9 +43,12 @@ packages:
     description: "Adapters de saída."
   - package: infrastructure.adapter.out.persistence
     description: "Persistência: implementa as portas de saída."
+    when: [dep.jpa]
   - package: infrastructure.adapter.out.persistence.entity
     description: "Entidades JPA. Só existem neste pacote."
+    when: [dep.jpa]
   - package: infrastructure.adapter.out.persistence.jpa
     description: "Repositórios Spring Data."
+    when: [dep.jpa]
   - package: infrastructure.config
     description: "Registro dos casos de uso como beans e demais configurações."

@@ -1,0 +1,17 @@
+{{#style.modular}}
+package {{basePackage}}.shared.domain.exceptions;
+{{/style.modular}}
+{{#style.layered}}
+package {{basePackage}}.domain.exception;
+{{/style.layered}}
+
+/**
+ * A operação conflita com o estado atual, como um registro duplicado (HTTP 409).
+ */
+public class ConflictException extends DomainException {
+
+    public ConflictException(String message) {
+        super(message);
+    }
+
+}

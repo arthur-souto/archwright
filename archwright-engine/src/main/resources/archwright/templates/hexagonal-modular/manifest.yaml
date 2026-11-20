@@ -32,6 +32,7 @@ packages:
     description: "Adapters de saída compartilhados."
   - package: shared.adapter.out.persistence
     description: "Infraestrutura de persistência compartilhada."
+    when: [dep.jpa]
 
   - forEach: modules
     package: "{{module.name}}"
@@ -81,12 +82,15 @@ packages:
   - forEach: modules
     package: "{{module.name}}.adapter.out.persistence"
     description: "Persistência do módulo {{module.name}}: implementa as portas de saída."
+    when: [dep.jpa]
   - forEach: modules
     package: "{{module.name}}.adapter.out.persistence.entity"
     description: "Entidades JPA do módulo {{module.name}}. Só existem neste pacote."
+    when: [dep.jpa]
   - forEach: modules
     package: "{{module.name}}.adapter.out.persistence.jpa"
     description: "Repositórios Spring Data do módulo {{module.name}}."
+    when: [dep.jpa]
   - forEach: modules
     package: "{{module.name}}.config"
     description: "Registro dos use cases do módulo {{module.name}} como beans."

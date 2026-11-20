@@ -32,6 +32,9 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 12. [x] **Matriz de compilação** no CI ([TESTING](../operations/TESTING.md#matriz-de-compilação)) e remoção dos ⚠️ dos perfis.
     - [x] Gerador dos casos (`CompilationMatrixTest`) e workflow `generated-projects.yml`.
     - [x] Primeira execução verde no GitHub (inclui Java 22 a 24) e ⚠️ removidos de `ARCHITECTURE.md`.
+13. [x] **Exceções padrão e `GlobalExceptionHandler`** nos dois estilos ([contrato](../contracts/GENERATED_PROJECT.md#exceções-padrão-e-tratamento-de-erros)): `DomainException`, `ResourceNotFoundException`, `ConflictException`, `BusinessRuleException` e, com `web`, o handler (`ProblemDetail` no Boot 3/4, `ApiError` no 2.7). O estilo em camadas ganhou `domain.exception` (19 `package-info`).
+    - [ ] Primeira execução verde da matriz de compilação no GitHub com os arquivos novos (local: `layered-basic`, `modular-basic` e `legacy-boot2` passam no `verify`; o Lombok do `legacy-boot2` não compila no JDK 25, e o CI usa o 21).
+14. [x] **Pacotes de persistência só com `jpa`**: `when` passou a valer em `packages` do manifest; sem `jpa` não saem `persistence`, `entity` nem `jpa` ([contrato](../contracts/GENERATED_PROJECT.md#arquivos-comuns-a-todos-os-estilos)).
 
 **Pronto quando:** todos os testes `ENG-*` passam; golden dos dois estilos estável; a matriz de compilação gera e roda `./mvnw verify` com sucesso em todas as combinações (linha do Boot × estilo × kit) com fitness functions ligadas (BR-044).
 

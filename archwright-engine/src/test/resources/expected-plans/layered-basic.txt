@@ -13,10 +13,16 @@ src/main/java/com/acme/pedidoapi/application/port/in/package-info.java
 src/main/java/com/acme/pedidoapi/application/port/out/package-info.java
 src/main/java/com/acme/pedidoapi/application/port/package-info.java
 src/main/java/com/acme/pedidoapi/application/usecase/package-info.java
+src/main/java/com/acme/pedidoapi/domain/exception/BusinessRuleException.java
+src/main/java/com/acme/pedidoapi/domain/exception/ConflictException.java
+src/main/java/com/acme/pedidoapi/domain/exception/DomainException.java
+src/main/java/com/acme/pedidoapi/domain/exception/ResourceNotFoundException.java
+src/main/java/com/acme/pedidoapi/domain/exception/package-info.java
 src/main/java/com/acme/pedidoapi/domain/model/paciente/package-info.java
 src/main/java/com/acme/pedidoapi/domain/model/package-info.java
 src/main/java/com/acme/pedidoapi/domain/package-info.java
 src/main/java/com/acme/pedidoapi/infrastructure/adapter/in/package-info.java
+src/main/java/com/acme/pedidoapi/infrastructure/adapter/in/web/GlobalExceptionHandler.java
 src/main/java/com/acme/pedidoapi/infrastructure/adapter/in/web/package-info.java
 src/main/java/com/acme/pedidoapi/infrastructure/adapter/out/package-info.java
 src/main/java/com/acme/pedidoapi/infrastructure/adapter/out/persistence/entity/package-info.java

@@ -55,7 +55,7 @@ Vocabulário:
 - **BR-052** Todo caminho gerado é relativo à raiz do projeto, sem `..`, sem caminho absoluto e sem separador `\`. Plano que viole isso: erro de template, `INVALID_TEMPLATE_PATH` (bug, não erro do usuário).
 - **BR-053** Geração é tudo ou nada: o projeto é renderizado inteiro em memória antes de qualquer gravação. Se algo falhar, nada é gravado.
 - **BR-054** Todo pacote criado tem um `package-info.java` com a descrição da sua responsabilidade. Não existem diretórios vazios.
-- **BR-055** Na Fase 1 o motor não gera classes de negócio de exemplo (use cases, controllers, entidades). Gera apenas a classe principal, `package-info`, configuração, migration inicial (com Flyway) e testes de arquitetura.
+- **BR-055** Na Fase 1 o motor não gera classes de negócio de exemplo (use cases, controllers, entidades). Gera apenas a classe principal, `package-info`, configuração, migration inicial (com Flyway), testes de arquitetura e a infraestrutura de erros: exceções de domínio padrão e, com `web`, o `GlobalExceptionHandler` ([contrato](../contracts/GENERATED_PROJECT.md#exceções-padrão-e-tratamento-de-erros)).
 
 ## Exportação
 - **BR-060** Formatos: `ZIP` e `FOLDER`.

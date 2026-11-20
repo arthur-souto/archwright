@@ -73,8 +73,10 @@ class FormToEngineTest {
 
         assertThat(root.name()).isEqualTo("com.acme.pedidoapi");
         assertThat(root.children()).extracting(PackageNode::name)
-                .contains("application", "domain.model", "infrastructure", "PedidoApiApplication.java");
-        PackageNode model = root.children().stream().filter(node -> node.name().equals("domain.model")).findFirst().orElseThrow();
+                .contains("application", "domain", "infrastructure", "PedidoApiApplication.java");
+        PackageNode domain = root.children().stream().filter(node -> node.name().equals("domain")).findFirst().orElseThrow();
+        assertThat(domain.children()).extracting(PackageNode::name).contains("exception", "model");
+        PackageNode model = domain.children().stream().filter(node -> node.name().equals("model")).findFirst().orElseThrow();
         assertThat(model.children()).extracting(PackageNode::name).containsExactly("cliente", "pedido");
     }
 

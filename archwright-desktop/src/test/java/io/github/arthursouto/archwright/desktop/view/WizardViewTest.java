@@ -260,7 +260,7 @@ class WizardViewTest {
 
         Fx.await(() -> treeNames().contains("infrastructure"));
         Fx.await(() -> treeNames().contains("cliente"));
-        assertThat(treeNames()).contains("application", "domain.model", "PedidoApiApplication.java")
+        assertThat(treeNames()).contains("application", "domain", "PedidoApiApplication.java")
                 .doesNotContain("bootstrap", "shared");
 
         Fx.run(() -> comboBox(0).getSelectionModel().select(0));

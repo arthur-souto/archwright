@@ -21,7 +21,7 @@ Exemplos usam `groupId=com.acme`, `artifactId=pedido-api`, pacote `com.acme.pedi
 
 Nenhum arquivo contém data, hora, usuário da máquina ou caminho absoluto (BR-050).
 
-**Projeto sem banco de dados:** sem `jpa` (por exemplo, kit `NONE`) o projeto não tem driver, `datasource`, configuração JPA, `V1__baseline.sql`, `docker-compose.yml` nem `.env.example`; o extra `docker-compose` exige `jpa` (BR-034) e `flyway` implica `jpa` (BR-033). Os `package-info` de persistência continuam sendo gerados, porque o esqueleto de pacotes é o mesmo em todo projeto.
+**Projeto sem banco de dados:** sem `jpa` (por exemplo, kit `NONE`) o projeto não tem driver, `datasource`, configuração JPA, `V1__baseline.sql`, `docker-compose.yml` nem `.env.example`; o extra `docker-compose` exige `jpa` (BR-034) e `flyway` implica `jpa` (BR-033). Os pacotes de persistência (`persistence`, `persistence.entity` e `persistence.jpa`) e seus `package-info` também não são gerados: o manifest os marca com `when: [dep.jpa]`. O `adapter.out` continua, para adapters de saída de outro tipo (clientes HTTP, mensageria).
 
 ## `HEXAGONAL_MODULAR`
 
@@ -31,9 +31,9 @@ Estilo do [Hexbank](https://github.com/arthur-souto/Hexbank): monólito modular,
 com.acme.pedidoapi
 ├── bootstrap/                      PedidoApiApplication (scanBasePackages + @AutoConfigurationPackage)
 ├── shared/                         shared kernel: todos dependem, não depende de ninguém
-│   ├── domain/ (+ exceptions/)
+│   ├── domain/ (+ exceptions/)     DomainException e as padrão
 │   ├── application/port/out/
-│   └── adapter/in/http/, adapter/out/persistence/
+│   └── adapter/in/http/ (GlobalExceptionHandler, com `web`), adapter/out/persistence/
 └── <módulo>/                       um por módulo informado
     ├── domain/ (+ exceptions/)     Java puro
     ├── application/
@@ -51,7 +51,7 @@ com.acme.pedidoapi
 - `shared`: `shared`, `domain`, `domain.exceptions`, `application`, `application.port`, `application.port.out`, `adapter`, `adapter.in`, `adapter.in.http`, `adapter.out`, `adapter.out.persistence` = 11.
 - Por módulo: `<m>`, `domain`, `domain.exceptions`, `application`, `application.port`, `application.port.in`, `application.port.in.command`, `application.port.in.view`, `application.port.out`, `application.usecase`, `adapter`, `adapter.in`, `adapter.in.http`, `adapter.in.http.request`, `adapter.out`, `adapter.out.persistence`, `adapter.out.persistence.entity`, `adapter.out.persistence.jpa`, `config` = 19.
 
-Total com N módulos: `13 + 19 × N`.
+Total com N módulos: `13 + 19 × N` com `jpa`; sem `jpa`, os 4 pacotes de persistência saem (1 do `shared` e 3 por módulo): `12 + 16 × N`.
 
 ## `HEXAGONAL_LAYERED`
 
@@ -61,6 +61,7 @@ Estilo do [Liva](https://github.com/arthur-souto/liva): uma hexagonal só, sem m
 com.acme.pedidoapi
 ├── PedidoApiApplication            @SpringBootApplication
 ├── domain/
+│   ├── exception/                  DomainException e as padrão
 │   └── model/ (+ <agregado>/)      Java puro
 ├── application/
 │   ├── exception/
@@ -68,12 +69,27 @@ com.acme.pedidoapi
 │   ├── port/out/
 │   └── usecase/
 └── infrastructure/
-    ├── adapter/in/web/
+    ├── adapter/in/web/             GlobalExceptionHandler (com `web`)
     ├── adapter/out/persistence/ (+ entity/, jpa/)
     └── config/
 ```
 
-**`package-info.java` gerados:** raiz, `domain`, `domain.model`, `application`, `application.exception`, `application.port`, `application.port.in`, `application.port.out`, `application.usecase`, `infrastructure`, `infrastructure.adapter`, `infrastructure.adapter.in`, `infrastructure.adapter.in.web`, `infrastructure.adapter.out`, `infrastructure.adapter.out.persistence`, `infrastructure.adapter.out.persistence.entity`, `infrastructure.adapter.out.persistence.jpa`, `infrastructure.config` = 18, mais 1 por agregado.
+**`package-info.java` gerados:** raiz, `domain`, `domain.exception`, `domain.model`, `application`, `application.exception`, `application.port`, `application.port.in`, `application.port.out`, `application.usecase`, `infrastructure`, `infrastructure.adapter`, `infrastructure.adapter.in`, `infrastructure.adapter.in.web`, `infrastructure.adapter.out`, `infrastructure.adapter.out.persistence`, `infrastructure.adapter.out.persistence.entity`, `infrastructure.adapter.out.persistence.jpa`, `infrastructure.config` = 19, mais 1 por agregado. Sem `jpa`, `infrastructure.adapter.out.persistence` e os subpacotes `entity` e `jpa` não existem (16, mais 1 por agregado).
+
+## Exceções padrão e tratamento de erros
+
+Todo projeto gerado recebe, em Java puro (sem framework), em `shared.domain.exceptions` (modular) ou `domain.exception` (camadas):
+
+| Classe | Papel | HTTP |
+|---|---|---|
+| `DomainException` | base abstrata, estende `RuntimeException` | 400 |
+| `ResourceNotFoundException` | recurso inexistente (`new ResourceNotFoundException("Pedido", id)`) | 404 |
+| `ConflictException` | conflito com o estado atual, como duplicidade | 409 |
+| `BusinessRuleException` | regra de negócio violada | 422 |
+
+Com a dependência `web`, o projeto também recebe o `GlobalExceptionHandler` (`@RestControllerAdvice`), em `shared.adapter.in.http` (modular) ou `infrastructure.adapter.in.web` (camadas), que traduz essas exceções na tabela acima. Qualquer outra exceção vira 500 com mensagem genérica, registrada no log.
+- Spring Boot 3.x e 4.x: estende `ResponseEntityExceptionHandler` e responde com `ProblemDetail` (RFC 9457).
+- Spring Boot 2.7 (sem `ProblemDetail`): responde com `ApiError` (`status`, `error`, `message`), gerado ao lado. Também estende `ResponseEntityExceptionHandler`, para que os erros do Spring MVC (parâmetro ausente, método não suportado) mantenham o status próprio em vez de virar 500.
 
 ## Fitness functions
 
@@ -105,6 +121,6 @@ O pacote `<base>.architecture` em `src/test/java` também tem `package-info.java
 O README gerado lista as regras ativas e explica como congelar uma regra num projeto existente (`FreezingArchRule.freeze(...)`) e como desligar uma classe inteira (removê-la), deixando claro que o build quebrar por violação de arquitetura é intencional ([ADR-0004](../adr/0004-fitness-functions-por-padrao.md)).
 
 ## O que **não** é gerado (Fase 1)
-- Classes de negócio de exemplo: use cases, controllers, entidades, DTOs (BR-055).
+- Classes de negócio de exemplo: use cases, controllers, entidades, DTOs (BR-055). As exceções padrão e o `GlobalExceptionHandler` não contam como exemplo.
 - `@SpringBootTest` de contexto: com `jpa` ele exige banco no ar e quebraria o primeiro `mvn verify`. Entra junto com Testcontainers numa fase futura.
 - Configuração de segurança: com `security`, o Spring Boot usa os padrões dele (usuário gerado no log).
