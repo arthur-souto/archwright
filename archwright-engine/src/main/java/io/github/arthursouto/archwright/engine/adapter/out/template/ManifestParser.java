@@ -17,7 +17,7 @@ final class ManifestParser {
     private static final Set<String> ROOT_KEYS = Set.of("style", "files", "packages");
     private static final Set<String> FILE_KEYS =
             Set.of("template", "target", "when", "executable", "render", "lineEnding", "forEach");
-    private static final Set<String> PACKAGE_KEYS = Set.of("package", "description", "forEach");
+    private static final Set<String> PACKAGE_KEYS = Set.of("package", "description", "when", "forEach");
     private static final Pattern CONDITION = Pattern.compile("!?[A-Za-z][A-Za-z0-9.-]*");
 
     Manifest parse(YamlRow root) {
@@ -71,7 +71,7 @@ final class ManifestParser {
     private ManifestPackage packageEntry(YamlRow row) {
         row.requireOnly(PACKAGE_KEYS);
 
-        return new ManifestPackage(row.textAllowingEmpty("package"), row.text("description"), repeat(row));
+        return new ManifestPackage(row.textAllowingEmpty("package"), row.text("description"), conditions(row), repeat(row));
     }
 
     private List<String> conditions(YamlRow row) {

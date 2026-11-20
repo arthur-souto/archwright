@@ -1,4 +1,4 @@
 /**
  * Exceções da camada de aplicação.
  */
-package com.acme.agenda.application.exception;
+package com.acme.agenda.application.exceptions;

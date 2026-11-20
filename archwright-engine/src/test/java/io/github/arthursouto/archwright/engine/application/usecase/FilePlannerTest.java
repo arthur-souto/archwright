@@ -64,15 +64,34 @@ class FilePlannerTest {
     }
 
     @Test
-    @DisplayName("ENG-PLN-01 #2 um módulo a mais acrescenta 19 package-info")
+    @DisplayName("ENG-PLN-01 #2 com jpa, um módulo a mais acrescenta 19 package-info")
     void addsNineteenPackageInfosPerExtraModule() {
-        FilePlan two = plan(SpecBuilder.basic().noKit().modules("pedidos", "pagamentos").build());
-        FilePlan three = plan(SpecBuilder.basic().noKit().modules("pedidos", "pagamentos", "estoque").build());
+        FilePlan two = plan(SpecBuilder.basic().modules("pedidos", "pagamentos").build());
+        FilePlan three = plan(SpecBuilder.basic().modules("pedidos", "pagamentos", "estoque").build());
 
         assertThat(packageInfos(two)).hasSize(13 + 19 * 2);
         assertThat(packageInfos(three)).hasSize(13 + 19 * 3);
-        assertThat(three.targets()).hasSize(two.targets().size() + 19);
         assertThat(packageInfos(three)).filteredOn(target -> target.startsWith(BASE + "estoque/")).hasSize(19);
+    }
+
+    @Test
+    @DisplayName("ENG-PLN-01 #2 sem jpa, um módulo a mais acrescenta 16 package-info e nenhum de persistência")
+    void addsSixteenPackageInfosPerExtraModuleWithoutJpa() {
+        FilePlan two = plan(SpecBuilder.basic().noKit().modules("pedidos", "pagamentos").build());
+        FilePlan three = plan(SpecBuilder.basic().noKit().modules("pedidos", "pagamentos", "estoque").build());
+
+        assertThat(packageInfos(two)).hasSize(12 + 16 * 2);
+        assertThat(packageInfos(three)).hasSize(12 + 16 * 3);
+        assertThat(three.targets()).noneMatch(target -> target.contains("/persistence/"));
+    }
+
+    @Test
+    @DisplayName("ENG-PLN-01 #9 sem jpa, o estilo em camadas não gera persistence, entity nem jpa")
+    void omitsPersistencePackagesWithoutJpaInTheLayeredStyle() {
+        FilePlan plan = plan(SpecBuilder.basic().noKit().layered("paciente").build());
+
+        assertThat(packageInfos(plan)).hasSize(17);
+        assertThat(plan.targets()).noneMatch(target -> target.contains("/persistence/"));
     }
 
     @Test
@@ -155,9 +174,9 @@ class FilePlannerTest {
     }
 
     @Test
-    void addsOnePackageInfoPerAggregateOnTopOfEighteen() {
-        assertThat(packageInfos(plan(SpecBuilder.basic().layered().build()))).hasSize(18);
-        assertThat(packageInfos(plan(SpecBuilder.basic().layered("paciente", "prontuario").build()))).hasSize(20);
+    void addsOnePackageInfoPerAggregateOnTopOfNineteen() {
+        assertThat(packageInfos(plan(SpecBuilder.basic().layered().build()))).hasSize(19);
+        assertThat(packageInfos(plan(SpecBuilder.basic().layered("paciente", "prontuario").build()))).hasSize(21);
     }
 
     @Test
@@ -298,7 +317,7 @@ class FilePlannerTest {
         ProjectSpec layered = SpecBuilder.basic().layered("paciente", "prontuario").fitness(false).build();
         Manifest layeredManifest = new Manifest(
                 List.of(new ManifestFile("m.mustache", "docs/{{aggregate.name}}.md", List.of(), false, true, LineEnding.LF, Repeat.AGGREGATES)),
-                List.of(new ManifestPackage("domain.model.{{aggregate.name}}", "Agregado {{aggregate.displayName}}.", Repeat.AGGREGATES)));
+                List.of(new ManifestPackage("domain.model.{{aggregate.name}}", "Agregado {{aggregate.displayName}}.", List.of(), Repeat.AGGREGATES)));
         FilePlanner repeating = plannerWith(Map.of("common", manifest(), "hexagonal-layered", layeredManifest));
 
         FilePlan plan = repeating.plan(layered, contextBuilder.build(layered));

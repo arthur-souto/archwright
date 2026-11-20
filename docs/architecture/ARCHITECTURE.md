@@ -291,7 +291,7 @@ Toda diferença entre gerações do Spring Boot mora aqui, em dados (`boot-profi
 | `artifacts` | `Map<DependencyId, List<MavenCoordinate>>` | dependência → artefatos (com escopo e versão quando não gerenciada pelo Boot) |
 | `testStrategy` | `TestStrategy` | `SINGLE_STARTER` (2.x/3.x): `spring-boot-starter-test` mais os `testArtifacts` das dependências escolhidas. `PER_TECHNOLOGY` (4.x): só os `testArtifacts` das dependências escolhidas, ou `spring-boot-starter-test` se nenhuma tiver |
 | `testArtifacts` | `Map<DependencyId, List<MavenCoordinate>>` | opcional; só para dependências que têm `artifacts` no mesmo perfil |
-| `pinnedVersions` | `Map<String, String>` | propriedades do `pom.xml` (ex.: `springdoc.version`, `archunit.version`) |
+| `pinnedVersions` | `Map<String, String>` | propriedades do `pom.xml` (ex.: `springdoc.version`, `archunit.version`, `lombok.version`) |
 
 ### Perfis de versão iniciais
 Valores do `boot-profiles.yaml`, confirmados pela [matriz de compilação](../operations/TESTING.md#matriz-de-compilação) (53 jobs verdes no GitHub em 2026-11-18: todas as linhas, os dois estilos, os dois kits, Java 8, 21 a 25, com `springdoc` e `security` nos casos `BASIC`).
@@ -396,7 +396,7 @@ Portas: `TemplateRepository` (`manifest(directory)`, `content(path)`) e `Templat
 | 3 | fitness desligada | planejar | nenhuma classe em `architecture/`, sem `archunit.properties`, sem dependência ArchUnit no contexto |
 | 4 | fitness ligada | planejar | `src/test/resources/archunit.properties` presente (BR-043) |
 
-**Pronto quando:** `FilePlannerTest` cobre ENG-PLN-01 e 02, comparando o plano com listas esperadas em arquivo (`src/test/resources/expected-plans/*.txt`, geradas por script a partir do [GENERATED_PROJECT](../contracts/GENERATED_PROJECT.md), não pelo próprio planner). `ClasspathTemplateRepositoryTest` garante que todo `template` citado num manifest existe; `TemplateRenderingSmokeTest` renderiza todos os arquivos planejados (XML e YAML bem formados, nenhuma variável sobrando). O pacote `src/test/.../architecture` também recebe `package-info.java` (BR-054), fora da contagem `13 + 19N`, que vale só para `src/main`. Os seis templates ArchUnit foram verificados à mão em projetos gerados (`./mvnw verify`) e com violações plantadas: as 16 regras disparam com o id na mensagem.
+**Pronto quando:** `FilePlannerTest` cobre ENG-PLN-01 e 02, comparando o plano com listas esperadas em arquivo (`src/test/resources/expected-plans/*.txt`, geradas por script a partir do [GENERATED_PROJECT](../contracts/GENERATED_PROJECT.md), não pelo próprio planner). `ClasspathTemplateRepositoryTest` garante que todo `template` citado num manifest existe; `TemplateRenderingSmokeTest` renderiza todos os arquivos planejados (XML e YAML bem formados, nenhuma variável sobrando). O pacote `src/test/.../architecture` também recebe `package-info.java` (BR-054), fora da contagem `13 + 19N`, que vale só para `src/main`. As exceções padrão e o `GlobalExceptionHandler` entram pelo `common/manifest.yaml`, com `when` de estilo, `dep.web` e `boot.v2`. Os seis templates ArchUnit foram verificados à mão em projetos gerados (`./mvnw verify`) e com violações plantadas: as 16 regras disparam com o id na mensagem.
 
 ---
 

@@ -46,3 +46,59 @@ files:
     target: src/test/resources/archunit.properties
     render: false
     when: [fitness.enabled]
+
+  - template: DomainException.java.mustache
+    target: src/main/java/{{basePackagePath}}/shared/domain/exceptions/DomainException.java
+    when: [style.modular]
+
+  - template: ResourceNotFoundException.java.mustache
+    target: src/main/java/{{basePackagePath}}/shared/domain/exceptions/ResourceNotFoundException.java
+    when: [style.modular]
+
+  - template: ConflictException.java.mustache
+    target: src/main/java/{{basePackagePath}}/shared/domain/exceptions/ConflictException.java
+    when: [style.modular]
+
+  - template: BusinessRuleException.java.mustache
+    target: src/main/java/{{basePackagePath}}/shared/domain/exceptions/BusinessRuleException.java
+    when: [style.modular]
+
+  - template: GlobalExceptionHandler.java.mustache
+    target: src/main/java/{{basePackagePath}}/shared/adapter/in/http/GlobalExceptionHandler.java
+    when: [style.modular, dep.web, "!boot.v2"]
+
+  - template: GlobalExceptionHandlerBoot2.java.mustache
+    target: src/main/java/{{basePackagePath}}/shared/adapter/in/http/GlobalExceptionHandler.java
+    when: [style.modular, dep.web, boot.v2]
+
+  - template: ApiError.java.mustache
+    target: src/main/java/{{basePackagePath}}/shared/adapter/in/http/ApiError.java
+    when: [style.modular, dep.web, boot.v2]
+
+  - template: DomainException.java.mustache
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/DomainException.java
+    when: [style.layered]
+
+  - template: ResourceNotFoundException.java.mustache
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/ResourceNotFoundException.java
+    when: [style.layered]
+
+  - template: ConflictException.java.mustache
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/ConflictException.java
+    when: [style.layered]
+
+  - template: BusinessRuleException.java.mustache
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/BusinessRuleException.java
+    when: [style.layered]
+
+  - template: GlobalExceptionHandler.java.mustache
+    target: src/main/java/{{basePackagePath}}/infrastructure/adapter/in/web/GlobalExceptionHandler.java
+    when: [style.layered, dep.web, "!boot.v2"]
+
+  - template: GlobalExceptionHandlerBoot2.java.mustache
+    target: src/main/java/{{basePackagePath}}/infrastructure/adapter/in/web/GlobalExceptionHandler.java
+    when: [style.layered, dep.web, boot.v2]
+
+  - template: ApiError.java.mustache
+    target: src/main/java/{{basePackagePath}}/infrastructure/adapter/in/web/ApiError.java
+    when: [style.layered, dep.web, boot.v2]

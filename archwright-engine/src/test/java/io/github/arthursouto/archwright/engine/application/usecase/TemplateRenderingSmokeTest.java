@@ -109,6 +109,15 @@ class TemplateRenderingSmokeTest {
     }
 
     @Test
+    void pinsTheLombokVersionOnlyWhenLombokIsSelected() {
+        String withLombok = renderAll(SpecBuilder.basic().build()).get("pom.xml");
+        String withoutLombok = renderAll(SpecBuilder.basic().noKit().dependencies("web").build()).get("pom.xml");
+
+        assertThat(withLombok).contains("<lombok.version>1.18.48</lombok.version>");
+        assertThat(withoutLombok).doesNotContain("lombok");
+    }
+
+    @Test
     void leavesOutTheCompilerPluginWhenThereIsNoAnnotationProcessor() {
         String pom = renderAll(SpecBuilder.basic().noKit().dependencies("web").build()).get("pom.xml");
 
@@ -121,6 +130,20 @@ class TemplateRenderingSmokeTest {
 
         assertThat(pom).contains("<artifactId>spring-boot-starter</artifactId>");
         assertThatCode(() -> parseXml(pom)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void makesUnmappedRoutesThrowOnlyOnLinesBeforeSpringSixPointOne() {
+        String boot3Old = renderAll(SpecBuilder.basic().boot("3.1.5", "21").build()).get("src/main/resources/application.yaml");
+        String boot2 = renderAll(SpecBuilder.basic().boot("2.7.18", "17").build()).get("src/main/resources/application.yaml");
+        String boot4 = renderAll(SpecBuilder.basic().build()).get("src/main/resources/application.yaml");
+        String noWeb = renderAll(SpecBuilder.basic().boot("2.7.18", "17").noKit().build()).get("src/main/resources/application.yaml");
+
+        assertThat(boot3Old).contains("throw-exception-if-no-handler-found: true").contains("add-mappings: false");
+        assertThat(boot2).contains("throw-exception-if-no-handler-found: true").contains("add-mappings: false");
+        assertThat(boot4).doesNotContain("throw-exception-if-no-handler-found").doesNotContain("add-mappings");
+        assertThat(noWeb).doesNotContain("throw-exception-if-no-handler-found");
+        assertThatCode(() -> new Yaml().load(boot2)).doesNotThrowAnyException();
     }
 
     @Test
