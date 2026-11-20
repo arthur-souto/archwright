@@ -13,11 +13,15 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
+import org.springframework.validation.method.ParameterErrors;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,8 +78,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             Exception exception, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ResponseEntity<Object> response = super.handleExceptionInternal(exception, body, headers, status, request);
 
-        if (response != null && response.getBody() instanceof ProblemDetail problem && exception instanceof BindException bindException) {
-            problem.setProperty("errors", fieldErrors(bindException));
+        if (response != null && response.getBody() instanceof ProblemDetail problem) {
+            if (exception instanceof BindException bindException) {
+                problem.setProperty("errors", fieldErrors(bindException));
+            }
+            if (exception instanceof HandlerMethodValidationException validationException) {
+                problem.setProperty("errors", parameterErrors(validationException));
+            }
         }
 
         return response;
@@ -86,6 +95,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(error -> error(error.getField(), String.valueOf(error.getDefaultMessage())))
                 .sorted(Comparator.comparing(error -> error.get("field")))
                 .toList();
+    }
+
+    private static List<Map<String, String>> parameterErrors(HandlerMethodValidationException exception) {
+        List<Map<String, String>> errors = new ArrayList<>();
+
+        for (ParameterValidationResult result : exception.getValueResults()) {
+            String parameter = String.valueOf(result.getMethodParameter().getParameterName());
+
+            result.getResolvableErrors().forEach(error -> errors.add(error(parameter, String.valueOf(error.getDefaultMessage()))));
+        }
+
+        for (ParameterErrors result : exception.getBeanResults()) {
+            result.getFieldErrors().forEach(error -> errors.add(error(error.getField(), String.valueOf(error.getDefaultMessage()))));
+        }
+
+        errors.sort(Comparator.comparing(error -> error.get("field")));
+
+        return errors;
     }
 
     private static Map<String, String> error(String field, String message) {

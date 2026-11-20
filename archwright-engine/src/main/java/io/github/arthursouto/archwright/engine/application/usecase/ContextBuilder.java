@@ -125,7 +125,8 @@ public final class ContextBuilder {
                 "line", version.line(),
                 "v2", version.major() == 2,
                 "v3", version.major() == 3,
-                "v4", version.major() == 4);
+                "v4", version.major() == 4,
+                "spring61", version.major() >= 4 || version.major() == 3 && version.minor() >= 2);
     }
 
     private Map<String, Object> java(JavaVersion version) {

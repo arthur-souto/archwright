@@ -8,6 +8,7 @@ import io.github.arthursouto.archwright.engine.domain.model.MavenCoordinate;
 import io.github.arthursouto.archwright.engine.domain.model.ProjectSpec;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ final class DependencySection {
         Map<String, Object> section = new LinkedHashMap<>();
         section.put("dependencies", views(main, ""));
         section.put("testDependencies", views(test, TEST_SCOPE));
-        section.put("properties", properties(profile, main, test));
+        section.put("properties", properties(profile, main, test, processors));
         section.put("annotationProcessors", processors);
         section.put("hasAnnotationProcessors", !processors.isEmpty());
 
@@ -92,11 +93,16 @@ final class DependencySection {
     }
 
     private List<Map<String, Object>> properties(
-            BootProfile profile, List<MavenCoordinate> main, List<MavenCoordinate> test) {
+            BootProfile profile,
+            List<MavenCoordinate> main,
+            List<MavenCoordinate> test,
+            List<Map<String, Object>> processors) {
         Set<String> referenced = Stream.concat(main.stream(), test.stream())
                 .map(MavenCoordinate::versionProperty)
                 .flatMap(Optional::stream)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(HashSet::new));
+
+        processors.stream().map(processor -> (String) processor.get("versionProperty")).forEach(referenced::add);
 
         return profile.pinnedVersions().entrySet().stream()
                 .filter(entry -> referenced.contains(entry.getKey()))

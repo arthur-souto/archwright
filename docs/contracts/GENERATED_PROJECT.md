@@ -8,11 +8,11 @@ Exemplos usam `groupId=com.acme`, `artifactId=pedido-api`, pacote `com.acme.pedi
 
 | Arquivo | Quando | Conteúdo |
 |---|---|---|
-| `pom.xml` | sempre | parent `spring-boot-starter-parent:<boot>`, `java.version`, dependências do perfil, propriedades fixadas, plugin Spring Boot; com Lombok, `annotationProcessorPaths` no compiler plugin e exclusão no plugin Spring Boot |
+| `pom.xml` | sempre | parent `spring-boot-starter-parent:<boot>`, `java.version`, dependências do perfil, propriedades fixadas, plugin Spring Boot; com Lombok, `annotationProcessorPaths` no compiler plugin e exclusão no plugin Spring Boot; com Lombok, `lombok.version` fixada numa versão recente, porque a que o Spring Boot 2.7 gerencia não roda no JDK 24 ou mais novo |
 | `mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties` | sempre (BR-035) | Maven Wrapper em modo `only-script` |
 | `.gitignore` | sempre | padrão Maven + IntelliJ, Eclipse, VS Code, macOS, `.env` |
 | `README.md` | sempre | estilo, versões, kit, árvore de pacotes, como rodar, lista de fitness functions e como congelar uma regra |
-| `src/main/resources/application.yaml` | sempre | nome da aplicação e porta; com `jpa`: datasource por variável de ambiente, `open-in-view: false`, `ddl-auto: validate` (com Flyway) ou `none`; com `actuator`: expõe só `health` |
+| `src/main/resources/application.yaml` | sempre | nome da aplicação e porta; com `jpa`: datasource por variável de ambiente, `open-in-view: false`, `ddl-auto: validate` (com Flyway) ou `none`; com `actuator`: expõe só `health`; com `web` no Boot 2.7, 3.0 e 3.1: `throw-exception-if-no-handler-found: true` e `add-mappings: false`, para que rota inexistente vire 404 no mesmo formato dos demais erros (a partir do Spring 6.1 isso já é o padrão). Efeito colateral: o Spring deixa de servir arquivos estáticos por padrão nessas linhas; o Swagger UI do `springdoc` continua funcionando |
 | `src/main/resources/db/migration/V1__baseline.sql` | `flyway` | comentário, sem DDL |
 | `docker-compose.yml`, `.env.example` | extra `docker-compose` | PostgreSQL 16 com healthcheck e volume nomeado |
 | `.github/workflows/ci.yml` | extra `github-actions` | `actions/setup-java` (Temurin, Java escolhido, cache Maven) + `./mvnw -B verify` |
@@ -90,7 +90,7 @@ Todo projeto gerado recebe, em Java puro (sem framework), em `shared.domain.exce
 Com a dependência `web`, o projeto também recebe o `GlobalExceptionHandler` (`@RestControllerAdvice`), em `shared.adapter.in.http` (modular) ou `infrastructure.adapter.in.web` (camadas), que traduz essas exceções na tabela acima. Qualquer outra exceção vira 500 com mensagem genérica, registrada no log.
 - Spring Boot 3.x e 4.x: estende `ResponseEntityExceptionHandler` e responde com `ProblemDetail` (RFC 9457).
 - Spring Boot 2.7 (sem `ProblemDetail`): responde com `ApiError`, gerado ao lado, com os mesmos campos (`type`, `title`, `status`, `detail`, `instance`, `errors`) e `Content-Type: application/problem+json`. Também estende `ResponseEntityExceptionHandler`, para que os erros do Spring MVC (parâmetro ausente, método não suportado) mantenham o status próprio em vez de virar 500, e troca o detalhe de JSON malformado por uma mensagem genérica, sem expor o parser.
-- Falhas de validação (`@Valid` no corpo) viram 400 com `errors`: lista de `{field, message}` ordenada por campo. Com a dependência `validation`, o handler também trata `ConstraintViolationException` (400, mesmo formato). No Spring 6.1+ a validação de parâmetros de método lança `HandlerMethodValidationException`, que segue o tratamento padrão do Spring (400 sem `errors`).
+- Falhas de validação (`@Valid` no corpo) viram 400 com `errors`: lista de `{field, message}` ordenada por campo. Com a dependência `validation`, o handler também trata `ConstraintViolationException` (400, mesmo formato). No Spring 6.1+ (Boot 3.2+ e 4.x, flag `boot.spring61`), a validação de parâmetros de método lança `HandlerMethodValidationException`, e o handler também a devolve em 400 com `errors` (parâmetros simples pelo nome, objetos pelo campo). A classe não existe no Boot 2.7, 3.0 e 3.1, por isso esse trecho só entra nas linhas novas.
 
 ## Fitness functions
 

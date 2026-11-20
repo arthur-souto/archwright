@@ -148,6 +148,16 @@ class ContextBuilderTest {
     }
 
     @Test
+    void flagsTheSpringFrameworkSixPointOneLines() {
+        assertThat(builder.build(SpecBuilder.basic().build()).flag("boot.spring61")).isTrue();
+        assertThat(builder.build(SpecBuilder.basic().boot("3.5.3", "21").build()).flag("boot.spring61")).isTrue();
+        assertThat(builder.build(SpecBuilder.basic().boot("3.2.5", "21").build()).flag("boot.spring61")).isTrue();
+        assertThat(builder.build(SpecBuilder.basic().boot("3.1.5", "21").build()).flag("boot.spring61")).isFalse();
+        assertThat(builder.build(SpecBuilder.basic().boot("3.0.5", "21").build()).flag("boot.spring61")).isFalse();
+        assertThat(builder.build(SpecBuilder.basic().boot("2.7.18", "17").build()).flag("boot.spring61")).isFalse();
+    }
+
+    @Test
     void flagsTheSpringBootGenerationAndTestStarterStyle() {
         TemplateContext boot4 = builder.build(SpecBuilder.basic().build());
         TemplateContext boot3 = builder.build(SpecBuilder.basic().boot("3.5.3", "21").build());

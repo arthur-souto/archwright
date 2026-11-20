@@ -100,7 +100,7 @@ Montado pela [etapa 3](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-
 | `kit.id`, `kit.label` | `BASIC`, `Básico` | |
 | `dependencies` | lista de `{groupId, artifactId, version, hasVersion, scope, hasScope}` | ordenada por `groupId:artifactId`; entra `spring-boot-starter` quando nenhum starter foi selecionado (BR-031); `hasVersion` só quando a versão não é gerenciada pelo BOM (`version` fica `""` nos demais); `hasScope` só quando há escopo diferente do padrão. Sem `optional`: o Lombok usa `scope: provided` |
 | `testDependencies` | mesma estrutura, `scope` sempre preenchido (`test` por padrão) | inclui `archunit-junit5` só com fitness ligada |
-| `properties` | lista de `{name, value}`, ordenada por nome | só as versões fixadas (`pinnedVersions`) usadas por algum artefato selecionado, e `archunit.version` com fitness ligada |
+| `properties` | lista de `{name, value}`, ordenada por nome | só as versões fixadas (`pinnedVersions`) usadas por algum artefato ou *annotation processor* selecionado (como `lombok.version`), e `archunit.version` com fitness ligada |
 | `annotationProcessors`, `hasAnnotationProcessors` | lista de `{groupId, artifactId, version, versionProperty}` e a flag | ex.: Lombok; `version` já vem como `${lombok.version}` |
 | `modules`, `aggregates` | lista de `{name, packageName, packagePath, displayName}` | `packageName` e `packagePath` completos (`com.acme.app.pedidos`, `com/acme/app/pedidos`); `displayName` em PascalCase (`pedido_item` → `PedidoItem`). `modules` só no estilo modular e `aggregates` só no em camadas; a outra lista existe, vazia |
 | `persistence.namespace` | `jakarta` | `javax` no Boot 2.7 |
@@ -113,6 +113,7 @@ Montado pela [etapa 3](../architecture/ARCHITECTURE.md#etapa-3--montar-contexto-
 | `fitness.enabled` | | BR-040 |
 | `style.modular`, `style.layered` | | |
 | `boot.v2`, `boot.v3`, `boot.v4` | | geração do Spring Boot |
+| `boot.spring61` | | Spring Framework 6.1 ou mais novo: Boot 3.2+ e 4.x |
 | `tests.perTechnology` | | Boot 4.x |
 
 ## Catálogos

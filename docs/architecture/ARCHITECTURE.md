@@ -291,7 +291,7 @@ Toda diferença entre gerações do Spring Boot mora aqui, em dados (`boot-profi
 | `artifacts` | `Map<DependencyId, List<MavenCoordinate>>` | dependência → artefatos (com escopo e versão quando não gerenciada pelo Boot) |
 | `testStrategy` | `TestStrategy` | `SINGLE_STARTER` (2.x/3.x): `spring-boot-starter-test` mais os `testArtifacts` das dependências escolhidas. `PER_TECHNOLOGY` (4.x): só os `testArtifacts` das dependências escolhidas, ou `spring-boot-starter-test` se nenhuma tiver |
 | `testArtifacts` | `Map<DependencyId, List<MavenCoordinate>>` | opcional; só para dependências que têm `artifacts` no mesmo perfil |
-| `pinnedVersions` | `Map<String, String>` | propriedades do `pom.xml` (ex.: `springdoc.version`, `archunit.version`) |
+| `pinnedVersions` | `Map<String, String>` | propriedades do `pom.xml` (ex.: `springdoc.version`, `archunit.version`, `lombok.version`) |
 
 ### Perfis de versão iniciais
 Valores do `boot-profiles.yaml`, confirmados pela [matriz de compilação](../operations/TESTING.md#matriz-de-compilação) (53 jobs verdes no GitHub em 2026-11-18: todas as linhas, os dois estilos, os dois kits, Java 8, 21 a 25, com `springdoc` e `security` nos casos `BASIC`).
