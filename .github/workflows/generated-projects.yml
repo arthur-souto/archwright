@@ -51,8 +51,16 @@ jobs:
           java-version: ${{ matrix.jdk }}
           cache: maven
           cache-dependency-path: generated/${{ matrix.name }}/matrix-app/pom.xml
-      - name: Build e fitness functions do projeto gerado
+      - name: Baixar o Maven (até 3 tentativas)
         working-directory: generated/${{ matrix.name }}/matrix-app
         run: |
           chmod +x mvnw
-          ./mvnw -B verify
+          for attempt in 1 2 3; do
+            ./mvnw -B -v && exit 0
+            echo "Download do Maven falhou (tentativa $attempt de 3)"
+            sleep $((attempt * 15))
+          done
+          exit 1
+      - name: Build e fitness functions do projeto gerado
+        working-directory: generated/${{ matrix.name }}/matrix-app
+        run: ./mvnw -B verify
