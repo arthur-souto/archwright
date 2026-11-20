@@ -4,7 +4,7 @@
 
 *Architecture-first project generator for Spring Boot — hexagonal today, more styles soon. Fitness functions included.*
 
-> **Pré-lançamento [v0.2.0](https://github.com/arthur-souto/archwright/releases/tag/v0.2.0).** O motor e o app desktop funcionam (a v0.2.0 traz a interface nova, com tela de início, histórico e documentação), e há instaladores para macOS, Windows e Linux. Eles ainda não são assinados (o sistema mostra um aviso na primeira abertura) e o do Windows e o do Linux ainda não foram testados em máquina real. Veja [o que ainda falta](#limitações-conhecidas).
+> **Pré-lançamento [v0.3.0](https://github.com/arthur-souto/archwright/releases/tag/v0.3.0).** O motor e o app desktop funcionam (a v0.3.0 faz o projeto gerado já vir com as exceções padrão e o tratamento de erros HTTP), e há instaladores para macOS, Windows e Linux. Eles ainda não são assinados (o sistema mostra um aviso na primeira abertura) e o do Windows e o do Linux ainda não foram testados em máquina real. Veja [o que ainda falta](#limitações-conhecidas).
 
 ![Tela de início do Archwright](docs/images/tela-inicio.png)
 
@@ -61,6 +61,8 @@ Na tela de início ficam os modelos de início rápido, os projetos recentes e a
 | Hexagonal modular | monólito modular: vários módulos, cada um com hexagonal própria, shared kernel e bootstrap | disponível |
 | Hexagonal em camadas | uma hexagonal só: `domain`, `application`, `infrastructure`, com os agregados em `domain.model` | disponível |
 | Clean, Onion, camadas tradicionais | — | [Fase 5](docs/implementation/ROADMAP.md#fase-5--novos-estilos-de-arquitetura) |
+
+Os dois estilos já geram, em Java puro, as exceções padrão (`DomainException`, `ResourceNotFoundException`, `ConflictException` e `BusinessRuleException`) e, com a dependência `web`, um `GlobalExceptionHandler` que as traduz em respostas HTTP no formato `problem+json` (RFC 9457), inclusive no Spring Boot 2.7. Os pacotes de persistência só existem quando o projeto usa `jpa`.
 
 O que cada estilo gera, arquivo por arquivo, está em [Projeto gerado](docs/contracts/GENERATED_PROJECT.md).
 
