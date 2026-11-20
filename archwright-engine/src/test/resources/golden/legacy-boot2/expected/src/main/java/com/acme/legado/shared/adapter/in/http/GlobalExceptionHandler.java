@@ -8,16 +8,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Traduz exceções em respostas com um {@link ApiError} no corpo (o Spring Boot 2.7 não tem
- * {@code ProblemDetail}). Os erros do Spring MVC mantêm o status próprio (400, 405, 415...) e as falhas
- * inesperadas viram 500 sem expor detalhes internos.
+ * Traduz exceções em respostas {@code application/problem+json} com o mesmo formato do {@code ProblemDetail}
+ * (RFC 9457) do Spring 6, que o Spring Boot 2.7 não tem. Falhas de validação trazem {@code errors} com campo
+ * e mensagem. Os erros do Spring MVC mantêm o status próprio e as falhas inesperadas viram 500 sem expor
+ * detalhes internos.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -25,41 +40,92 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException exception) {
-        return response(HttpStatus.NOT_FOUND, exception.getMessage());
+    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException exception, HttpServletRequest request) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiError> handleConflict(ConflictException exception) {
-        return response(HttpStatus.CONFLICT, exception.getMessage());
+    public ResponseEntity<ApiError> handleConflict(ConflictException exception, HttpServletRequest request) {
+        return response(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<ApiError> handleBusinessRule(BusinessRuleException exception) {
-        return response(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+    public ResponseEntity<ApiError> handleBusinessRule(BusinessRuleException exception, HttpServletRequest request) {
+        return response(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(DomainException.class)
-    public ResponseEntity<ApiError> handleDomain(DomainException exception) {
-        return response(HttpStatus.BAD_REQUEST, exception.getMessage());
+    public ResponseEntity<ApiError> handleDomain(DomainException exception, HttpServletRequest request) {
+        return response(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiError> handleConstraintViolation(
+            ConstraintViolationException exception, HttpServletRequest request) {
+        List<Map<String, String>> errors = new ArrayList<>();
+
+        for (ConstraintViolation<?> violation : exception.getConstraintViolations()) {
+            errors.add(error(violation.getPropertyPath().toString(), violation.getMessage()));
+        }
+
+        errors.sort(Comparator.comparing(error -> error.get("field")));
+
+        return response(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI(), errors);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleUnexpected(Exception exception) {
+    public ResponseEntity<ApiError> handleUnexpected(Exception exception, HttpServletRequest request) {
         LOGGER.error("Unexpected error", exception);
-        return response(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error");
+        return response(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", request.getRequestURI(), null);
     }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception exception, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        Object payload = body != null ? body : new ApiError(status.value(), status.getReasonPhrase(), exception.getMessage());
+        String path = request instanceof ServletWebRequest ? ((ServletWebRequest) request).getRequest().getRequestURI() : null;
+        boolean binding = exception instanceof BindException;
+        String detail = binding ? "Validation failed" : detailOf(exception);
+        Object payload = body != null
+                ? body
+                : new ApiError(status, detail, path, binding ? fieldErrors((BindException) exception) : null);
+        HttpHeaders problemHeaders = new HttpHeaders();
 
-        return super.handleExceptionInternal(exception, payload, headers, status, request);
+        problemHeaders.putAll(headers);
+        problemHeaders.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
+
+        return super.handleExceptionInternal(exception, payload, problemHeaders, status, request);
     }
 
-    private static ResponseEntity<ApiError> response(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(new ApiError(status.value(), status.getReasonPhrase(), message));
+    private static String detailOf(Exception exception) {
+        return exception instanceof HttpMessageNotReadableException ? "Malformed request body" : exception.getMessage();
+    }
+
+    private static List<Map<String, String>> fieldErrors(BindException exception) {
+        List<Map<String, String>> errors = new ArrayList<>();
+
+        for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
+            errors.add(error(fieldError.getField(), String.valueOf(fieldError.getDefaultMessage())));
+        }
+
+        errors.sort(Comparator.comparing(error -> error.get("field")));
+
+        return errors;
+    }
+
+    private static Map<String, String> error(String field, String message) {
+        Map<String, String> error = new LinkedHashMap<>();
+
+        error.put("field", field);
+        error.put("message", message);
+
+        return error;
+    }
+
+    private static ResponseEntity<ApiError> response(
+            HttpStatus status, String detail, String path, List<Map<String, String>> errors) {
+        return ResponseEntity.status(status)
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(new ApiError(status, detail, path, errors));
     }
 
 }

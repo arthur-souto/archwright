@@ -76,19 +76,19 @@ files:
     when: [style.modular, dep.web, boot.v2]
 
   - template: DomainException.java.mustache
-    target: src/main/java/{{basePackagePath}}/domain/exception/DomainException.java
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/DomainException.java
     when: [style.layered]
 
   - template: ResourceNotFoundException.java.mustache
-    target: src/main/java/{{basePackagePath}}/domain/exception/ResourceNotFoundException.java
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/ResourceNotFoundException.java
     when: [style.layered]
 
   - template: ConflictException.java.mustache
-    target: src/main/java/{{basePackagePath}}/domain/exception/ConflictException.java
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/ConflictException.java
     when: [style.layered]
 
   - template: BusinessRuleException.java.mustache
-    target: src/main/java/{{basePackagePath}}/domain/exception/BusinessRuleException.java
+    target: src/main/java/{{basePackagePath}}/domain/exceptions/BusinessRuleException.java
     when: [style.layered]
 
   - template: GlobalExceptionHandler.java.mustache

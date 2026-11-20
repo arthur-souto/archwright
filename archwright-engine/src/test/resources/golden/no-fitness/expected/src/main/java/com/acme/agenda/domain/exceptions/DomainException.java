@@ -1,4 +1,4 @@
-package com.acme.agenda.domain.exception;
+package com.acme.agenda.domain.exceptions;
 
 /**
  * Base das exceções de domínio. Java puro, sem framework.

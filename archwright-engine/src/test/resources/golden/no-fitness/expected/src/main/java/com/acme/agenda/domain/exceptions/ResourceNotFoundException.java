@@ -1,4 +1,4 @@
-package com.acme.clinicaapi.domain.exception;
+package com.acme.agenda.domain.exceptions;
 
 /**
  * O recurso pedido não existe (HTTP 404).

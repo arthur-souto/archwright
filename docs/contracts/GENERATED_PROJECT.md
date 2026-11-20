@@ -74,11 +74,11 @@ com.acme.pedidoapi
     └── config/
 ```
 
-**`package-info.java` gerados:** raiz, `domain`, `domain.exception`, `domain.model`, `application`, `application.exception`, `application.port`, `application.port.in`, `application.port.out`, `application.usecase`, `infrastructure`, `infrastructure.adapter`, `infrastructure.adapter.in`, `infrastructure.adapter.in.web`, `infrastructure.adapter.out`, `infrastructure.adapter.out.persistence`, `infrastructure.adapter.out.persistence.entity`, `infrastructure.adapter.out.persistence.jpa`, `infrastructure.config` = 19, mais 1 por agregado. Sem `jpa`, `infrastructure.adapter.out.persistence` e os subpacotes `entity` e `jpa` não existem (16, mais 1 por agregado).
+**`package-info.java` gerados:** raiz, `domain`, `domain.exceptions`, `domain.model`, `application`, `application.exceptions`, `application.port`, `application.port.in`, `application.port.out`, `application.usecase`, `infrastructure`, `infrastructure.adapter`, `infrastructure.adapter.in`, `infrastructure.adapter.in.web`, `infrastructure.adapter.out`, `infrastructure.adapter.out.persistence`, `infrastructure.adapter.out.persistence.entity`, `infrastructure.adapter.out.persistence.jpa`, `infrastructure.config` = 19, mais 1 por agregado. Sem `jpa`, `infrastructure.adapter.out.persistence` e os subpacotes `entity` e `jpa` não existem (16, mais 1 por agregado).
 
 ## Exceções padrão e tratamento de erros
 
-Todo projeto gerado recebe, em Java puro (sem framework), em `shared.domain.exceptions` (modular) ou `domain.exception` (camadas):
+Todo projeto gerado recebe, em Java puro (sem framework), em `shared.domain.exceptions` (modular) ou `domain.exceptions` (camadas):
 
 | Classe | Papel | HTTP |
 |---|---|---|
@@ -89,7 +89,8 @@ Todo projeto gerado recebe, em Java puro (sem framework), em `shared.domain.exce
 
 Com a dependência `web`, o projeto também recebe o `GlobalExceptionHandler` (`@RestControllerAdvice`), em `shared.adapter.in.http` (modular) ou `infrastructure.adapter.in.web` (camadas), que traduz essas exceções na tabela acima. Qualquer outra exceção vira 500 com mensagem genérica, registrada no log.
 - Spring Boot 3.x e 4.x: estende `ResponseEntityExceptionHandler` e responde com `ProblemDetail` (RFC 9457).
-- Spring Boot 2.7 (sem `ProblemDetail`): responde com `ApiError` (`status`, `error`, `message`), gerado ao lado. Também estende `ResponseEntityExceptionHandler`, para que os erros do Spring MVC (parâmetro ausente, método não suportado) mantenham o status próprio em vez de virar 500.
+- Spring Boot 2.7 (sem `ProblemDetail`): responde com `ApiError`, gerado ao lado, com os mesmos campos (`type`, `title`, `status`, `detail`, `instance`, `errors`) e `Content-Type: application/problem+json`. Também estende `ResponseEntityExceptionHandler`, para que os erros do Spring MVC (parâmetro ausente, método não suportado) mantenham o status próprio em vez de virar 500, e troca o detalhe de JSON malformado por uma mensagem genérica, sem expor o parser.
+- Falhas de validação (`@Valid` no corpo) viram 400 com `errors`: lista de `{field, message}` ordenada por campo. Com a dependência `validation`, o handler também trata `ConstraintViolationException` (400, mesmo formato). No Spring 6.1+ a validação de parâmetros de método lança `HandlerMethodValidationException`, que segue o tratamento padrão do Spring (400 sem `errors`).
 
 ## Fitness functions
 

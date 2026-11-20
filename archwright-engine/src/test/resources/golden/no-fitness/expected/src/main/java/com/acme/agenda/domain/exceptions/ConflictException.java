@@ -1,4 +1,4 @@
-package com.acme.agenda.domain.exception;
+package com.acme.agenda.domain.exceptions;
 
 /**
  * A operação conflita com o estado atual, como um registro duplicado (HTTP 409).

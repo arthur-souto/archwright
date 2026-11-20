@@ -1,4 +1,4 @@
-package com.acme.agenda.domain.exception;
+package com.acme.clinicaapi.domain.exceptions;
 
 /**
  * Uma regra de negócio foi violada (HTTP 422).

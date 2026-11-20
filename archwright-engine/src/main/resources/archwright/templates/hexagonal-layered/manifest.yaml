@@ -10,7 +10,7 @@ packages:
 
   - package: domain
     description: "Camada de domínio: regras e modelo de negócio. Java puro, sem Spring, JPA nem Lombok."
-  - package: domain.exception
+  - package: domain.exceptions
     description: "Exceções de domínio: a base e as padrão (recurso não encontrado, conflito, regra de negócio)."
   - package: domain.model
     description: "Modelo de domínio, agrupado por agregado."
@@ -20,7 +20,7 @@ packages:
 
   - package: application
     description: "Camada de aplicação: casos de uso e portas."
-  - package: application.exception
+  - package: application.exceptions
     description: "Exceções da camada de aplicação."
   - package: application.port
     description: "Portas da camada de aplicação."

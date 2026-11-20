@@ -1,4 +1,4 @@
-package com.acme.clinicaapi.domain.exception;
+package com.acme.clinicaapi.domain.exceptions;
 
 /**
  * Base das exceções de domínio. Java puro, sem framework.
