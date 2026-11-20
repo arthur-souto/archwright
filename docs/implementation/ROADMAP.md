@@ -57,7 +57,7 @@ Ordem pensada para que cada passo seja testável sozinho, do domínio para as bo
 - [x] Perfil Maven `installer` com `jpackage`: `.dmg` gerado, instalado e aberto no macOS (sem assinatura).
 - [x] `jpackage` no CI para Windows, macOS e Linux: workflow `installers.yml` roda nos quatro alvos (macOS arm64 e Intel, Windows, Linux) e gera `.dmg`, `.msi` e `.deb`.
 - [ ] Instalar e abrir o `.msi` (Windows) e o `.deb` (Linux) numa máquina de verdade.
-- [x] GitHub Releases com instaladores e notas de versão: o job `release` publica um pré-lançamento a partir de uma tag `v*`. [v0.1.0](https://github.com/arthur-souto/archwright/releases/tag/v0.1.0) saiu com os quatro instaladores, e a [v0.2.0](https://github.com/arthur-souto/archwright/releases/tag/v0.2.0) trouxe a interface nova.
+- [x] GitHub Releases com instaladores e notas de versão: o job `release` publica um pré-lançamento a partir de uma tag `v*`. [v0.1.0](https://github.com/arthur-souto/archwright/releases/tag/v0.1.0) saiu com os quatro instaladores, a [v0.2.0](https://github.com/arthur-souto/archwright/releases/tag/v0.2.0) trouxe a interface nova, e a [v0.3.0](https://github.com/arthur-souto/archwright/releases/tag/v0.3.0) trouxe as exceções padrão, o `GlobalExceptionHandler` e os pacotes de persistência só com `jpa`.
 - [ ] Publicar `archwright-engine` no Maven Central (`io.github.arthursouto`).
 - [ ] Política de versão (SemVer), incluindo o número do instalador (hoje fixo em `1.0.0` nos arquivos `jpackage-<so>.txt`, por causa do macOS), e atualização dos perfis a cada nova linha do Spring Boot.
 - [ ] Assinatura e notarização dos instaladores (Apple Developer no macOS, certificado de código no Windows).

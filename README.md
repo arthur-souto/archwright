@@ -4,7 +4,7 @@
 
 *Architecture-first project generator for Spring Boot — hexagonal today, more styles soon. Fitness functions included.*
 
-> **Pré-lançamento [v0.2.0](https://github.com/arthur-souto/archwright/releases/tag/v0.2.0).** O motor e o app desktop funcionam (a v0.2.0 traz a interface nova, com tela de início, histórico e documentação), e há instaladores para macOS, Windows e Linux. Eles ainda não são assinados (o sistema mostra um aviso na primeira abertura) e o do Windows e o do Linux ainda não foram testados em máquina real. Veja [o que ainda falta](#limitações-conhecidas).
+> **Pré-lançamento [v0.3.0](https://github.com/arthur-souto/archwright/releases/tag/v0.3.0).** O motor e o app desktop funcionam (a v0.3.0 faz o projeto gerado já vir com as exceções padrão e o tratamento de erros HTTP), e há instaladores para macOS, Windows e Linux. Eles ainda não são assinados (o sistema mostra um aviso na primeira abertura) e o do Windows e o do Linux ainda não foram testados em máquina real. Veja [o que ainda falta](#limitações-conhecidas).
 
 ![Tela de início do Archwright](docs/images/tela-inicio.png)
 
@@ -62,7 +62,20 @@ Na tela de início ficam os modelos de início rápido, os projetos recentes e a
 | Hexagonal em camadas | uma hexagonal só: `domain`, `application`, `infrastructure`, com os agregados em `domain.model` | disponível |
 | Clean, Onion, camadas tradicionais | — | [Fase 5](docs/implementation/ROADMAP.md#fase-5--novos-estilos-de-arquitetura) |
 
+Os dois estilos já geram, em Java puro, as exceções padrão (`DomainException`, `ResourceNotFoundException`, `ConflictException` e `BusinessRuleException`) e, com a dependência `web`, um `GlobalExceptionHandler` que as traduz em respostas HTTP no formato `problem+json` (RFC 9457), inclusive no Spring Boot 2.7. Os pacotes de persistência só existem quando o projeto usa `jpa`.
+
 O que cada estilo gera, arquivo por arquivo, está em [Projeto gerado](docs/contracts/GENERATED_PROJECT.md).
+
+## Novidades da v0.3.0
+
+- **Exceções padrão no projeto gerado:** `DomainException`, `ResourceNotFoundException` (404), `ConflictException` (409) e `BusinessRuleException` (422), em Java puro. No estilo modular ficam em `shared.domain.exceptions`; no em camadas, em `domain.exceptions`.
+- **`GlobalExceptionHandler`** (com a dependência `web`): traduz as exceções em respostas `application/problem+json` (RFC 9457). Falhas inesperadas viram 500 sem expor detalhes internos.
+  - Spring Boot 3 e 4 usam `ProblemDetail`; o 2.7, que não tem essa classe, usa um `ApiError` com os mesmos campos.
+  - Falhas de validação (`@Valid`, `ConstraintViolationException` e, no Spring 6.1+, `HandlerMethodValidationException`) voltam em 400 com a lista `errors` de campo e mensagem.
+  - No Boot 2.7, 3.0 e 3.1, rota inexistente também vira 404 no mesmo formato.
+- **Pacotes de persistência só com `jpa`:** sem a dependência, não saem mais `persistence`, `entity` e `jpa`.
+- **Lombok fixado numa versão recente**, para o projeto gerado compilar também no JDK 24 e 25.
+- **CI mais firme:** a matriz de compilação tenta o download do Maven até 3 vezes. Ela cobre 53 combinações de Spring Boot, estilo e kit, e tudo passou antes da release.
 
 ## Depois de gerar
 
