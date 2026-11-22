@@ -65,7 +65,11 @@ jobs:
           max_attempts=6
           for attempt in $(seq 1 $max_attempts); do
             mirror="${mirrors[$(( (attempt - 1) % ${#mirrors[@]} ))]}"
-            MVNW_REPOURL="$mirror" ./mvnw -B -v && exit 0
+            if MVNW_REPOURL="$mirror" ./mvnw -B -v; then
+              # O wrapper guarda o Maven por URL; os próximos passos precisam do mesmo espelho.
+              echo "MVNW_REPOURL=$mirror" >> "$GITHUB_ENV"
+              exit 0
+            fi
             echo "Download do Maven falhou em $mirror (tentativa $attempt de $max_attempts)"
             if [ "$attempt" -lt "$max_attempts" ]; then
               sleep $((attempt * 10))
