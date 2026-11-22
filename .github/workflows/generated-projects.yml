@@ -51,14 +51,29 @@ jobs:
           java-version: ${{ matrix.jdk }}
           cache: maven
           cache-dependency-path: generated/${{ matrix.name }}/matrix-app/pom.xml
-      - name: Baixar o Maven (até 3 tentativas)
+      - name: Baixar o Maven (com tentativas e espelhos)
         working-directory: generated/${{ matrix.name }}/matrix-app
         run: |
           chmod +x mvnw
-          for attempt in 1 2 3; do
-            ./mvnw -B -v && exit 0
-            echo "Download do Maven falhou (tentativa $attempt de 3)"
-            sleep $((attempt * 15))
+          # O wrapper aceita MVNW_REPOURL; alterna entre o Maven Central e espelhos
+          # porque, quando o runner não alcança um host, esperar não resolve.
+          mirrors=(
+            "https://repo.maven.apache.org/maven2"
+            "https://repo1.maven.org/maven2"
+            "https://maven-central.storage-download.googleapis.com/maven2"
+          )
+          max_attempts=6
+          for attempt in $(seq 1 $max_attempts); do
+            mirror="${mirrors[$(( (attempt - 1) % ${#mirrors[@]} ))]}"
+            if MVNW_REPOURL="$mirror" ./mvnw -B -v; then
+              # O wrapper guarda o Maven por URL; os próximos passos precisam do mesmo espelho.
+              echo "MVNW_REPOURL=$mirror" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "Download do Maven falhou em $mirror (tentativa $attempt de $max_attempts)"
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              sleep $((attempt * 10))
+            fi
           done
           exit 1
       - name: Build e fitness functions do projeto gerado
