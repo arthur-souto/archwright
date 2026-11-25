@@ -15,7 +15,7 @@
     <description>App JavaFX + AtlantaFX que só coleta escolhas e chama o engine (ADR-0002).</description>
 
     <properties>
-        <javafx.version>27.0.1</javafx.version>
+        <javafx.version>27.0.1.1</javafx.version>
         <atlantafx.version>3.0.0</atlantafx.version>
         <exec-maven-plugin.version>3.7.0</exec-maven-plugin.version>
         <desktop.main-class>io.github.arthursouto.archwright.desktop.Launcher</desktop.main-class>
