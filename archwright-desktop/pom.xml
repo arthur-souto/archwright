@@ -19,7 +19,7 @@
         <atlantafx.version>3.0.0</atlantafx.version>
         <exec-maven-plugin.version>3.7.0</exec-maven-plugin.version>
         <desktop.main-class>io.github.arthursouto.archwright.desktop.Launcher</desktop.main-class>
-        <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.11.0</maven-dependency-plugin.version>
         <installer.input>${project.build.directory}/installer/input</installer.input>
     </properties>
 
