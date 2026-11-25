@@ -35,7 +35,7 @@ jobs:
           for file in *; do
             mv "$file" "${file%.*}-${{ matrix.label }}.${file##*.}"
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: archwright-${{ matrix.label }}
           path: archwright-desktop/target/installer/dist/*
